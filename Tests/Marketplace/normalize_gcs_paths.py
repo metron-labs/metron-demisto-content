@@ -5,7 +5,8 @@ import json
 import tempfile
 import logging
 from Tests.Marketplace.upload_packs import init_storage_client, download_and_extract_index, upload_index_to_storage
-from Tests.Marketplace.marketplace_services import GCPConfig, Pack
+from Tests.Marketplace.marketplace_services import Pack
+from Tests.Marketplace.marketplace_constants import GCPConfig
 from Tests.scripts.utils.log_util import install_logging
 
 

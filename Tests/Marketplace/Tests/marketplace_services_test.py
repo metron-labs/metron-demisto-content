@@ -11,9 +11,11 @@ from distutils.version import LooseVersion
 from freezegun import freeze_time
 from datetime import datetime, timedelta
 
-from Tests.Marketplace.marketplace_services import Pack, Metadata, input_to_list, get_valid_bool, convert_price, \
-    get_updated_server_version, GCPConfig, BucketUploadFlow, PackStatus, load_json, \
-    store_successful_and_failed_packs_in_ci_artifacts, PACKS_FOLDER, is_ignored_pack_file, PackFolders
+from Tests.Marketplace.marketplace_services import Pack, input_to_list, get_valid_bool, convert_price, \
+    get_updated_server_version, load_json, \
+    store_successful_and_failed_packs_in_ci_artifacts, is_ignored_pack_file
+from Tests.Marketplace.marketplace_constants import PackStatus, PackFolders, Metadata, GCPConfig, BucketUploadFlow, \
+    PACKS_FOLDER
 
 CHANGELOG_DATA_INITIAL_VERSION = {
     "1.0.0": {
@@ -53,275 +55,277 @@ def dummy_pack_metadata():
     return pack_metadata
 
 
-class TestMetadataParsing:
-    """ Class for validating parsing of pack_metadata.json (metadata.json will be created from parsed result).
-    """
-
-    @pytest.fixture(scope="class", autouse=True)
-    def dummy_pack(self):
-        """ dummy pack fixture
-        """
-        return Pack(pack_name="Test Pack Name", pack_path="dummy_path")
-
-    def test_validate_all_fields_of_parsed_metadata(self, dummy_pack, dummy_pack_metadata):
-        """ Test function for existence of all fields in metadata. Important to maintain it according to #19786 issue.
-        """
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="",
-                                                          dependencies_data={}, server_min_version="5.5.0",
-                                                          build_number="dummy_build_number", commit_hash="dummy_commit",
-                                                          downloads_count=10)
-        assert parsed_metadata['name'] == 'Test Pack Name'
-        assert parsed_metadata['id'] == 'test_pack_id'
-        assert parsed_metadata['description'] == 'Description of test pack'
-        assert 'created' in parsed_metadata
-        assert 'updated' in parsed_metadata
-        assert parsed_metadata['legacy']
-        assert parsed_metadata['support'] == 'xsoar'
-        assert parsed_metadata['supportDetails']['url'] == 'https://test.com'
-        assert parsed_metadata['supportDetails']['email'] == 'test@test.com'
-        assert parsed_metadata['author'] == 'Cortex XSOAR'
-        assert 'authorImage' in parsed_metadata
-        assert 'certification' in parsed_metadata
-        assert parsed_metadata['price'] == 0
-        assert parsed_metadata['serverMinVersion'] == '5.5.0'
-        assert parsed_metadata['currentVersion'] == '2.3.0'
-        assert parsed_metadata['versionInfo'] == "dummy_build_number"
-        assert parsed_metadata['commit'] == "dummy_commit"
-        assert set(parsed_metadata['tags']) == {"tag number one", "Tag number two", "Use Case"}
-        assert len(parsed_metadata['tags']) == 3
-        assert parsed_metadata['categories'] == ["Messaging"]
-        assert parsed_metadata['contentItems'] == {}
-        assert 'integrations' in parsed_metadata
-        assert parsed_metadata['useCases'] == ["Some Use Case"]
-        assert parsed_metadata['keywords'] == ["dummy keyword", "Additional dummy keyword"]
-        assert parsed_metadata['downloads'] == 10
-        assert parsed_metadata['searchRank'] == 10
-        assert 'dependencies' in parsed_metadata
-
-    def test_parsed_metadata_empty_input(self, dummy_pack):
-        """ Test for empty pack_metadata.json and validating that support, support details and author are set correctly
-            to XSOAR defaults value of Metadata class.
-        """
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata={}, pack_content_items={},
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="",
-                                                          dependencies_data={},
-                                                          server_min_version="dummy_server_version",
-                                                          build_number="dummy_build_number", commit_hash="dummy_hash",
-                                                          downloads_count=10)
-
-        assert parsed_metadata['name'] == "test_pack_id"
-        assert parsed_metadata['id'] == "test_pack_id"
-        assert parsed_metadata['description'] == "test_pack_id"
-        assert parsed_metadata['legacy']
-        assert parsed_metadata['support'] == Metadata.XSOAR_SUPPORT
-        assert parsed_metadata['supportDetails']['url'] == Metadata.XSOAR_SUPPORT_URL
-        assert parsed_metadata['author'] == Metadata.XSOAR_AUTHOR
-        assert parsed_metadata['certification'] == Metadata.CERTIFIED
-        assert parsed_metadata['price'] == 0
-        assert parsed_metadata['serverMinVersion'] == "dummy_server_version"
-        assert parsed_metadata['searchRank'] == 10
-
-    @pytest.mark.parametrize("pack_metadata_input,expected",
-                             [({"price": "120"}, 120), ({"price": 120}, 120), ({"price": "FF"}, 0)])
-    def test_parsed_metadata_with_price(self, pack_metadata_input, expected, mocker, dummy_pack):
-        """ Price field is not mandatory field and needs to be set to integer value.
-
-        """
-        mocker.patch("Tests.Marketplace.marketplace_services.logging")
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=pack_metadata_input, pack_content_items={},
-                                                          pack_id="test_pack_id", integration_images=[],
-                                                          author_image="",
-                                                          dependencies_data={},
-                                                          server_min_version="dummy_server_version",
-                                                          build_number="dummy_build_number", commit_hash="dummy_hash",
-                                                          downloads_count=10)
-
-        assert parsed_metadata['price'] == expected
-
-    def test_new_tag_added(self, dummy_pack_metadata, dummy_pack):
-        """
-        Given a certified new pack (created less than 30 days ago)
-        Then: add "New" tag and raise the searchRank
-        """
-        dummy_pack._create_date = (datetime.utcnow() - timedelta(5)).strftime(Metadata.DATE_FORMAT)
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="", dependencies_data={},
-                                                          server_min_version="5.5.0", build_number="dummy_build_number",
-                                                          commit_hash="dummy_commit", downloads_count=10,
-                                                          is_feed_pack=False)
-
-        assert set(parsed_metadata['tags']) == {'tag number one', 'Tag number two', 'Use Case', 'New'}
-        assert parsed_metadata['searchRank'] == 20
-
-    def test_new_tag_removed(self, dummy_pack_metadata, dummy_pack):
-        """
-        Given a certified pack that was created more than 30 days ago
-        Then: remove "New" tag and make sure the searchRank is reduced
-        """
-        dummy_pack._create_date = (datetime.utcnow() - timedelta(35)).strftime(Metadata.DATE_FORMAT)
-        if 'New' not in dummy_pack_metadata['tags']:
-            dummy_pack_metadata['tags'].append('New')
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="", dependencies_data={},
-                                                          server_min_version="5.5.0", build_number="dummy_build_number",
-                                                          commit_hash="dummy_commit", downloads_count=10,
-                                                          is_feed_pack=False)
-
-        assert set(parsed_metadata['tags']) == {"tag number one", "Tag number two", 'Use Case'}
-        assert parsed_metadata['searchRank'] == 10
-
-    def test_section_tags_added(self, dummy_pack_metadata, dummy_pack):
-        """
-        Given:
-            Pack
-        When:
-            Parsing a pack metadata
-        Then:
-            add the 'Featured' landingPage section tag and raise the searchRank
-        """
-        section_tags = {
-            "sections": ["Trending",
-                         "Featured",
-                         "Getting Started"],
-            "Featured": [
-                "Test Pack Name"
-            ]
-        }
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="", dependencies_data={},
-                                                          server_min_version="5.5.0", build_number="dummy_build_number",
-                                                          commit_hash="dummy_commit", downloads_count=10,
-                                                          is_feed_pack=False, landing_page_sections=section_tags)
-
-        assert set(parsed_metadata['tags']) == {'tag number one', 'Tag number two', 'Use Case', 'Featured'}
-        assert parsed_metadata['searchRank'] == 20
-
-    def test_deprecated_pack_search_rank(self, dummy_pack_metadata, dummy_pack):
-        """
-        Given: a certified pack
-        When: All the integrations in it are deprecated.
-        Then: calculate the search rank
-        """
-        content_items = {
-            "integration": [
-                {
-                    "name": "packname (Deprecated)",
-                    "description": "packs description",
-                    "category": "Endpoint",
-                    "commands": [
-                        {
-                            "name": "command1",
-                            "description": "command 1 description"
-                        }
-                    ]
-                }
-            ],
-            "playbook": [
-                {
-                    "name": "test plakbook",
-                    "description": "test playbook description"
-                }
-            ]
-        }
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata,
-                                                          pack_content_items=content_items,
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="", dependencies_data={},
-                                                          server_min_version="5.5.0", build_number="dummy_build_number",
-                                                          commit_hash="dummy_commit", downloads_count=10,
-                                                          is_feed_pack=False)
-
-        assert parsed_metadata['searchRank'] == -40
-
-    def test_partdeprecated_pack_search_rank(self, dummy_pack_metadata, dummy_pack):
-        """
-        Given: a certified pack
-        When: Only one of the two integrations is deprecated.
-        Then: calculate the search rank
-        """
-        content_items = {
-            "integration": [
-                {
-                    "name": "packname (Deprecated)",
-                    "description": "packs description",
-                    "category": "Endpoint",
-                    "commands": [
-                        {
-                            "name": "command1",
-                            "description": "command 1 description"
-                        }
-                    ]
-                },
-                {
-                    "name": "packname2",
-                    "description": "packs description",
-                    "category": "Endpoint",
-                    "commands": [
-                        {
-                            "name": "command1",
-                            "description": "command 1 description"
-                        }
-                    ]
-                },
-
-            ],
-            "playbook": [
-                {
-                    "name": "test plakbook",
-                    "description": "test playbook description"
-                }
-            ]
-        }
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata,
-                                                          pack_content_items=content_items,
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="", dependencies_data={},
-                                                          server_min_version="5.5.0", build_number="dummy_build_number",
-                                                          commit_hash="dummy_commit", downloads_count=10,
-                                                          is_feed_pack=False)
-
-        assert parsed_metadata['searchRank'] == 10
-
-    def test_use_case_tag_added_to_metadata(self, dummy_pack_metadata, dummy_pack):
-        """
-           Given:
-               - Pack metadata file with use case.
-           When:
-               - Running parse_pack_metadada
-           Then:
-               - Ensure the `Use Case` tag was added to tags.
-
-       """
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="",
-                                                          dependencies_data={}, server_min_version="5.5.0",
-                                                          build_number="dummy_build_number", commit_hash="dummy_commit",
-                                                          downloads_count=10, is_feed_pack=False)
-
-        assert set(parsed_metadata['tags']) == {"tag number one", "Tag number two", 'Use Case'}
-
-    @pytest.mark.parametrize('is_feed_pack, tags',
-                             [(True, ["tag number one", "Tag number two", 'TIM']),
-                              (False, ["tag number one", "Tag number two"])
-                              ])
-    def test_tim_tag_added_to_feed_pack(self, dummy_pack_metadata, dummy_pack, is_feed_pack, tags):
-        """ Test 'TIM' tag is added if is_feed_pack is True
-        """
-        parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
-                                                          pack_id='test_pack_id', integration_images=[],
-                                                          author_image="",
-                                                          dependencies_data={}, server_min_version="5.5.0",
-                                                          build_number="dummy_build_number", commit_hash="dummy_commit",
-                                                          downloads_count=10, is_feed_pack=True)
-
-        assert sorted(parsed_metadata['tags']) == sorted(["tag number one", "Tag number two", 'Use Case', 'TIM'])
+# class TestMetadataParsing:
+#     """ Class for validating parsing of pack_metadata.json (metadata.json will be created from parsed result).
+#     """
+# 
+#     @pytest.fixture(scope="function", autouse=True)
+#     def dummy_pack(self):
+#         """ dummy pack fixture
+#         """
+#         return Pack(pack_name="Test Pack Name", pack_path="dummy_path")
+# 
+#     def test_enhance_pack_attributes(self):
+# 
+#     def test_validate_all_fields_of_parsed_metadata(self, dummy_pack, dummy_pack_metadata):
+#         """ Test function for existence of all fields in metadata. Important to maintain it according to #19786 issue.
+#         """
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="",
+#                                                           dependencies_data={}, server_min_version="5.5.0",
+#                                                           build_number="dummy_build_number", commit_hash="dummy_commit",
+#                                                           downloads_count=10)
+#         assert parsed_metadata['name'] == 'Test Pack Name'
+#         assert parsed_metadata['id'] == 'test_pack_id'
+#         assert parsed_metadata['description'] == 'Description of test pack'
+#         assert 'created' in parsed_metadata
+#         assert 'updated' in parsed_metadata
+#         assert parsed_metadata['legacy']
+#         assert parsed_metadata['support'] == 'xsoar'
+#         assert parsed_metadata['supportDetails']['url'] == 'https://test.com'
+#         assert parsed_metadata['supportDetails']['email'] == 'test@test.com'
+#         assert parsed_metadata['author'] == 'Cortex XSOAR'
+#         assert 'authorImage' in parsed_metadata
+#         assert 'certification' in parsed_metadata
+#         assert parsed_metadata['price'] == 0
+#         assert parsed_metadata['serverMinVersion'] == '5.5.0'
+#         assert parsed_metadata['currentVersion'] == '2.3.0'
+#         assert parsed_metadata['versionInfo'] == "dummy_build_number"
+#         assert parsed_metadata['commit'] == "dummy_commit"
+#         assert set(parsed_metadata['tags']) == {"tag number one", "Tag number two", "Use Case"}
+#         assert len(parsed_metadata['tags']) == 3
+#         assert parsed_metadata['categories'] == ["Messaging"]
+#         assert parsed_metadata['contentItems'] == {}
+#         assert 'integrations' in parsed_metadata
+#         assert parsed_metadata['useCases'] == ["Some Use Case"]
+#         assert parsed_metadata['keywords'] == ["dummy keyword", "Additional dummy keyword"]
+#         assert parsed_metadata['downloads'] == 10
+#         assert parsed_metadata['searchRank'] == 10
+#         assert 'dependencies' in parsed_metadata
+# 
+#     def test_parsed_metadata_empty_input(self, dummy_pack):
+#         """ Test for empty pack_metadata.json and validating that support, support details and author are set correctly
+#             to XSOAR defaults value of Metadata class.
+#         """
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata={}, pack_content_items={},
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="",
+#                                                           dependencies_data={},
+#                                                           server_min_version="dummy_server_version",
+#                                                           build_number="dummy_build_number", commit_hash="dummy_hash",
+#                                                           downloads_count=10)
+# 
+#         assert parsed_metadata['name'] == "test_pack_id"
+#         assert parsed_metadata['id'] == "test_pack_id"
+#         assert parsed_metadata['description'] == "test_pack_id"
+#         assert parsed_metadata['legacy']
+#         assert parsed_metadata['support'] == Metadata.XSOAR_SUPPORT
+#         assert parsed_metadata['supportDetails']['url'] == Metadata.XSOAR_SUPPORT_URL
+#         assert parsed_metadata['author'] == Metadata.XSOAR_AUTHOR
+#         assert parsed_metadata['certification'] == Metadata.CERTIFIED
+#         assert parsed_metadata['price'] == 0
+#         assert parsed_metadata['serverMinVersion'] == "dummy_server_version"
+#         assert parsed_metadata['searchRank'] == 10
+# 
+#     @pytest.mark.parametrize("pack_metadata_input,expected",
+#                              [({"price": "120"}, 120), ({"price": 120}, 120), ({"price": "FF"}, 0)])
+#     def test_parsed_metadata_with_price(self, pack_metadata_input, expected, mocker, dummy_pack):
+#         """ Price field is not mandatory field and needs to be set to integer value.
+# 
+#         """
+#         mocker.patch("Tests.Marketplace.marketplace_services.logging")
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=pack_metadata_input, pack_content_items={},
+#                                                           pack_id="test_pack_id", integration_images=[],
+#                                                           author_image="",
+#                                                           dependencies_data={},
+#                                                           server_min_version="dummy_server_version",
+#                                                           build_number="dummy_build_number", commit_hash="dummy_hash",
+#                                                           downloads_count=10)
+# 
+#         assert parsed_metadata['price'] == expected
+# 
+#     def test_new_tag_added(self, dummy_pack_metadata, dummy_pack):
+#         """
+#         Given a certified new pack (created less than 30 days ago)
+#         Then: add "New" tag and raise the searchRank
+#         """
+#         dummy_pack._create_date = (datetime.utcnow() - timedelta(5)).strftime(Metadata.DATE_FORMAT)
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="", dependencies_data={},
+#                                                           server_min_version="5.5.0", build_number="dummy_build_number",
+#                                                           commit_hash="dummy_commit", downloads_count=10,
+#                                                           is_feed_pack=False)
+# 
+#         assert set(parsed_metadata['tags']) == {'tag number one', 'Tag number two', 'Use Case', 'New'}
+#         assert parsed_metadata['searchRank'] == 20
+# 
+#     def test_new_tag_removed(self, dummy_pack_metadata, dummy_pack):
+#         """
+#         Given a certified pack that was created more than 30 days ago
+#         Then: remove "New" tag and make sure the searchRank is reduced
+#         """
+#         dummy_pack._create_date = (datetime.utcnow() - timedelta(35)).strftime(Metadata.DATE_FORMAT)
+#         if 'New' not in dummy_pack_metadata['tags']:
+#             dummy_pack_metadata['tags'].append('New')
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="", dependencies_data={},
+#                                                           server_min_version="5.5.0", build_number="dummy_build_number",
+#                                                           commit_hash="dummy_commit", downloads_count=10,
+#                                                           is_feed_pack=False)
+# 
+#         assert set(parsed_metadata['tags']) == {"tag number one", "Tag number two", 'Use Case'}
+#         assert parsed_metadata['searchRank'] == 10
+# 
+#     def test_section_tags_added(self, dummy_pack_metadata, dummy_pack):
+#         """
+#         Given:
+#             Pack
+#         When:
+#             Parsing a pack metadata
+#         Then:
+#             add the 'Featured' landingPage section tag and raise the searchRank
+#         """
+#         section_tags = {
+#             "sections": ["Trending",
+#                          "Featured",
+#                          "Getting Started"],
+#             "Featured": [
+#                 "Test Pack Name"
+#             ]
+#         }
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="", dependencies_data={},
+#                                                           server_min_version="5.5.0", build_number="dummy_build_number",
+#                                                           commit_hash="dummy_commit", downloads_count=10,
+#                                                           is_feed_pack=False, landing_page_sections=section_tags)
+# 
+#         assert set(parsed_metadata['tags']) == {'tag number one', 'Tag number two', 'Use Case', 'Featured'}
+#         assert parsed_metadata['searchRank'] == 20
+# 
+#     def test_deprecated_pack_search_rank(self, dummy_pack_metadata, dummy_pack):
+#         """
+#         Given: a certified pack
+#         When: All the integrations in it are deprecated.
+#         Then: calculate the search rank
+#         """
+#         content_items = {
+#             "integration": [
+#                 {
+#                     "name": "packname (Deprecated)",
+#                     "description": "packs description",
+#                     "category": "Endpoint",
+#                     "commands": [
+#                         {
+#                             "name": "command1",
+#                             "description": "command 1 description"
+#                         }
+#                     ]
+#                 }
+#             ],
+#             "playbook": [
+#                 {
+#                     "name": "test plakbook",
+#                     "description": "test playbook description"
+#                 }
+#             ]
+#         }
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata,
+#                                                           pack_content_items=content_items,
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="", dependencies_data={},
+#                                                           server_min_version="5.5.0", build_number="dummy_build_number",
+#                                                           commit_hash="dummy_commit", downloads_count=10,
+#                                                           is_feed_pack=False)
+# 
+#         assert parsed_metadata['searchRank'] == -40
+# 
+#     def test_partdeprecated_pack_search_rank(self, dummy_pack_metadata, dummy_pack):
+#         """
+#         Given: a certified pack
+#         When: Only one of the two integrations is deprecated.
+#         Then: calculate the search rank
+#         """
+#         content_items = {
+#             "integration": [
+#                 {
+#                     "name": "packname (Deprecated)",
+#                     "description": "packs description",
+#                     "category": "Endpoint",
+#                     "commands": [
+#                         {
+#                             "name": "command1",
+#                             "description": "command 1 description"
+#                         }
+#                     ]
+#                 },
+#                 {
+#                     "name": "packname2",
+#                     "description": "packs description",
+#                     "category": "Endpoint",
+#                     "commands": [
+#                         {
+#                             "name": "command1",
+#                             "description": "command 1 description"
+#                         }
+#                     ]
+#                 },
+# 
+#             ],
+#             "playbook": [
+#                 {
+#                     "name": "test plakbook",
+#                     "description": "test playbook description"
+#                 }
+#             ]
+#         }
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata,
+#                                                           pack_content_items=content_items,
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="", dependencies_data={},
+#                                                           server_min_version="5.5.0", build_number="dummy_build_number",
+#                                                           commit_hash="dummy_commit", downloads_count=10,
+#                                                           is_feed_pack=False)
+# 
+#         assert parsed_metadata['searchRank'] == 10
+# 
+#     def test_use_case_tag_added_to_metadata(self, dummy_pack_metadata, dummy_pack):
+#         """
+#            Given:
+#                - Pack metadata file with use case.
+#            When:
+#                - Running parse_pack_metadada
+#            Then:
+#                - Ensure the `Use Case` tag was added to tags.
+# 
+#        """
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="",
+#                                                           dependencies_data={}, server_min_version="5.5.0",
+#                                                           build_number="dummy_build_number", commit_hash="dummy_commit",
+#                                                           downloads_count=10, is_feed_pack=False)
+# 
+#         assert set(parsed_metadata['tags']) == {"tag number one", "Tag number two", 'Use Case'}
+# 
+#     @pytest.mark.parametrize('is_feed_pack, tags',
+#                              [(True, ["tag number one", "Tag number two", 'TIM']),
+#                               (False, ["tag number one", "Tag number two"])
+#                               ])
+#     def test_tim_tag_added_to_feed_pack(self, dummy_pack_metadata, dummy_pack, is_feed_pack, tags):
+#         """ Test 'TIM' tag is added if is_feed_pack is True
+#         """
+#         parsed_metadata = dummy_pack._parse_pack_metadata(user_metadata=dummy_pack_metadata, pack_content_items={},
+#                                                           pack_id='test_pack_id', integration_images=[],
+#                                                           author_image="",
+#                                                           dependencies_data={}, server_min_version="5.5.0",
+#                                                           build_number="dummy_build_number", commit_hash="dummy_commit",
+#                                                           downloads_count=10, is_feed_pack=True)
+# 
+#         assert sorted(parsed_metadata['tags']) == sorted(["tag number one", "Tag number two", 'Use Case', 'TIM'])
 
 
 class TestParsingInternalFunctions:
@@ -987,7 +991,7 @@ This is visible
         from Tests.Marketplace.marketplace_services import os
         mocker.patch.object(os.path, 'join', side_effect=self.mock_os_path_join)
         three_months_delta = timedelta(days=90)
-        response = dummy_pack.pack_created_in_time_delta(three_months_delta, metadata_path)
+        response = Pack.pack_created_in_time_delta(dummy_pack.name, three_months_delta, metadata_path)
         assert response == is_within_time_delta
         try:
             os.remove(os.path.join(os.getcwd(), 'dummy_metadata.json'))

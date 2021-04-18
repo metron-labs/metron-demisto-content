@@ -10,6 +10,7 @@
 /Tests/Marketplace/configure_and_install_packs.py @guyfreund
 /Tests/Marketplace/copy_and_upload_packs.py @guyfreund
 /Tests/Marketplace/marketplace_services.py @guyfreund
+/Tests/Marketplace/marketplace_constants.py @guyfreund
 /Tests/Marketplace/zip_packs.py @guyfreund
 /Tests/Marketplace/upload_packs.py @guyfreund
 /Tests/Marketplace/packs_dependencies.py @guyfreund
