@@ -166,6 +166,7 @@ def test_return_campaign_details_entry_list_dumped_recipients_cc(mocker):
             assert extract_domain(recipient) in context_incident['recipientsdomain']
         assert original_incident['fromdomain'] == context_incident['emailfromdomain']
 
+
 ADDITIONAL_CONTET_KEYS_PARAMETRIZE = [
     (['name', 'emailfrom', 'emailto', 'severity', 'status', 'created'], []),
     (['name_', 'emailfrom', 'emailto', 'severity1', 'status', 'created'], ['name_', 'severity1']),
