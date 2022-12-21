@@ -444,6 +444,7 @@ def query_malops_command():
     filters = json.loads(demisto.getArg('filters')) if demisto.getArg('filters') else []
     within_last_days = demisto.getArg('withinLastDays')
     guid_list = argToList(demisto.getArg('malopGuid'))
+    enable_epp = demisto.getArg('EnableEppPoll')
 
     if within_last_days:
         current_timestamp = time.time()
@@ -516,7 +517,14 @@ def query_malops_command():
                 'InvolvedHash': involved_hashes
             }
             outputs.append(malop_output)
-
+    
+    your_response=rest_malops()
+    enable_epp = False
+    if enable_epp:
+        for malop in your_response["malops"]:
+            if malop['edr']==False:
+                 data[malop['guid']] =  malop
+        
     ec = {
         'Cybereason.Malops(val.GUID && val.GUID === obj.GUID)': outputs
     }
@@ -535,30 +543,61 @@ def query_malops_command():
     })
 
 
+def rest_malops():
+
+    start_time = round((datetime.now() - timedelta(days=30)).timestamp())*1000
+    end_time = round(datetime.now().timestamp())*1000
+
+    json_body = {"startTime":start_time,"endTime":end_time}
+    api_response = http_request('POST', '/rest/detection/inbox', json_body=json_body) 
+    return api_response
+
+
+def get_edr_guid():
+    malop_list = rest_malops()
+    edr_malop_guid = list()
+    non_edr_list = list()
+
+    for guid in malop_list['malops']:
+        if guid['edr']:
+            edr_malop_guid.append(guid['guid'])
+        else:
+            non_edr_list.append(guid)
+    return edr_malop_guid
+
 def query_malops(total_result_limit=None, per_group_limit=None, template_context=None, filters=None, guid_list=None):
+    
+    guid_list = get_edr_guid()
+    
+    #malops_dict ={}
+    
     json_body = {
-        'totalResultLimit': int(total_result_limit) if total_result_limit else 10000,
-        'perGroupLimit': int(per_group_limit) if per_group_limit else 10000,
-        'perFeatureLimit': 100,
-        'templateContext': template_context or 'MALOP',
-        'queryPath': [
-            {
-                'requestedType': None,
-                'guidList': guid_list,
-                'result': True,
-                'filters': filters
-            }
+    'totalResultLimit': int(total_result_limit) if total_result_limit else 10000,
+    'perGroupLimit': int(per_group_limit) if per_group_limit else 10000,
+    'perFeatureLimit': 100,
+    'templateContext': template_context or 'MALOP',
+    'queryPath': [
+        {
+            'requestedType': None,
+            'guidList': guid_list,
+            'result': True,
+            'filters': filters
+        }
         ]
-    }
+        }
     # By Cybereason documentation - Inorder to get all malops, The client should send 2 requests as follow:
     # First request - "MalopProcess"
     json_body['queryPath'][0]['requestedType'] = "MalopProcess"  # type: ignore
     malop_process_type = http_request('POST', '/rest/crimes/unified', json_body=json_body)
+    #malops_dict[malop['guid']] = malop_process_type["data"]["resultIdToElementDataMap"][malop['guid']]
+    
     # Second request - "MalopLogonSession"
     json_body['queryPath'][0]['requestedType'] = "MalopLogonSession"  # type: ignore
     malop_loggon_session_type = http_request('POST', '/rest/crimes/unified', json_body=json_body)
 
-    return malop_process_type, malop_loggon_session_type
+    return malop_process_type,malop_loggon_session_type
+        
+        
 
 
 def isolate_machine_command():
