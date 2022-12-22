@@ -28,6 +28,7 @@ FETCH_TIME_DEFAULT = '3 days'
 FETCH_TIME = demisto.params().get('fetch_time', FETCH_TIME_DEFAULT)
 FETCH_TIME = FETCH_TIME if FETCH_TIME and FETCH_TIME.strip() else FETCH_TIME_DEFAULT
 FETCH_BY = demisto.params().get('fetch_by', 'MALOP CREATION TIME')
+IS_EPP_ENABLED = not demisto.params().get('enable_epp_poll', False)
 
 STATUS_MAP = {
     'To Review': 'TODO',
@@ -444,7 +445,6 @@ def query_malops_command():
     filters = json.loads(demisto.getArg('filters')) if demisto.getArg('filters') else []
     within_last_days = demisto.getArg('withinLastDays')
     guid_list = argToList(demisto.getArg('malopGuid'))
-    enable_epp = demisto.getArg('EnableEppPoll')
 
     if within_last_days:
         current_timestamp = time.time()
@@ -517,14 +517,7 @@ def query_malops_command():
                 'InvolvedHash': involved_hashes
             }
             outputs.append(malop_output)
-    
-    your_response=rest_malops()
-    enable_epp = False
-    if enable_epp:
-        for malop in your_response["malops"]:
-            if malop['edr']==False:
-                 data[malop['guid']] =  malop
-        
+     
     ec = {
         'Cybereason.Malops(val.GUID && val.GUID === obj.GUID)': outputs
     }
@@ -543,18 +536,15 @@ def query_malops_command():
     })
 
 
-def rest_malops():
-
-    start_time = round((datetime.now() - timedelta(days=30)).timestamp())*1000
+def rest_malops(start_time):
     end_time = round(datetime.now().timestamp())*1000
-
     json_body = {"startTime":start_time,"endTime":end_time}
     api_response = http_request('POST', '/rest/detection/inbox', json_body=json_body) 
     return api_response
 
 
-def get_edr_guid():
-    malop_list = rest_malops()
+def get_non_edr_list(start_time):
+    malop_list = rest_malops(start_time)
     edr_malop_guid = list()
     non_edr_list = list()
 
@@ -563,13 +553,9 @@ def get_edr_guid():
             edr_malop_guid.append(guid['guid'])
         else:
             non_edr_list.append(guid)
-    return edr_malop_guid
+    return edr_malop_guid,non_edr_list
 
 def query_malops(total_result_limit=None, per_group_limit=None, template_context=None, filters=None, guid_list=None):
-    
-    guid_list = get_edr_guid()
-    
-    #malops_dict ={}
     
     json_body = {
     'totalResultLimit': int(total_result_limit) if total_result_limit else 10000,
@@ -1313,6 +1299,8 @@ def malop_to_incident(malop):
         raise ValueError("Cybereason raw response is not valid, malop is not dict")
 
     guid_string = malop.get('guidString', '')
+    if guid_string == "":
+        guid_string =  malop.get('guid', '')
     incident = {
         'rawJSON': json.dumps(malop),
         'name': 'Cybereason Malop ' + guid_string,
@@ -1330,7 +1318,7 @@ def fetch_incidents():
         # In first run
         last_update_time, _ = parse_date_range(FETCH_TIME, to_timestamp=True)
 
-    max_update_time = last_update_time
+    max_update_time = int(last_update_time)
 
     if FETCH_BY == 'MALOP UPDATE TIME':
         filters = [{
@@ -1359,12 +1347,26 @@ def fetch_incidents():
             simple_values = dict_safe_get(malop, ['simpleValues'], default_return_value={}, return_type=dict)
             simple_values.pop('iconBase64', None)
             simple_values.pop('malopActivityTypes', None)
-            malop_update_time = dict_safe_get(simple_values, ['malopLastUpdateTime', 'values', 0])
+            malop_update_time = int(dict_safe_get(simple_values, ['malopLastUpdateTime', 'values', 0]))
             if malop_update_time > max_update_time:
                 max_update_time = malop_update_time
 
             incident = malop_to_incident(malop)
             incidents.append(incident)
+    
+    ########for epp ##########
+    non_edr,edr = get_non_edr_list(last_update_time)
+    if IS_EPP_ENABLED:
+        for non_edr_malops in non_edr:
+            malop_update_time = non_edr_malops['lastUpdateTime']
+        
+            if malop_update_time > max_update_time:
+                max_update_time = malop_update_time
+
+            incident = malop_to_incident(non_edr_malops)
+            incidents.append(incident)
+        
+    
 
     demisto.setLastRun({
         'creation_time': max_update_time
