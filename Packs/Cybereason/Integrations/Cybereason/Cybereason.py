@@ -28,7 +28,7 @@ FETCH_TIME_DEFAULT = '3 days'
 FETCH_TIME = demisto.params().get('fetch_time', FETCH_TIME_DEFAULT)
 FETCH_TIME = FETCH_TIME if FETCH_TIME and FETCH_TIME.strip() else FETCH_TIME_DEFAULT
 FETCH_BY = demisto.params().get('fetch_by', 'MALOP CREATION TIME')
-IS_EPP_ENABLED = not demisto.params().get('enable_epp_poll', False)
+IS_EPP_ENABLED = demisto.params().get('enable_epp_poll', False)
 
 STATUS_MAP = {
     'To Review': 'TODO',
@@ -540,6 +540,7 @@ def rest_malops(start_time):
     end_time = round(datetime.now().timestamp())*1000
     json_body = {"startTime":start_time,"endTime":end_time}
     api_response = http_request('POST', '/rest/detection/inbox', json_body=json_body) 
+    demisto.debug(f"length of rest dectection malops : {len(api_response)}")
     return api_response
 
 
@@ -547,12 +548,15 @@ def get_non_edr_list(start_time):
     malop_list = rest_malops(start_time)
     edr_malop_guid = list()
     non_edr_list = list()
+    demisto.debug(f"start time in get_non_edr_list: {start_time}")
 
     for guid in malop_list['malops']:
         if guid['edr']:
             edr_malop_guid.append(guid['guid'])
         else:
             non_edr_list.append(guid)
+    demisto.debug(f"length of edr guid: {len(edr_malop_guid)}")
+    demisto.debug(f"length of non_edr: {len(non_edr_list)}")
     return edr_malop_guid,non_edr_list
 
 def query_malops(total_result_limit=None, per_group_limit=None, template_context=None, filters=None, guid_list=None):
@@ -580,7 +584,6 @@ def query_malops(total_result_limit=None, per_group_limit=None, template_context
     # Second request - "MalopLogonSession"
     json_body['queryPath'][0]['requestedType'] = "MalopLogonSession"  # type: ignore
     malop_loggon_session_type = http_request('POST', '/rest/crimes/unified', json_body=json_body)
-
     return malop_process_type,malop_loggon_session_type
         
         
@@ -1355,7 +1358,12 @@ def fetch_incidents():
             incidents.append(incident)
     
     ########for epp ##########
-    non_edr,edr = get_non_edr_list(last_update_time)
+    if last_run and last_run.get('creation_time'):
+        last_update_time = int(last_run.get('creation_time'))
+    else:
+        # In first run
+        last_update_time, _ = parse_date_range(FETCH_TIME, to_timestamp=True)
+    edr,non_edr = get_non_edr_list(last_update_time)
     if IS_EPP_ENABLED:
         for non_edr_malops in non_edr:
             malop_update_time = non_edr_malops['lastUpdateTime']
@@ -1365,6 +1373,7 @@ def fetch_incidents():
 
             incident = malop_to_incident(non_edr_malops)
             incidents.append(incident)
+        demisto.debug(f"length of incidents if epp in enabled : {len(incidents)}")
         
     
 
