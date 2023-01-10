@@ -27,6 +27,7 @@ FETCH_TIME = demisto.params().get('fetch_time', FETCH_TIME_DEFAULT)
 FETCH_TIME = FETCH_TIME if FETCH_TIME and FETCH_TIME.strip() else FETCH_TIME_DEFAULT
 FETCH_BY = demisto.params().get('fetch_by', 'MALOP CREATION TIME')
 IS_EPP_ENABLED = argToBoolean(demisto.params().get('enable_epp_poll', False))
+REMEDIATION_STATUS_LIST = ['SUCCESS', 'IN_PROGRESS']
 
 STATUS_MAP = {
     'To Review': 'TODO',
@@ -900,7 +901,7 @@ def kill_process_command(client: Client, args: dict):
     if is_machine_connected is True:
         response = get_remediation_action(client, malop_guid, machine_name, target_id, remediation_action)
         action_status = get_remediation_action_status(client, user_name, malop_guid, response, comment)
-        if dict_safe_get(action_status, ['Remediation status']) == 'SUCCESS':
+        if dict_safe_get(action_status, ['Remediation status']) in REMEDIATION_STATUS_LIST:
             success_response = f'''Kill process remediation action status is: {dict_safe_get(
                 action_status, ['Remediation status'])} \n Remediation ID: {dict_safe_get(action_status, ['Remediation ID'])}'''
             return CommandResults(readable_output=success_response)
@@ -924,7 +925,7 @@ def quarantine_file_command(client: Client, args: dict):
     if is_machine_connected is True:
         response = get_remediation_action(client, malop_guid, machine_name, target_id, remediation_action)
         action_status = get_remediation_action_status(client, user_name, malop_guid, response, comment)
-        if dict_safe_get(action_status, ['Remediation status']) == 'SUCCESS':
+        if dict_safe_get(action_status, ['Remediation status']) in REMEDIATION_STATUS_LIST:
             success_response = f'''Quarantine file remediation action status is: {dict_safe_get(
                 action_status, ['Remediation status'])} \n Remediation ID: {dict_safe_get(action_status, ['Remediation ID'])}'''
             return CommandResults(readable_output=success_response)
@@ -948,7 +949,7 @@ def unquarantine_file_command(client: Client, args: dict):
     if is_machine_connected is True:
         response = get_remediation_action(client, malop_guid, machine_name, target_id, remediation_action)
         action_status = get_remediation_action_status(client, user_name, malop_guid, response, comment)
-        if dict_safe_get(action_status, ['Remediation status']) == 'SUCCESS':
+        if dict_safe_get(action_status, ['Remediation status']) in REMEDIATION_STATUS_LIST:
             success_response = f'''Unquarantine file remediation action status is: {dict_safe_get(
                 action_status, ['Remediation status'])} \n Remediation ID: {dict_safe_get(action_status, ['Remediation ID'])}'''
             return CommandResults(readable_output=success_response)
@@ -972,7 +973,7 @@ def block_file_command(client: Client, args: dict):
     if is_machine_connected is True:
         response = get_remediation_action(client, malop_guid, machine_name, target_id, remediation_action)
         action_status = get_remediation_action_status(client, user_name, malop_guid, response, comment)
-        if dict_safe_get(action_status, ['Remediation status']) == 'SUCCESS':
+        if dict_safe_get(action_status, ['Remediation status']) in REMEDIATION_STATUS_LIST:
             success_response = f'''Block file remediation action status is: {dict_safe_get(
                 action_status, ['Remediation status'])} \n Remediation ID: {dict_safe_get(action_status, ['Remediation ID'])}'''
             return CommandResults(readable_output=success_response)
@@ -996,7 +997,7 @@ def delete_registry_key_command(client: Client, args: dict):
     if is_machine_connected is True:
         response = get_remediation_action(client, malop_guid, machine_name, target_id, remediation_action)
         action_status = get_remediation_action_status(client, user_name, malop_guid, response, comment)
-        if dict_safe_get(action_status, ['Remediation status']) == 'SUCCESS':
+        if dict_safe_get(action_status, ['Remediation status']) in REMEDIATION_STATUS_LIST:
             success_response = f'''Delete registry key remediation action status is: {dict_safe_get(
                 action_status, ['Remediation status'])} \n Remediation ID: {dict_safe_get(action_status, ['Remediation ID'])}'''
             return CommandResults(readable_output=success_response)
@@ -1020,7 +1021,7 @@ def kill_prevent_unsuspend_command(client: Client, args: dict):
     if is_machine_connected is True:
         response = get_remediation_action(client, malop_guid, machine_name, target_id, remediation_action)
         action_status = get_remediation_action_status(client, user_name, malop_guid, response, comment)
-        if dict_safe_get(action_status, ['Remediation status']) == 'SUCCESS':
+        if dict_safe_get(action_status, ['Remediation status']) in REMEDIATION_STATUS_LIST:
             success_response = f'''Kill prevent unsuspend remediation action status is: {dict_safe_get(
                 action_status, ['Remediation status'])} \n Remediation ID: {dict_safe_get(action_status, ['Remediation ID'])}'''
             return CommandResults(readable_output=success_response)
@@ -1044,7 +1045,7 @@ def unsuspend_process_command(client: Client, args: dict):
     if is_machine_connected is True:
         response = get_remediation_action(client, malop_guid, machine_name, target_id, remediation_action)
         action_status = get_remediation_action_status(client, user_name, malop_guid, response, comment)
-        if dict_safe_get(action_status, ['Remediation status']) == 'SUCCESS':
+        if dict_safe_get(action_status, ['Remediation status']) in REMEDIATION_STATUS_LIST:
             success_response = f'''Unsuspend process remediation action status is: {dict_safe_get(
                 action_status, ['Remediation status'])} \n Remediation ID: {dict_safe_get(action_status, ['Remediation ID'])}'''
             return CommandResults(readable_output=success_response)
