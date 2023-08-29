@@ -3293,7 +3293,7 @@ def fetch_threats(client: Client, args):
     threats = client.get_threats_request(limit=args.get('fetch_limit'),
                                          created_after=args.get('last_fetch_date_string'),
                                          site_ids=args.get('fetch_site_ids'),
-                                         incidentStatuses=','.join(args.get('fetch_threat_incident_statuses')))
+                                         incidentStatuses=','.join(args.get('fetch_threat_incident_statuses')).lower())
     for threat in threats:
         rank = threat.get('rank')
         threat.update(get_mirroring_fields(args))

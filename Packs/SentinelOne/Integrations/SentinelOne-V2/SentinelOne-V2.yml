@@ -68,9 +68,9 @@ configuration:
   display: Define which Threats should be fetched.
   type: 16
   options:
-  - in_progress
-  - resolved
-  - unresolved
+  - RESOLVED
+  - UNRESOLVED
+  - IN_PROGRESS
   required: false
 - name: fetch_limit
   display: 'Fetch limit: The maximum number of threats or alerts to fetch'
@@ -2311,7 +2311,7 @@ script:
       description: IP Address
     - contextPath: SentinelOne.MAC.mac
       description: MAC Address
-  dockerimage: demisto/python3:3.10.13.72123
+  dockerimage: demisto/python3:3.10.12.68714
   isfetch: true
   ismappable: true
   isremotesyncin: true
