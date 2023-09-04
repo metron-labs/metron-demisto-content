@@ -10,7 +10,7 @@ configuration:
   name: base_url
   type: 0
   required: true
-  additionalinfo: This is base URL for your instance. it can be with pattern https://companyname.safebreach.com
+  additionalinfo: This is base URL for your instance.
 - display: API Key
   name: api_key
   type: 4
@@ -80,7 +80,7 @@ script:
       default: false
     - name: Change Password on create
       isArray: false
-      description: Should user change password on creation?
+      description: Should user change password on creation
       required: false
       secret: false
       default: false
@@ -109,32 +109,76 @@ script:
       secret: false
       default: false
     outputs:
-    - contextPath: user_data.id
+    - contextPath: created_user_data.id
       description: The ID of User created.
       type: Number
-    - contextPath: user_data.name
+    - contextPath: created_user_data.name
       description: The name of User created.
       type: String
-    - contextPath: user_data.email
+    - contextPath: created_user_data.email
       description: The email of User created.
       type: String
-    - contextPath: user_data.createdAt
+    - contextPath: created_user_data.createdAt
       description: The creation time of User created.
       type: String
-    - contextPath: user_data.deletedAt
+    - contextPath: created_user_data.deletedAt
       description: The Deletion time of User created.
       type: String
-    - contextPath: user_data.roles
+    - contextPath: created_user_data.roles
       description: The roles of User created.
       type: String
-    - contextPath: user_data.description
+    - contextPath: created_user_data.description
       description: The description of User created.
       type: String
-    - contextPath: user_data.role
+    - contextPath: created_user_data.role
       description: The role of User created.
       type: String
-    - contextPath: user_data.deployments
+    - contextPath: created_user_data.deployments
       description: The deployments user is part of.
+      type: String
+  - deprecated: false
+    description: This command deletes a user with given data
+    name: safebreach-delete-user
+    arguments:
+    - name: User ID
+      isArray: false
+      description: user ID of user from safebreach to search
+      required: false
+      secret: false
+      default: false
+    - name: Email
+      isArray: false
+      description: Email of the user to Search for updating user details.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: deleted_user_data.id
+      description: The ID of User deleted.
+      type: Number
+    - contextPath: deleted_user_data.name
+      description: The name of User deleted.
+      type: String
+    - contextPath: deleted_user_data.email
+      description: The email of User deleted.
+      type: String
+    - contextPath: deleted_user_data.createdAt
+      description: The creation time of User deleted.
+      type: String
+    - contextPath: deleted_user_data.deletedAt
+      description: The Deletion time of User deleted.
+      type: String
+    - contextPath: deleted_user_data.roles
+      description: The roles of User deleted.
+      type: String
+    - contextPath: deleted_user_data.description
+      description: The description of User deleted.
+      type: String
+    - contextPath: deleted_user_data.role
+      description: The role of User deleted.
+      type: String
+    - contextPath: deleted_user_data.deployments
+      description: The deployments user was part of.
       type: String
   - deprecated: false
     description: This command gives all users depending on inputs given
@@ -175,6 +219,98 @@ script:
       type: String
     - contextPath: filtered_users.email
       description: The email of User retrieved.
+      type: String
+  - deprecated: false
+    description: This command updates a user with given data
+    name: safebreach-update-user-details
+    arguments:
+    - name: User ID
+      isArray: false
+      description: user ID of user from safebreach to search
+      required: false
+      secret: false
+      default: false
+    - name: Email
+      isArray: false
+      description: Email of the user to Search for updating user details.
+      required: true
+      secret: false
+      default: false
+    - name: Name
+      isArray: false
+      description: Update the user name to given string.
+      required: false
+      secret: false
+      default: false
+    - name: User Description
+      isArray: false
+      description: Update the user Description to given string.
+      required: false
+      secret: false
+      default: false
+    - name: Is Active
+      isArray: false
+      description: Update the user Status.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'True'
+      - 'False'
+      - ''
+      auto: PREDEFINED
+    - name: Password
+      isArray: false
+      description: Password of user to be updated with.
+      required: false
+      secret: false
+      default: false
+    - name: User role
+      isArray: false
+      description: Role of the user to be changed to
+      required: false
+      secret: false
+      default: false
+      defaultValue: viewer
+      predefined:
+      - viewer
+      - administrator
+      - contentDeveloper
+      - operator
+      auto: PREDEFINED
+    - name: Deployments
+      isArray: true
+      description: Comma separated ID of all deployments the user should be part of
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: updated_user_data.id
+      description: The ID of User created.
+      type: Number
+    - contextPath: updated_user_data.name
+      description: The name of User created.
+      type: String
+    - contextPath: updated_user_data.email
+      description: The email of User created.
+      type: String
+    - contextPath: updated_user_data.createdAt
+      description: The creation time of User created.
+      type: String
+    - contextPath: updated_user_data.deletedAt
+      description: The Deletion time of User created.
+      type: String
+    - contextPath: updated_user_data.roles
+      description: The roles of User created.
+      type: String
+    - contextPath: updated_user_data.description
+      description: The description of User created.
+      type: String
+    - contextPath: updated_user_data.role
+      description: The role of User created.
+      type: String
+    - contextPath: updated_user_data.deployments
+      description: The deployments user is part of.
       type: String
   script: '-'
   type: python

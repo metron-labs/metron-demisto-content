@@ -129,30 +129,24 @@ class Client(BaseClient):
         user_data = response.json()['data']
         return user_data
 
-    def delete_user(self, user_id: int):
+    def delete_user(self):
+
+        user_id = demisto.args().get("User ID")
+        user_email = demisto.args().get("Email")
+        if user_email and not user_id:
+            user_list = self.get_users_list()
+            demisto.info("retrieved user list which contains all available users in safebreach")
+            user = list(filter(lambda user_data: user_data["email"] == user_email, user_list))
+            if user:
+                user_id = int(user[0]["id"])
+                demisto.info("user has been found and details are being given for deleting user")
 
         account_id = demisto.params().get("account_id", 0)
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/users/{user_id}"
 
         deleted_user = self.get_response(url=url, method=method)
-        if deleted_user.status_code == 400:
-            return json.dumps(deleted_user.json()), False
-
-        deleted_user = deleted_user.json()
-
-        human_readable = tableToMarkdown(name="Deleted User Data", t=deleted_user.get("data", {}),
-                                         headers=['id', 'name', 'email', "deletedAt", "roles", "description", "role",
-                                                  "deployments", "createdAt"])
-        outputs = deleted_user.get("data", {})
-
-        result = CommandResults(
-            outputs_prefix="user_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-
-        return result, True
+        return deleted_user
 
     def update_user_with_details(self, user_id: str, user_details: dict):
         for key in list(user_details.keys()):
@@ -164,26 +158,7 @@ class Client(BaseClient):
         url = f"/config/v1/accounts/{account_id}/users/{int(user_id)}"
 
         updated_user = self.get_response(url=url, method=method, body=user_details)
-        if updated_user.status_code == 400:
-            return json.dumps(updated_user.json()), False
-
-        updated_user = updated_user.json()
-
-        human_readable = tableToMarkdown(name="Updated User Data", t=updated_user.get("data", {}),
-                                         headers=['id', 'name', 'email', "deletedAt", "roles", "description", "role",
-                                                  "deployments", "createdAt", "updatedAt"])
-        outputs = updated_user.get("data", {})
-        # [{
-        #     'data':updated_user.get("data",{})
-        # }]
-
-        result = CommandResults(
-            outputs_prefix="user_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-
-        return result, True
+        return updated_user
 
     def list_deployments(self):
         account_id = demisto.params().get("account_id", 0)
@@ -832,15 +807,41 @@ class Client(BaseClient):
             "isActive": is_active,
             "deployments": deployment_list,
         }
-
-        # for key in list(user_payload.keys()):
-        #     if not user_payload[key]:
-        #         user_payload.pop(key)
-
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/users"
         created_user = self.get_response(url=url, method=method, body=user_payload)
         return created_user
+
+    def update_user_data(self):
+        user_id = demisto.args().get("User ID")
+        user_email = demisto.args().get("Email")
+
+        name = demisto.args().get("Name")
+        is_active = literal_eval(demisto.args().get("Is Active", False))
+        description = demisto.args().get("User Description", "")
+        role = demisto.args().get("User role")
+        password = demisto.args().get("Password")
+        deployment_list = demisto.args().get("Deployments", [])
+        deployment_list = list(literal_eval(deployment_list)) if deployment_list else []
+        details = {
+            "name": name,
+            "is_active": is_active,
+            "deployments": deployment_list,
+            "description": description
+        }
+        if role:
+            details["role"] = role
+        if password:
+            details["password"] = password
+        if user_email and not user_id:
+            user_list = self.get_users_list()
+            demisto.info("retrieved user list which contains all available users in safebreach")
+            user = list(filter(lambda user_data: user_data["email"] == user_email, user_list))
+            if user:
+                user_id = user[0]["id"]
+                demisto.info("user has been found and details are being given for updating user")
+        user = self.update_user_with_details(user_id, details)
+        return user
 
 
 @metadata_collector.command(
@@ -929,27 +930,27 @@ def get_user_id_by_name_or_email(client: Client, name: str, email: str):
         InputArgument(name="User role", description="Role of the user being Created", required=False,
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
-        InputArgument(name="Deployments", description="Comma separated ID of all deployments the \
-                                user should be part of", required=False, is_array=True)
+        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of",
+                      required=False, is_array=True)
     ],
-    outputs_prefix="user_data",
+    outputs_prefix="created_user_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of User created.", prefix="user_data", output_type=int),
-        OutputArgument(name="name", description="The name of User created.", prefix="user_data",
+        OutputArgument(name="id", description="The ID of User created.", prefix="created_user_data", output_type=int),
+        OutputArgument(name="name", description="The name of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="email", description="The email of User created.", prefix="user_data",
+        OutputArgument(name="email", description="The email of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of User created.", prefix="user_data",
+        OutputArgument(name="createdAt", description="The creation time of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="deletedAt", description="The Deletion time of User created.", prefix="user_data",
+        OutputArgument(name="deletedAt", description="The Deletion time of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="roles", description="The roles of User created.", prefix="user_data",
+        OutputArgument(name="roles", description="The roles of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="description", description="The description of User created.", prefix="user_data",
+        OutputArgument(name="description", description="The description of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="role", description="The role of User created.", prefix="user_data",
+        OutputArgument(name="role", description="The role of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="deployments", description="The deployments user is part of.", prefix="user_data",
+        OutputArgument(name="deployments", description="The deployments user is part of.", prefix="created_user_data",
                        output_type=str),
     ],
     description="This command creates a user with given data")
@@ -961,18 +962,137 @@ def create_user(client: Client):
         created_user = created_user.json()
 
         human_readable = tableToMarkdown(name="Created User Data", t=created_user.get("data", {}),
-                                         headers=['id', 'name', 'email', "mustChangePassword", "roles", "description", "role",
-                                                  "isActive", "deployments", "createdAt"])
+                                         headers=['id', 'name', 'email', "mustChangePassword", "roles", "description",
+                                                  "role", "isActive", "deployments", "createdAt"])
         outputs = created_user.get("data", {})
 
         result = CommandResults(
-            outputs_prefix="user_data",
+            outputs_prefix="created_user_data",
             outputs=outputs,
-            outputs_key_field="user_data",
+            outputs_key_field="created_user_data",
             readable_output=human_readable
         )
         return result, True
 
+    except Exception as e:
+        demisto.error(traceback.format_exc())  # log exception for debugging purposes
+        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
+
+
+@metadata_collector.command(
+    command_name="safebreach-update-user-details",
+    inputs_list=[
+        InputArgument(name="User ID", description="user ID of user from safebreach to search",
+                      required=False, is_array=False),
+        InputArgument(name="Email", description="Email of the user to Search for updating user details.", required=True,
+                      is_array=False),
+        InputArgument(name="Name", description="Update the user name to given string.",
+                      required=False, is_array=False),
+        InputArgument(name="User Description", description="Update the user Description to given string.",
+                      required=False, is_array=False),
+        InputArgument(name="Is Active", description="Update the user Status.",
+                      required=False, is_array=False, options=["True", "False", ""], default=""),
+        InputArgument(name="Password", description="Password of user to be updated with.", required=False,
+                      is_array=False),
+        InputArgument(name="User role", description="Role of the user to be changed to", required=False,
+                      is_array=False,
+                      options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
+        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of",
+                      required=False, is_array=True)
+    ],
+    outputs_prefix="updated_user_data",
+    outputs_list=[
+        OutputArgument(name="id", description="The ID of User created.", prefix="updated_user_data", output_type=int),
+        OutputArgument(name="name", description="The name of User created.", prefix="updated_user_data",
+                       output_type=str),
+        OutputArgument(name="email", description="The email of User created.", prefix="updated_user_data",
+                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of User created.", prefix="updated_user_data",
+                       output_type=str),
+        OutputArgument(name="deletedAt", description="The Deletion time of User created.", prefix="updated_user_data",
+                       output_type=str),
+        OutputArgument(name="roles", description="The roles of User created.", prefix="updated_user_data",
+                       output_type=str),
+        OutputArgument(name="description", description="The description of User created.", prefix="updated_user_data",
+                       output_type=str),
+        OutputArgument(name="role", description="The role of User created.", prefix="updated_user_data",
+                       output_type=str),
+        OutputArgument(name="deployments", description="The deployments user is part of.", prefix="updated_user_data",
+                       output_type=str),
+    ],
+    description="This command updates a user with given data")
+def update_user_with_details(client: Client):
+    try:
+        updated_user = client.update_user_data()
+
+        if updated_user.status_code == 400:
+            return json.dumps(updated_user.json()), False
+
+        updated_user = updated_user.json()
+        human_readable = tableToMarkdown(name="Updated User Data", t=updated_user.get("data", {}),
+                                         headers=['id', 'name', 'email', "deletedAt", "roles", "description",
+                                                  "role", "deployments", "createdAt", "updatedAt"])
+        outputs = updated_user.get("data", {})
+
+        result = CommandResults(
+            outputs_prefix="updated_user_data",
+            outputs=outputs,
+            readable_output=human_readable
+        )
+        return result, True
+
+    except Exception as e:
+        demisto.error(traceback.format_exc())  # log exception for debugging purposes
+        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
+
+
+@metadata_collector.command(
+    command_name="safebreach-delete-user",
+    inputs_list=[
+        InputArgument(name="User ID", description="user ID of user from safebreach to search",
+                      required=False, is_array=False),
+        InputArgument(name="Email", description="Email of the user to Search for updating user details.", required=True,
+                      is_array=False)
+    ],
+    outputs_prefix="deleted_user_data",
+    outputs_list=[
+        OutputArgument(name="id", description="The ID of User deleted.", prefix="deleted_user_data", output_type=int),
+        OutputArgument(name="name", description="The name of User deleted.", prefix="deleted_user_data",
+                       output_type=str),
+        OutputArgument(name="email", description="The email of User deleted.", prefix="deleted_user_data",
+                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of User deleted.", prefix="deleted_user_data",
+                       output_type=str),
+        OutputArgument(name="deletedAt", description="The Deletion time of User deleted.", prefix="deleted_user_data",
+                       output_type=str),
+        OutputArgument(name="roles", description="The roles of User deleted.", prefix="deleted_user_data",
+                       output_type=str),
+        OutputArgument(name="description", description="The description of User deleted.", prefix="deleted_user_data",
+                       output_type=str),
+        OutputArgument(name="role", description="The role of User deleted.", prefix="deleted_user_data",
+                       output_type=str),
+        OutputArgument(name="deployments", description="The deployments user was part of.", prefix="deleted_user_data",
+                       output_type=str),
+    ],
+    description="This command deletes a user with given data")
+def delete_user_with_details(client: Client):
+    try:
+        deleted_user = client.delete_user()
+        if deleted_user.status_code == 400:
+            return json.dumps(deleted_user.json()), False
+
+        deleted_user = deleted_user.json()
+
+        human_readable = tableToMarkdown(name="Deleted User Data", t=deleted_user.get("data", {}),
+                                         headers=['id', 'name', 'email', "deletedAt", "roles",
+                                                  "description", "role", "deployments", "createdAt"])
+        outputs = deleted_user.get("data", {})
+        result = CommandResults(
+            outputs_prefix="deleted_user_data",
+            outputs=outputs,
+            readable_output=human_readable
+        )
+        return result, True
     except Exception as e:
         demisto.error(traceback.format_exc())  # log exception for debugging purposes
         return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
@@ -1013,45 +1133,13 @@ def main() -> None:
             return_results(user) if status else return_error(user)
 
         elif demisto.command() == "safebreach-delete-user":
-            user_id = demisto.args().get("user_id")
-            user_email = demisto.args().get("email")
-            if user_email and not user_id:
-                user_list = client.get_users_list()
-                demisto.info("retrieved user list which contains all available users in safebreach")
-                user = filter(lambda user_data: user_data["email"] == user_email, user_list)
-                if user:
-                    user_id = int(user["id"])
-                    demisto.info("user has been found and details are being given for deleting user")
-            user, status = client.delete_user(user_id=user_id)
+            user, status = delete_user_with_details(client=client)
             return_results(user) if status else return_error(user)
             # demisto.info(f"user has not been found with given details user_id {user_id} and email {user_email}")
             # return_results(f"no user with given email {user_email} or id {user_id} was found")
 
-        elif demisto.command() == 'update-user-details':
-            user_id = demisto.args().get("user_id")
-            user_email = demisto.args().get("email")
-
-            name = demisto.args().get("name")
-            is_active = literal_eval(demisto.args().get("is_active", False))
-            description = demisto.args().get("user_description", "")
-            role = demisto.args().get("role", "viewer")
-            deployment_list = demisto.args().get("deployment_list", [])
-            deployment_list = list(literal_eval(deployment_list)) if deployment_list else []
-            details = {
-                "name": name,
-                "is_active": is_active,
-                "role": role,
-                "deployments": deployment_list,
-                "description": description
-            }
-            if user_email and not user_id:
-                user_list = client.get_users_list()
-                demisto.info("retrieved user list which contains all available users in safebreach")
-                user = list(filter(lambda user_data: user_data["email"] == user_email, user_list))
-                if user:
-                    user_id = user[0]["id"]
-                    demisto.info("user has been found and details are being given for updating user")
-            user, status = client.update_user_with_details(user_id, details)
+        elif demisto.command() == 'safebreach-update-user-details':
+            user, status = update_user_with_details(client=client)
             return_results(user) if status else return_error(user)
 
         elif demisto.command() == 'create-deployment':
