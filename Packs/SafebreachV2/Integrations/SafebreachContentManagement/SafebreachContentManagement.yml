@@ -29,6 +29,44 @@ configuration:
 script:
   commands:
   - deprecated: false
+    description: This command creates a API Key with given data
+    name: safebreach-generate-api-key
+    arguments:
+    - name: Name
+      isArray: false
+      description: Name of the API Key to create.
+      required: true
+      secret: false
+      default: false
+    - name: Description
+      isArray: false
+      description: Description of the API Key to create.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: generated_api_key.name
+      description: The Name of API Key created.
+      type: Number
+    - contextPath: generated_api_key.description
+      description: The Description of API Key created.
+      type: String
+    - contextPath: generated_api_key.createdBy
+      description: The User ID of API key creator.
+      type: String
+    - contextPath: generated_api_key.createdAt
+      description: The creation time of API key.
+      type: String
+    - contextPath: generated_api_key.key
+      description: The API key Value.
+      type: String
+    - contextPath: generated_api_key.roles
+      description: The roles allowed for this api key.
+      type: String
+    - contextPath: generated_api_key.role
+      description: The role of API Key.
+      type: String
+  - deprecated: false
     description: This command creates a deployment with given data
     name: safebreach-create-deployment
     arguments:
@@ -176,6 +214,32 @@ script:
       type: String
     - contextPath: created_user_data.deployments
       description: The deployments user is part of.
+      type: String
+  - deprecated: false
+    description: This command deletes a API key with given name
+    name: safebreach-delete-api-key
+    arguments:
+    - name: Key Name
+      isArray: false
+      description: Name of the API Key to Delete.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: deleted_api_key.name
+      description: The Name of API Key deleted.
+      type: Number
+    - contextPath: deleted_api_key.description
+      description: The Description of API Key deleted.
+      type: String
+    - contextPath: deleted_api_key.createdBy
+      description: The User ID of API key creator.
+      type: String
+    - contextPath: deleted_api_key.createdAt
+      description: The creation time of API key.
+      type: String
+    - contextPath: deleted_api_key.deletedAt
+      description: The deletion time of API key.
       type: String
   - deprecated: false
     description: This command deletes a deployment with given data

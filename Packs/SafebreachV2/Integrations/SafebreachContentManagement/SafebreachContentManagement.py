@@ -379,35 +379,20 @@ class Client(BaseClient):
             return result, True
         return formatted_error_logs, True
 
-    def generate_api_key(self, name, description):
+    def generate_api_key(self):
         account_id = demisto.params().get("account_id", 0)
+        name = demisto.args().get("Name")
+        description = demisto.args().get("Description")
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/apikeys"
-        data = {
-            "name": name,
-            "description": description,
-        }
-        generated_api_key = self.get_response(method=method, url=url, body=data)
-        if generated_api_key.status_code == 409:
-            return json.dumps(generated_api_key.json()), False
-        generated_api_key = generated_api_key.json()
-        return generated_api_key, True
+        data = {}
+        if name:
+            data["name"] = name
+        if description:
+            data['description'] = description
 
-    def generate_api_key_and_table(self, name, description):
-        generated_api_key, status = self.generate_api_key(name, description)
-        if status:
-            human_readable = tableToMarkdown(
-                name="Generated API key Data",
-                t=generated_api_key.get("data"),
-                headers=["name", "description", "accountId", "createdBy", "createdAt", "key", "roles", "role"])
-            outputs = generated_api_key.get("data")
-            result = CommandResults(
-                outputs_prefix="generated_api_key_data",
-                outputs=outputs,
-                readable_output=human_readable
-            )
-            return result, True
-        return generated_api_key, False
+        generated_api_key = self.get_response(method=method, url=url, body=data)
+        return generated_api_key
 
     def get_all_active_api_keys_with_details(self):
         account_id = demisto.params().get("account_id", 0)
@@ -428,40 +413,16 @@ class Client(BaseClient):
             required_key_object = list(filter(lambda key_obj: key_obj["name"] == key_name, active_keys.get("data")))
         if required_key_object:
             return required_key_object[0]["id"], True
-        return "couldn't find APi key with given name", False
+        raise Exception(f"couldn't find APi key with given name: {key_name}")
 
-    def delete_api_key(self, key_name):
+    def delete_api_key(self):
+        key_name = demisto.args().get("Key Name")
         key_id, status = self.filter_api_key_with_key_name(key_name=key_name)
-        if status:
-            account_id = demisto.params().get("account_id", 0)
-            method = "DELETE"
-            url = f"/config/v1/accounts/{account_id}/apikeys/{key_id}"
-            deleted_api_key = self.get_response(method=method, url=url)
-            if deleted_api_key.status_code == 409:
-                return json.dumps(deleted_api_key.json()), False
-            deleted_api_key = deleted_api_key.json()
-            return deleted_api_key, True
-        return key_id, False if key_id else deleted_api_key, False
-
-    def delete_api_key_with_given_name(self, key_name):
-        try:
-            result, status = self.delete_api_key(key_name)
-            if status:
-                human_readable = tableToMarkdown(
-                    name="Deleted API key Data",
-                    t=result.get("data"),
-                    headers=["name", "description", "accountId", "createdBy", "createdAt", "roles", "role"])
-                outputs = result.get("data")
-                result = CommandResults(
-                    outputs_prefix="Deleted API key",
-                    outputs=outputs,
-                    readable_output=human_readable
-                )
-                return result, True
-            return result, status
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+        account_id = demisto.params().get("account_id", 0)
+        method = "DELETE"
+        url = f"/config/v1/accounts/{account_id}/apikeys/{key_id}"
+        deleted_api_key = self.get_response(method=method, url=url)
+        return deleted_api_key
 
     def get_simulator_quota(self):
         account_id = demisto.params().get("account_id", 0)
@@ -830,22 +791,18 @@ class Client(BaseClient):
     ],
     description="This command gives all users depending on inputs given")
 def get_all_users(client: Client):
-    try:
-        user_data = client.get_users_list()
-        demisto.info(f"users retrieved when executing {demisto.command()} command \n Data: \n{user_data}")
 
-        human_readable = tableToMarkdown(name="user data", t=user_data, headers=['id', 'name', 'email'])
-        outputs = user_data
-        result = CommandResults(
-            outputs_prefix="user_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
+    user_data = client.get_users_list()
+    demisto.info(f"users retrieved when executing {demisto.command()} command \n Data: \n{user_data}")
 
-        return result, True
-    except Exception as e:
-        demisto.error(f"{traceback.format_exc()}, {e.__dict__}")  # log exception for debugging purposes
-        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
+    human_readable = tableToMarkdown(name="user data", t=user_data, headers=['id', 'name', 'email'])
+    outputs = user_data
+    result = CommandResults(
+        outputs_prefix="user_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
 
 
 @metadata_collector.command(
@@ -882,7 +839,7 @@ def get_user_id_by_name_or_email(client: Client):
         )
 
         return (result, True)
-    return (CommandResults(outputs=[])), False
+    raise Exception(f"user with name {name} or email {email} was not found")
 
 
 @metadata_collector.command(
@@ -929,28 +886,24 @@ def get_user_id_by_name_or_email(client: Client):
     ],
     description="This command creates a user with given data")
 def create_user(client: Client):
-    try:
-        created_user = client.create_user_data()
-        if created_user.status_code == 409:
-            return json.dumps(created_user.json()), False
-        created_user = created_user.json()
 
-        human_readable = tableToMarkdown(name="Created User Data", t=created_user.get("data", {}),
-                                         headers=['id', 'name', 'email', "mustChangePassword", "roles", "description",
-                                                  "role", "isActive", "deployments", "createdAt"])
-        outputs = created_user.get("data", {})
+    created_user = client.create_user_data()
+    if created_user.status_code == 409:
+        return json.dumps(created_user.json()), False
+    created_user = created_user.json()
 
-        result = CommandResults(
-            outputs_prefix="created_user_data",
-            outputs=outputs,
-            outputs_key_field="created_user_data",
-            readable_output=human_readable
-        )
-        return result, True
+    human_readable = tableToMarkdown(name="Created User Data", t=created_user.get("data", {}),
+                                     headers=['id', 'name', 'email', "mustChangePassword", "roles", "description",
+                                              "role", "isActive", "deployments", "createdAt"])
+    outputs = created_user.get("data", {})
 
-    except Exception as e:
-        demisto.error(traceback.format_exc())  # log exception for debugging purposes
-        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
+    result = CommandResults(
+        outputs_prefix="created_user_data",
+        outputs=outputs,
+        outputs_key_field="created_user_data",
+        readable_output=human_readable
+    )
+    return result, True
 
 
 @metadata_collector.command(
@@ -996,28 +949,24 @@ def create_user(client: Client):
     ],
     description="This command updates a user with given data")
 def update_user_with_details(client: Client):
-    try:
-        updated_user = client.update_user_data()
 
-        if updated_user.status_code == 400:
-            return json.dumps(updated_user.json()), False
+    updated_user = client.update_user_data()
 
-        updated_user = updated_user.json()
-        human_readable = tableToMarkdown(name="Updated User Data", t=updated_user.get("data", {}),
-                                         headers=['id', 'name', 'email', "deletedAt", "roles", "description",
-                                                  "role", "deployments", "createdAt", "updatedAt"])
-        outputs = updated_user.get("data", {})
+    if updated_user.status_code == 400:
+        return json.dumps(updated_user.json()), False
 
-        result = CommandResults(
-            outputs_prefix="updated_user_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-        return result, True
+    updated_user = updated_user.json()
+    human_readable = tableToMarkdown(name="Updated User Data", t=updated_user.get("data", {}),
+                                     headers=['id', 'name', 'email', "deletedAt", "roles", "description",
+                                              "role", "deployments", "createdAt", "updatedAt"])
+    outputs = updated_user.get("data", {})
 
-    except Exception as e:
-        demisto.error(traceback.format_exc())  # log exception for debugging purposes
-        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
+    result = CommandResults(
+        outputs_prefix="updated_user_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
 
 
 @metadata_collector.command(
@@ -1050,26 +999,23 @@ def update_user_with_details(client: Client):
     ],
     description="This command deletes a user with given data")
 def delete_user_with_details(client: Client):
-    try:
-        deleted_user = client.delete_user()
-        if deleted_user.status_code == 400:
-            return json.dumps(deleted_user.json()), False
 
-        deleted_user = deleted_user.json()
+    deleted_user = client.delete_user()
+    if deleted_user.status_code == 400:
+        return json.dumps(deleted_user.json()), False
 
-        human_readable = tableToMarkdown(name="Deleted User Data", t=deleted_user.get("data", {}),
-                                         headers=['id', 'name', 'email', "deletedAt", "roles",
-                                                  "description", "role", "deployments", "createdAt"])
-        outputs = deleted_user.get("data", {})
-        result = CommandResults(
-            outputs_prefix="deleted_user_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-        return result, True
-    except Exception as e:
-        demisto.error(traceback.format_exc())  # log exception for debugging purposes
-        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
+    deleted_user = deleted_user.json()
+
+    human_readable = tableToMarkdown(name="Deleted User Data", t=deleted_user.get("data", {}),
+                                     headers=['id', 'name', 'email', "deletedAt", "roles",
+                                              "description", "role", "deployments", "createdAt"])
+    outputs = deleted_user.get("data", {})
+    result = CommandResults(
+        outputs_prefix="deleted_user_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
 
 
 @metadata_collector.command(
@@ -1096,28 +1042,23 @@ def delete_user_with_details(client: Client):
     ],
     description="This command creates a deployment with given data")
 def create_deployment(client: Client):
-    try:
-        created_deployment = client.create_deployment_data()
-        if created_deployment.status_code == 409:
-            return json.dumps(created_deployment.json()), False
-        created_deployment = created_deployment.json()
 
-        human_readable = tableToMarkdown(name="Created Deployment", t=created_deployment.get("data", {}),
-                                         headers=['id', "accountId", 'name', 'createdAt', "description", "nodes"])
-        outputs = created_deployment.get("data", {})
+    created_deployment = client.create_deployment_data()
+    if created_deployment.status_code == 409:
+        return json.dumps(created_deployment.json()), False
+    created_deployment = created_deployment.json()
 
-        result = CommandResults(
-            outputs_prefix="created_deployment_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
+    human_readable = tableToMarkdown(name="Created Deployment", t=created_deployment.get("data", {}),
+                                     headers=['id', "accountId", 'name', 'createdAt', "description", "nodes"])
+    outputs = created_deployment.get("data", {})
 
-        return result, True
+    result = CommandResults(
+        outputs_prefix="created_deployment_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
 
-    except Exception as e:
-        demisto.error(traceback.format_exc())  # log exception for debugging purposes
-        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}",
-                              outputs_prefix="Error"), False
+    return result, True
 
 
 @metadata_collector.command(
@@ -1149,26 +1090,22 @@ def create_deployment(client: Client):
     ],
     description="This command updates a deployment with given data")
 def update_deployment(client: Client):
-    try:
-        updated_deployment = client.update_deployment()
-        if updated_deployment.status_code == 409:
-            return json.dumps(updated_deployment.json()), False
-        updated_deployment = updated_deployment.json()
 
-        human_readable = tableToMarkdown(name="Updated Deployment", t=updated_deployment.get("data", {}),
-                                         headers=['id', "accountId", 'name', 'createdAt',
-                                                  "description", "nodes", "updatedAt"])
-        outputs = updated_deployment.get("data", {})
-        result = CommandResults(
-            outputs_prefix="updated_deployment_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-        return result, True
+    updated_deployment = client.update_deployment()
+    if updated_deployment.status_code == 409:
+        return json.dumps(updated_deployment.json()), False
+    updated_deployment = updated_deployment.json()
 
-    except Exception as e:
-        demisto.error(traceback.format_exc())  # log exception for debugging purposes
-        return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+    human_readable = tableToMarkdown(name="Updated Deployment", t=updated_deployment.get("data", {}),
+                                     headers=['id', "accountId", 'name', 'createdAt',
+                                              "description", "nodes", "updatedAt"])
+    outputs = updated_deployment.get("data", {})
+    result = CommandResults(
+        outputs_prefix="updated_deployment_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
 
 
 @metadata_collector.command(
@@ -1194,26 +1131,103 @@ def update_deployment(client: Client):
     ],
     description="This command deletes a deployment with given data")
 def delete_deployment(client: Client):
-    try:
-        deleted_deployment = client.delete_deployment()
-        if deleted_deployment.status_code == 409:
-            return json.dumps(deleted_deployment.json()), False
-        deleted_deployment = deleted_deployment.json()
 
-        human_readable = tableToMarkdown(name="Deleted Deployment", t=deleted_deployment.get("data", {}),
-                                         headers=['id', "accountId", 'name', 'createdAt',
-                                                  "description", "nodes", "updatedAt"])
-        outputs = deleted_deployment.get("data", {})
-        result = CommandResults(
-            outputs_prefix="deleted_deployment_data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-        return result, True
+    deleted_deployment = client.delete_deployment()
+    if deleted_deployment.status_code == 409:
+        return json.dumps(deleted_deployment.json()), False
+    deleted_deployment = deleted_deployment.json()
 
-    except Exception as e:
-        demisto.error(traceback.format_exc())  # log exception for debugging purposes
-        return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+    human_readable = tableToMarkdown(name="Deleted Deployment", t=deleted_deployment.get("data", {}),
+                                     headers=['id', "accountId", 'name', 'createdAt',
+                                              "description", "nodes", "updatedAt"])
+    outputs = deleted_deployment.get("data", {})
+    result = CommandResults(
+        outputs_prefix="deleted_deployment_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
+
+
+@metadata_collector.command(
+    command_name="safebreach-generate-api-key",
+    inputs_list=[
+        InputArgument(name="Name", description="Name of the API Key to create.", required=True, is_array=False),
+        InputArgument(name="Description", description="Description of the API Key to create.", required=False, is_array=False),
+    ],
+    outputs_prefix="generated_api_key",
+    outputs_list=[
+        OutputArgument(name="name", description="The Name of API Key created.", prefix="generated_api_key", output_type=int),
+        OutputArgument(name="description", description="The Description of API Key created.", prefix="generated_api_key",
+                       output_type=str),
+        OutputArgument(name="createdBy", description="The User ID of API key creator.", prefix="generated_api_key",
+                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of API key.", prefix="generated_api_key",
+                       output_type=str),
+        OutputArgument(name="key", description="The API key Value.", prefix="generated_api_key",
+                       output_type=str),
+        OutputArgument(name="roles", description="The roles allowed for this api key.", prefix="generated_api_key",
+                       output_type=str),
+        OutputArgument(name="role", description="The role of API Key.", prefix="generated_api_key",
+                       output_type=str),
+    ],
+    description="This command creates a API Key with given data")
+def create_api_key(client: Client):
+
+    generated_api_key = client.generate_api_key()
+    if generated_api_key.status_code == 409:
+        return json.dumps(generated_api_key.json()), False
+    generated_api_key = generated_api_key.json()
+
+    human_readable = tableToMarkdown(
+        name="Generated API key Data",
+        t=generated_api_key.get("data"),
+        headers=["name", "description", "createdBy", "createdAt", "key", "roles", "role"])
+    outputs = generated_api_key.get("data")
+    result = CommandResults(
+        outputs_prefix="generated_api_key",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
+
+
+@metadata_collector.command(
+    command_name="safebreach-delete-api-key",
+    inputs_list=[
+        InputArgument(name="Key Name", description="Name of the API Key to Delete.", required=True, is_array=False),
+    ],
+    outputs_prefix="deleted_api_key",
+    outputs_list=[
+        OutputArgument(name="name", description="The Name of API Key deleted.", prefix="deleted_api_key", output_type=int),
+        OutputArgument(name="description", description="The Description of API Key deleted.", prefix="deleted_api_key",
+                       output_type=str),
+        OutputArgument(name="createdBy", description="The User ID of API key creator.", prefix="deleted_api_key",
+                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of API key.", prefix="deleted_api_key",
+                       output_type=str),
+        OutputArgument(name="deletedAt", description="The deletion time of API key.", prefix="deleted_api_key",
+                       output_type=str),
+    ],
+    description="This command deletes a API key with given name")
+def delete_api_key(client: Client):
+
+    deleted_api_key = client.delete_api_key()
+    if deleted_api_key.status_code == 409:
+        return json.dumps(deleted_api_key.json()), False
+    deleted_api_key = deleted_api_key.json()
+
+    human_readable = tableToMarkdown(
+        name="Deleted API key Data",
+        t=deleted_api_key.get("data"),
+        headers=["name", "description", "createdBy", "createdAt", "deletedAt"])
+    outputs = deleted_api_key.get("data")
+    result = CommandResults(
+        outputs_prefix="deleted_api_key",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
 
 
 def main() -> None:
@@ -1267,6 +1281,10 @@ def main() -> None:
             deployment, status = delete_deployment(client=client)
             return_results(deployment) if status else return_error(deployment)
 
+        elif demisto.command() == "safebreach-generate-api-key":
+            result, status = create_api_key(client=client)
+            return_results(result) if status else return_error(result)
+
         elif demisto.command() == "safebreach-get-test-summary":
             includeArchived = demisto.args().get("include_archived")
             size = demisto.args().get("entries_per_page")
@@ -1300,17 +1318,8 @@ def main() -> None:
             result, status = client.get_all_error_logs()
             return_results(result) if status else return_error(result)
 
-        elif demisto.command() == "safebreach-generate-api-key":
-            name = demisto.args().get("name")
-            description = demisto.args().get("description")
-
-            result, status = client.generate_api_key_and_table(name, description)
-            return_results(result) if status else return_error(result)
-
         elif demisto.command() == "safebreach-delete-api-key":
-            name = demisto.args().get("name")
-
-            result, status = client.delete_api_key_with_given_name(name)
+            result, status = delete_api_key(client=client)
             return_results(result) if status else return_error(result)
 
         elif demisto.command() == "safebreach-get-available-simulator-count":
@@ -1345,7 +1354,7 @@ def main() -> None:
 
     # Log exceptions and return errors
     except Exception as e:
-        demisto.error(traceback.format_exc())  # print the traceback
+        # demisto.debug(traceback.format_exc())  # print the traceback
         return_error(f'Failed to execute {demisto.command()} command {traceback.format_exc()}.\nError:\n{str(e)}')
 
 
