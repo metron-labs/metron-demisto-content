@@ -173,99 +173,71 @@ class Client(BaseClient):
         needed_deployments = list(filter(lambda deployment: deployment["name"] == deployment_name, available_deployments))
         return needed_deployments[0] if needed_deployments else []
 
-    def create_deployment(self, name: str, nodes: list[str]):
-        try:
-            account_id = demisto.params().get("account_id", 0)
-            deployment_payload = {
-                "nodes": nodes,
-                "name": name,
-                "id": random.getrandbits(20)
-            }
+    def create_deployment_data(self):
 
-            method = "POST"
-            url = f"/config/v1/accounts/{account_id}/deployments"
-            created_deployment = self.get_response(url=url, method=method, body=deployment_payload)
+        account_id = demisto.params().get("account_id", 0)
+        name = demisto.args().get("Name")
+        description = demisto.args().get("Description")
+        nodes = demisto.args().get("Nodes", "").replace('"', "").split(",")
+        deployment_payload = {
+            "nodes": nodes,
+            "name": name,
+            "description": description,
+            "id": random.getrandbits(20)
+        }
 
-            if created_deployment.status_code == 409:
-                return json.dumps(created_deployment.json()), False
-            created_deployment = created_deployment.json()
+        method = "POST"
+        url = f"/config/v1/accounts/{account_id}/deployments"
+        created_deployment = self.get_response(url=url, method=method, body=deployment_payload)
+        return created_deployment
 
-            human_readable = tableToMarkdown(name="Created Deployment", t=created_deployment.get("data", {}),
-                                             headers=['id', "accountId", 'name', 'createdAt', "description", "nodes"])
-            outputs = created_deployment.get("data", {})
+    def update_deployment(self):
+        account_id = demisto.params().get("account_id", 0)
+        deployment_id = demisto.args().get("Deployment ID", None)
+        deployment_name = demisto.args().get("Deployment Name")
 
-            result = CommandResults(
-                outputs_prefix="deployment_data",
-                outputs=outputs,
-                readable_output=human_readable
-            )
+        if deployment_name and not deployment_id:
+            needed_deployment = self.get_deployment_id_by_name(deployment_name)
+            if needed_deployment:
+                deployment_id = needed_deployment['name']
+        if deployment_id:
+            name = demisto.args().get("Updated Deployment Name")
+            nodes = demisto.args().get("Updated Nodes for Deployment", None)
+            description = demisto.args().get("Updated deployment description")
+        else:
+            raise Exception(f"Could not find Deployment with details Name:\
+                {deployment_name} and Deployment ID : {deployment_id}")
+        deployment_payload = {}
+        if name:
+            deployment_payload["name"] = name
+        if nodes:
+            deployment_payload["nodes"] = nodes.replace('"', "").split(",")
+        if description:
+            deployment_payload["description"] = description
 
-            return result, True
+        method = "PUT"
+        url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
+        updated_deployment = self.get_response(url=url, method=method, body=deployment_payload)
+        return updated_deployment
 
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+    def delete_deployment(self):
 
-    def update_deployment(self, deployment_id, name: str, nodes: list[str]):
-        try:
-            account_id = demisto.params().get("account_id", 0)
-            deployment_payload = {
-                "nodes": nodes,
-                "name": name,
-            }
-            method = "PUT"
-            url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
-            updated_deployment = self.get_response(url=url, method=method, body=deployment_payload)
+        account_id = demisto.params().get("account_id", 0)
+        deployment_id = demisto.args().get("Deployment ID", None)
+        deployment_name = demisto.args().get("Deployment Name")
 
-            if updated_deployment.status_code == 409:
-                return json.dumps(updated_deployment.json()), False
-            updated_deployment = updated_deployment.json()
-
-            human_readable = tableToMarkdown(name="Updated Deployment", t=updated_deployment.get("data", {}),
-                                             headers=['id', "accountId", 'name', 'createdAt',
-                                                      "description", "nodes", "updatedAt"])
-            outputs = updated_deployment.get("data", {})
-
-            result = CommandResults(
-                outputs_prefix="deployment_data",
-                outputs=outputs,
-                readable_output=human_readable
-            )
-
-            return result, True
-
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
-
-    def delete_deployment(self, deployment_id: str):
-        try:
-            account_id = demisto.params().get("account_id", 0)
-
+        if deployment_name and not deployment_id:
+            needed_deployment = self.get_deployment_id_by_name(deployment_name)
+            if needed_deployment:
+                deployment_id = needed_deployment['name']
+        if deployment_id:
             method = "DELETE"
             url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
             deleted_deployment = self.get_response(url=url, method=method)
-
-            if deleted_deployment.status_code == 409:
-                return json.dumps(deleted_deployment.json()), False
-            deleted_deployment = deleted_deployment.json()
-
-            human_readable = tableToMarkdown(name="deleted Deployment", t=deleted_deployment.get("data", {}),
-                                             headers=['id', "accountId", 'name', 'createdAt',
-                                                      "description", "nodes", "deletedAt"])
-            outputs = deleted_deployment.get("data", {})
-
-            result = CommandResults(
-                outputs_prefix="deployment_data",
-                outputs=outputs,
-                readable_output=human_readable
-            )
-
-            return result, True
-
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+            return deleted_deployment
+        else:
+            raise Exception(f"Could not find Deployment with details Name:\
+                {deployment_name} and Deployment ID : {deployment_id}")
 
     def get_tests_with_args(self, include_archived, size, status, plan_id, simulation_id, sort_by):
         account_id = demisto.params().get("account_id", 0)
@@ -612,7 +584,7 @@ class Client(BaseClient):
                     t=flattened_nodes,
                     headers=keys)
                 outputs = result.get("data", {}).get("rows")[0]
-                print("outputs", outputs)  # noqa: T201
+
                 result = CommandResults(
                     outputs_prefix="simulator_details",
                     outputs=outputs,
@@ -892,7 +864,9 @@ def get_all_users(client: Client):
                        prefix="user_data", output_type=str),
     ],
     description="This command gives all users depending on inputs given")
-def get_user_id_by_name_or_email(client: Client, name: str, email: str):
+def get_user_id_by_name_or_email(client: Client):
+    name = demisto.args().get("name")
+    email = demisto.args().get("email")
     user_list = client.get_users_list()
     filtered_user_list = list(
         filter(lambda user_data: ((name in user_data['name']) or (email in user_data['email'])), user_list))
@@ -1098,6 +1072,150 @@ def delete_user_with_details(client: Client):
         return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}"), False
 
 
+@metadata_collector.command(
+    command_name="safebreach-create-deployment",
+    inputs_list=[
+        InputArgument(name="Name", description="Name of the deployment to create.", required=False, is_array=False),
+        InputArgument(name="Description", description="Description of the deployment to create.", required=False, is_array=False),
+        InputArgument(name="Nodes", description="Comma separated ID of all nodes the deployment should be part of",
+                      required=False, is_array=True)
+    ],
+    outputs_prefix="created_deployment_data",
+    outputs_list=[
+        OutputArgument(name="id", description="The ID of deployment created.", prefix="created_deployment_data", output_type=int),
+        OutputArgument(name="accountId", description="The account of deployment created.", prefix="created_deployment_data",
+                       output_type=str),
+        OutputArgument(name="name", description="The name of deployment created.", prefix="created_deployment_data",
+                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="created_deployment_data",
+                       output_type=str),
+        OutputArgument(name="description", description="The description of deployment created.", prefix="created_deployment_data",
+                       output_type=str),
+        OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="created_deployment_data",
+                       output_type=str),
+    ],
+    description="This command creates a deployment with given data")
+def create_deployment(client: Client):
+    try:
+        created_deployment = client.create_deployment_data()
+        if created_deployment.status_code == 409:
+            return json.dumps(created_deployment.json()), False
+        created_deployment = created_deployment.json()
+
+        human_readable = tableToMarkdown(name="Created Deployment", t=created_deployment.get("data", {}),
+                                         headers=['id', "accountId", 'name', 'createdAt', "description", "nodes"])
+        outputs = created_deployment.get("data", {})
+
+        result = CommandResults(
+            outputs_prefix="created_deployment_data",
+            outputs=outputs,
+            readable_output=human_readable
+        )
+
+        return result, True
+
+    except Exception as e:
+        demisto.error(traceback.format_exc())  # log exception for debugging purposes
+        return CommandResults(outputs=f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}",
+                              outputs_prefix="Error"), False
+
+
+@metadata_collector.command(
+    command_name="safebreach-update-deployment",
+    inputs_list=[
+        InputArgument(name="Deployment ID", description="Name of the deployment to update.", required=False, is_array=False),
+        InputArgument(name="Deployment Name", description="Description of the deployment to update.",
+                      required=False, is_array=False),
+        InputArgument(name="Updated Nodes for Deployment", required=False, is_array=False,
+                      description="Comma separated ID of all nodes the deployment should be part of"),
+        InputArgument(name="Updated Deployment Name", description="Name of the deployment to update to.",
+                      required=False, is_array=False),
+        InputArgument(name="Updated deployment description", required=False, is_array=False,
+                      description="name of the deployment to update to."),
+    ],
+    outputs_prefix="updated_deployment_data",
+    outputs_list=[
+        OutputArgument(name="id", description="The ID of deployment created.", prefix="updated_deployment_data", output_type=int),
+        OutputArgument(name="accountId", description="The account of deployment created.", prefix="updated_deployment_data",
+                       output_type=str),
+        OutputArgument(name="name", description="The name of deployment created.", prefix="updated_deployment_data",
+                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="updated_deployment_data",
+                       output_type=str),
+        OutputArgument(name="description", description="The description of deployment created.", prefix="updated_deployment_data",
+                       output_type=str),
+        OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="updated_deployment_data",
+                       output_type=str),
+    ],
+    description="This command updates a deployment with given data")
+def update_deployment(client: Client):
+    try:
+        updated_deployment = client.update_deployment()
+        if updated_deployment.status_code == 409:
+            return json.dumps(updated_deployment.json()), False
+        updated_deployment = updated_deployment.json()
+
+        human_readable = tableToMarkdown(name="Updated Deployment", t=updated_deployment.get("data", {}),
+                                         headers=['id', "accountId", 'name', 'createdAt',
+                                                  "description", "nodes", "updatedAt"])
+        outputs = updated_deployment.get("data", {})
+        result = CommandResults(
+            outputs_prefix="updated_deployment_data",
+            outputs=outputs,
+            readable_output=human_readable
+        )
+        return result, True
+
+    except Exception as e:
+        demisto.error(traceback.format_exc())  # log exception for debugging purposes
+        return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+
+
+@metadata_collector.command(
+    command_name="safebreach-delete-deployment",
+    inputs_list=[
+        InputArgument(name="Deployment ID", description="Name of the deployment to update.", required=False, is_array=False),
+        InputArgument(name="Deployment Name", description="Description of the deployment to update.",
+                      required=False, is_array=False),
+    ],
+    outputs_prefix="deleted_deployment_data",
+    outputs_list=[
+        OutputArgument(name="id", description="The ID of deployment created.", prefix="deleted_deployment_data", output_type=int),
+        OutputArgument(name="accountId", description="The account of deployment created.", prefix="deleted_deployment_data",
+                       output_type=str),
+        OutputArgument(name="name", description="The name of deployment created.", prefix="deleted_deployment_data",
+                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="deleted_deployment_data",
+                       output_type=str),
+        OutputArgument(name="description", description="The description of deployment created.", prefix="deleted_deployment_data",
+                       output_type=str),
+        OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="deleted_deployment_data",
+                       output_type=str),
+    ],
+    description="This command deletes a deployment with given data")
+def delete_deployment(client: Client):
+    try:
+        deleted_deployment = client.delete_deployment()
+        if deleted_deployment.status_code == 409:
+            return json.dumps(deleted_deployment.json()), False
+        deleted_deployment = deleted_deployment.json()
+
+        human_readable = tableToMarkdown(name="Deleted Deployment", t=deleted_deployment.get("data", {}),
+                                         headers=['id', "accountId", 'name', 'createdAt',
+                                                  "description", "nodes", "updatedAt"])
+        outputs = deleted_deployment.get("data", {})
+        result = CommandResults(
+            outputs_prefix="deleted_deployment_data",
+            outputs=outputs,
+            readable_output=human_readable
+        )
+        return result, True
+
+    except Exception as e:
+        demisto.error(traceback.format_exc())  # log exception for debugging purposes
+        return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+
+
 def main() -> None:
     """main function, parses params and runs command functions
 
@@ -1122,69 +1240,32 @@ def main() -> None:
             return_results(users) if status else return_error(users)
 
         elif demisto.command() == "safebreach-get-user-with-matching-name-or-email":
-            name = demisto.args().get("name")
-            email = demisto.args().get("email")
-            result, status = get_user_id_by_name_or_email(client=client, name=name, email=email)
+            result, status = get_user_id_by_name_or_email(client=client)
             return_results(result) if status else return_error(result)
 
         elif demisto.command() == "safebreach-create-user":
-
             user, status = create_user(client=client)
             return_results(user) if status else return_error(user)
 
         elif demisto.command() == "safebreach-delete-user":
             user, status = delete_user_with_details(client=client)
             return_results(user) if status else return_error(user)
-            # demisto.info(f"user has not been found with given details user_id {user_id} and email {user_email}")
-            # return_results(f"no user with given email {user_email} or id {user_id} was found")
 
         elif demisto.command() == 'safebreach-update-user-details':
             user, status = update_user_with_details(client=client)
             return_results(user) if status else return_error(user)
 
-        elif demisto.command() == 'create-deployment':
-            name = demisto.args().get("name")
-            nodes = demisto.args().get("nodes", []).replace('"', "").split(",")
-            deployment, status = client.create_deployment(name, nodes)
-
-            demisto.info(f"deployment created is {deployment}")
+        elif demisto.command() == 'safebreach-create-deployment':
+            deployment, status = create_deployment(client=client)
             return_results(deployment) if status else return_error(deployment)
 
-        elif demisto.command() == 'update-deployment':
-            deployment_id = demisto.args().get("deployment_id")
-            deployment_name = demisto.args().get("deployment_name")
+        elif demisto.command() == 'safebreach-update-deployment':
+            deployment, status = update_deployment(client=client)
+            return_results(deployment) if status else return_error(deployment)
 
-            if deployment_name and not deployment_id:
-                needed_deployment = client.get_deployment_id_by_name(deployment_name)
-                if needed_deployment:
-                    deployment_id = needed_deployment['name']
-            if deployment_id:
-                name = demisto.args().get("updated_deployment_name")
-                nodes = demisto.args().get("updated_nodes", []).replace('"', "").split(",")
-                deployment, status = client.update_deployment(deployment_id, name, nodes)
-
-                demisto.info(f"deployment updated is {deployment}")
-                return_results(deployment) if status else return_error(deployment)
-            else:
-                return_error(f"no deployment with deployment name {deployment_name} na deployment id \
-                    {deployment_id} has been found to update")
-
-        elif demisto.command() == "delete-deployment":
-            deployment_id = demisto.args().get("deployment_id")
-            deployment_name = demisto.args().get("deployment_name")
-
-            if deployment_name and not deployment_id:
-                needed_deployment = client.get_deployment_id_by_name(deployment_name)
-                if needed_deployment:
-                    deployment_id = needed_deployment['name']
-
-            if deployment_id:
-                deployment, status = client.delete_deployment(deployment_id)
-                demisto.info(f"deployment updated is {deployment}")
-                return_results(deployment) if status else return_error(deployment)
-            else:
-                return_error(f"no deployment with deployment name {deployment_name} na deployment id \
-                    {deployment_id} has been found to delete")
+        elif demisto.command() == "safebreach-delete-deployment":
+            deployment, status = delete_deployment(client=client)
+            return_results(deployment) if status else return_error(deployment)
 
         elif demisto.command() == "safebreach-get-test-summary":
             includeArchived = demisto.args().get("include_archived")

@@ -29,6 +29,47 @@ configuration:
 script:
   commands:
   - deprecated: false
+    description: This command creates a deployment with given data
+    name: safebreach-create-deployment
+    arguments:
+    - name: Name
+      isArray: false
+      description: Name of the deployment to create.
+      required: false
+      secret: false
+      default: false
+    - name: Description
+      isArray: false
+      description: Description of the deployment to create.
+      required: false
+      secret: false
+      default: false
+    - name: Nodes
+      isArray: true
+      description: Comma separated ID of all nodes the deployment should be part of
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: created_deployment_data.id
+      description: The ID of deployment created.
+      type: Number
+    - contextPath: created_deployment_data.accountId
+      description: The account of deployment created.
+      type: String
+    - contextPath: created_deployment_data.name
+      description: The name of deployment created.
+      type: String
+    - contextPath: created_deployment_data.createdAt
+      description: The creation time of deployment created.
+      type: String
+    - contextPath: created_deployment_data.description
+      description: The description of deployment created.
+      type: String
+    - contextPath: created_deployment_data.nodes
+      description: The nodes that are part of deployment.
+      type: String
+  - deprecated: false
     description: This command creates a user with given data
     name: safebreach-create-user
     arguments:
@@ -137,6 +178,41 @@ script:
       description: The deployments user is part of.
       type: String
   - deprecated: false
+    description: This command deletes a deployment with given data
+    name: safebreach-delete-deployment
+    arguments:
+    - name: Deployment ID
+      isArray: false
+      description: Name of the deployment to update.
+      required: false
+      secret: false
+      default: false
+    - name: Deployment Name
+      isArray: false
+      description: Description of the deployment to update.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: deleted_deployment_data.id
+      description: The ID of deployment created.
+      type: Number
+    - contextPath: deleted_deployment_data.accountId
+      description: The account of deployment created.
+      type: String
+    - contextPath: deleted_deployment_data.name
+      description: The name of deployment created.
+      type: String
+    - contextPath: deleted_deployment_data.createdAt
+      description: The creation time of deployment created.
+      type: String
+    - contextPath: deleted_deployment_data.description
+      description: The description of deployment created.
+      type: String
+    - contextPath: deleted_deployment_data.nodes
+      description: The nodes that are part of deployment.
+      type: String
+  - deprecated: false
     description: This command deletes a user with given data
     name: safebreach-delete-user
     arguments:
@@ -219,6 +295,59 @@ script:
       type: String
     - contextPath: filtered_users.email
       description: The email of User retrieved.
+      type: String
+  - deprecated: false
+    description: This command updates a deployment with given data
+    name: safebreach-update-deployment
+    arguments:
+    - name: Deployment ID
+      isArray: false
+      description: Name of the deployment to update.
+      required: false
+      secret: false
+      default: false
+    - name: Deployment Name
+      isArray: false
+      description: Description of the deployment to update.
+      required: false
+      secret: false
+      default: false
+    - name: Updated Nodes for Deployment
+      isArray: false
+      description: Comma separated ID of all nodes the deployment should be part of
+      required: false
+      secret: false
+      default: false
+    - name: Updated Deployment Name
+      isArray: false
+      description: Name of the deployment to update to.
+      required: false
+      secret: false
+      default: false
+    - name: Updated deployment description
+      isArray: false
+      description: name of the deployment to update to.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: updated_deployment_data.id
+      description: The ID of deployment created.
+      type: Number
+    - contextPath: updated_deployment_data.accountId
+      description: The account of deployment created.
+      type: String
+    - contextPath: updated_deployment_data.name
+      description: The name of deployment created.
+      type: String
+    - contextPath: updated_deployment_data.createdAt
+      description: The creation time of deployment created.
+      type: String
+    - contextPath: updated_deployment_data.description
+      description: The description of deployment created.
+      type: String
+    - contextPath: updated_deployment_data.nodes
+      description: The nodes that are part of deployment.
       type: String
   - deprecated: false
     description: This command updates a user with given data
