@@ -226,7 +226,7 @@ metadata_collector = YMLMetadataCollector(
         4. Nodes get, update, delete ",
     display="Safebreach Content Management",
     category="Data Enrichment & Threat Intelligence",
-    docker_image="demisto/python3:3.10.4.29342",
+    docker_image="demisto/python3:3.10.13.72123",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -252,7 +252,7 @@ metadata_collector = YMLMetadataCollector(
                   key_type=ParameterTypes.NUMBER),
           ConfKey(name="verify",
                   display="Verify SSL Certificate",
-                  required=True,
+                  required=False,
                   default_value=False,
                   additional_info="This Field is useful for checking if the certificate of SSL for HTTPS is valid or not",
                   key_type=ParameterTypes.BOOLEAN)
@@ -505,6 +505,16 @@ class Client(BaseClient):
         account_id = demisto.params().get("account_id", 0)
         method = "GET"
         url = f"/siem/v1/accounts/{account_id}/config/providers/status"
+
+        error_logs = self.get_response(url=url, method=method)
+        return error_logs
+
+    def delete_integration_error_logs(self):
+        account_id = demisto.params().get("account_id", 0)
+        connector_id = demisto.args().get("Connector ID")
+
+        method = "DELETE"
+        url = f"/siem/v1/accounts/{account_id}/config/providers/status/delete/{connector_id}"
 
         error_logs = self.get_response(url=url, method=method)
         return error_logs
@@ -1325,6 +1335,39 @@ def get_all_error_logs(client: Client):
 
 
 @metadata_collector.command(
+    command_name="safebreach-delete-integration-errors",
+    inputs_list=[
+        InputArgument(name="Connector ID", description="The connector ID of Integration connector to have its errors deleted.",
+                      required=True, is_array=False),
+    ],
+    outputs_prefix="errors_cleared",
+    outputs_list=[
+        OutputArgument(name="error", description="Error count after deletion of errors for the given connector.",
+                       prefix="integration_errors", output_type=int),
+        OutputArgument(name="result", description="error deletion status whether true or false.",
+                       prefix="integration_errors", output_type=str),
+    ],
+    description="This command deleted connector related errors")
+def delete_integration_error_logs(client: Client):
+
+    error_logs = client.delete_integration_error_logs()
+    if error_logs.status_code == 409:
+        return json.dumps(error_logs.json()), False
+    error_logs = error_logs.json()
+    human_readable = tableToMarkdown(
+        name="Integration Connector errors Status",
+        t=error_logs,
+        headers=["error", "result"])
+    outputs = error_logs
+    result = CommandResults(
+        outputs_prefix="errors_cleared",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
+
+
+@metadata_collector.command(
     command_name="safebreach-get-available-simulator-count",
     inputs_list=None,
     outputs_prefix="account_details",
@@ -1617,6 +1660,10 @@ def main() -> None:
 
         elif demisto.command() == "safebreach-get-integration-errors":
             result, status = get_all_error_logs(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-delete-integration-errors":
+            result, status = delete_integration_error_logs(client=client)
             return_results(result) if status else return_error(result)
 
         elif demisto.command() == "safebreach-get-available-simulator-count":

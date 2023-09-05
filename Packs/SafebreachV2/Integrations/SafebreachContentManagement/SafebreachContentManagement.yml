@@ -24,7 +24,7 @@ configuration:
 - display: Verify SSL Certificate
   name: verify
   type: 8
-  required: true
+  required: false
   additionalinfo: This Field is useful for checking if the certificate of SSL for HTTPS is valid or not
 script:
   commands:
@@ -275,6 +275,23 @@ script:
       type: String
     - contextPath: deleted_deployment_data.nodes
       description: The nodes that are part of deployment.
+      type: String
+  - deprecated: false
+    description: This command deleted connector related errors
+    name: safebreach-delete-integration-errors
+    arguments:
+    - name: Connector ID
+      isArray: false
+      description: The connector ID of Integration connector to have its errors deleted.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: errors_cleared.error
+      description: Error count after deletion of errors for the given connector.
+      type: Number
+    - contextPath: errors_cleared.result
+      description: error deletion status whether true or false.
       type: String
   - deprecated: false
     description: This command deletes simulator with given name
@@ -1894,7 +1911,7 @@ script:
   script: '-'
   type: python
   subtype: python3
-  dockerimage: demisto/python3:3.10.4.29342
+  dockerimage: demisto/python3:3.10.13.72123
   feed: false
   isfetch: false
   runonce: false
