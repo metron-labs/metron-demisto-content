@@ -86,7 +86,7 @@ simulator_details_inputs = [
 
 simulators_output_fields = [
     OutputArgument(name="is_enabled", description="Whether the node is enabled or not.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="simulator_id", description="The Id of given simulator.",
                    output_type=str),
     OutputArgument(name="simulator_name", description="name for given simulator.",
@@ -192,6 +192,30 @@ simulator_details_for_update_fields = [
                   required=False, is_array=False),
 ]
 
+simulation_output_fields = [
+    OutputArgument(name="planId", description="Plan ID of the simulation", output_type=str),
+    OutputArgument(name="planName", description="Plan Name of the simulation", output_type=str),
+    OutputArgument(name="securityActionPerControl", description="Security Actions of the simulation", output_type=str),
+    OutputArgument(name="planRunId", description="Plan Run ID of the simulation", output_type=str),
+    OutputArgument(name="runId", description="Run ID of the simulation", output_type=str),
+    OutputArgument(name="status", description="status of the simulation", output_type=str),
+    OutputArgument(name="plannedSimulationsAmount", description="Planned simulations amount of the simulation", output_type=str),
+    OutputArgument(name="simulatorExecutions", description="simulator executions of the simulation", output_type=str),
+    OutputArgument(name="ranBy", description="user who started the simulation", output_type=str),
+    OutputArgument(name="simulatorCount", description="simulators count of simulation", output_type=str),
+    OutputArgument(name="endTime", description="End Time of the simulation", output_type=str),
+    OutputArgument(name="startTime", description="start time of the simulation", output_type=str),
+    OutputArgument(name="finalStatus.stopped", description="stopped count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.missed", description="missed count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.logged", description="logged count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.detected", description="detected count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.prevented", description="prevented count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.inconsistent", description="inconsistent count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.drifted", description="drifted count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.not_drifted", description="not drifted count of simulation", output_type=str),
+    OutputArgument(name="finalStatus.baseline", description="baseline count of simulation", output_type=str),
+]
+
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
     description="This Integration aims to provide easy access to safebreach from XSOAR.\
@@ -267,10 +291,7 @@ class Client(BaseClient):
         try:
             response = requests.request(method=method, url=request_url, json=body, headers=headers,
                                         params=request_params, verify=verify)
-            print(f"response, {response.__dict__}, request, {response.__dict__['request'].__dict__}")  # noqa: T201
-            # if "bulk" in request_url:
-            # raise Exception(f"{request_params}")
-            # raise Exception(f"response, {response.__dict__}, request, {response.__dict__['request'].__dict__}")
+            # print(f"response, {response.__dict__}, request, {response.__dict__['request'].__dict__}")  # noqa: T201
             if response.status_code in [201, 200, 409]:
                 return response
             self.handle_error(response, response.status_code, response.reason)
@@ -417,11 +438,17 @@ class Client(BaseClient):
             raise Exception(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
 
-    def get_tests_with_args(self, include_archived, size, status, plan_id, simulation_id, sort_by):
+    def get_tests_with_args(self):
         account_id = demisto.params().get("account_id", 0)
-        parameters = {}
 
-        # preparing request data
+        include_archived = demisto.args().get("Include Archived")
+        size = demisto.args().get("Entries per Page")
+        status = demisto.args().get("Status")
+        plan_id = demisto.args().get("Plan ID")
+        simulation_id = demisto.args().get("Simulation ID")
+        sort_by = demisto.args().get("Sort By")
+
+        parameters = {}
         method = "GET"
         url = f"/data/v1/accounts/{account_id}/testsummaries"
         for param in [("includeArchived", include_archived), ("size", size), ("status", status), ("planId", plan_id),
@@ -429,10 +456,7 @@ class Client(BaseClient):
             parameters.update({} if not param[1] else {param[0]: param[1]})
 
         test_summaries = self.get_response(url=url, method=method, request_params=parameters)
-        if test_summaries.status_code == 409:
-            return json.dumps(test_summaries.json()), False
-        test_summaries = test_summaries.json()
-        return test_summaries, True
+        return test_summaries
 
     def flatten_test_summaries(self, test_summaries):
         for test_summary in test_summaries:
@@ -453,72 +477,19 @@ class Client(BaseClient):
                 if key in ["endTime", "startTime"]:
                     test_summary[key] = datetime.utcfromtimestamp(test_summary[key] / 1000).strftime(DATE_FORMAT)
 
-    def get_tests_summary(self, include_archived, size, status, plan_id, simulation_id, sort_by):
-        try:
-            test_summaries, status = self.get_tests_with_args(include_archived, size, status, plan_id, simulation_id, sort_by)
-            if status:
-                self.flatten_test_summaries(test_summaries)
-                human_readable = tableToMarkdown(
-                    name="deleted Deployment",
-                    t=test_summaries,
-                    headers=['planId', "planName", 'securityActionPerControl', 'planRunId', "runId", "status",
-                             "plannedSimulationsAmount", "simulatorExecutions", "ranBy", "simulatorCount", "endTime", "startTime",
-                             "finalStatus", "stopped", "missed", "logged", "detected", "prevented",
-                             "inconsistent", "drifted", "not_drifted", "baseline"])
-                outputs = [{
-                    'tests': test_summaries
-                }]
-
-                result = CommandResults(
-                    outputs_prefix="Tests Data",
-                    outputs=outputs,
-                    readable_output=human_readable
-                )
-
-                return result, True
-            return test_summaries, False
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
-
-    def get_test_summary(self, include_archived, size, status, plan_id, simulation_id, sort_by):
-        try:
-            test_summaries, status = self.get_tests_with_args(include_archived, size, status, plan_id, simulation_id, sort_by)
-            if status:
-                self.flatten_test_summaries(test_summaries)
-                human_readable = tableToMarkdown(
-                    name="Test Summary",
-                    t=test_summaries,
-                    headers=['planId', "planName", 'securityActionPerControl', 'planRunId', "runId", "status",
-                             "plannedSimulationsAmount", "simulatorExecutions", "ranBy", "simulatorCount", "endTime", "startTime",
-                             "finalStatus", "stopped", "missed", "logged", "detected", "prevented",
-                             "inconsistent", "drifted", "not_drifted", "baseline"])
-                outputs = test_summaries[0] if test_summaries else {}
-                result = CommandResults(
-                    outputs_prefix="test_data",
-                    outputs=outputs,
-                    readable_output=human_readable
-                )
-
-                return result, True
-            return test_summaries, False
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
-
-    def delete_test_result_of_test(self, test_id: str, soft_delete: str):
+    def delete_test_result_of_test(self):
         account_id = demisto.params().get("account_id", 0)
+        test_id = demisto.args().get("Test ID")
+        soft_delete = demisto.args().get("Soft Delete")
 
         method = "DELETE"
         url = f"/data/v1/accounts/{account_id}/tests/{test_id}"
         request_parameters = {
             "softDelete": soft_delete
         }
+
         test_summaries = self.get_response(url=url, method=method, request_params=request_parameters)
-        if test_summaries.status_code == 409:
-            return json.dumps(test_summaries.json()), False
-        test_summaries = test_summaries.json()
-        return test_summaries.get("data").get("id"), True
+        return test_summaries
 
     def flatten_error_logs_for_table_view(self, error_logs):
         flattened_logs_list = []
@@ -589,35 +560,6 @@ class Client(BaseClient):
         url = f"/config/v1/accounts/{account_id}"
         simulator_details = self.get_response(method=method, url=url)
         return simulator_details
-        # if simulator_details.status_code == 409:
-        #     return json.dumps(simulator_details.json()), False
-        # simulator_details = simulator_details.json()
-        # return simulator_details, True
-
-    def get_simulator_quota_with_table(self):
-        try:
-            result, status = self.get_simulator_quota()
-            if status:
-                human_readable = tableToMarkdown(
-                    name="Account Details",
-                    t=result.get("data"),
-                    headers=["id", "name", "contactName", "contactEmail", "userQuota", "nodesQuota", "registrationDate",
-                             "activationDate", "expirationDate"])
-                outputs = [{
-                    'Account Details': result.get("data")
-                }, {
-                    "simulator_details": result.get("data").get("nodesQuota")
-                }]
-                result = CommandResults(
-                    outputs_prefix="Account Details",
-                    outputs=outputs,
-                    readable_output=human_readable
-                )
-                return result, True
-            return result, status
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
 
     def get_simulators_details(self, request_params):
         account_id = demisto.params().get("account_id", 0)
@@ -690,26 +632,6 @@ class Client(BaseClient):
             flattened_nodes.append(node_details)
 
         return flattened_nodes, keys
-
-    def get_simulators_and_display_in_table(self, just_name=False):
-        request_params = self.get_simulator_with_name_request_params() if just_name \
-            else self.create_get_simulator_params_dict()
-        result, status = self.get_simulators_details(request_params=request_params)
-        if status:
-            flattened_nodes, keys = self.flatten_node_details(result.get("data", {}).get("rows", {}))
-            human_readable = tableToMarkdown(
-                name="Simulators Details",
-                t=flattened_nodes,
-                headers=keys)
-            outputs = result.get("data", {}).get("rows")[0]
-
-            result = CommandResults(
-                outputs_prefix="simulator_details",
-                outputs=outputs,
-                readable_output=human_readable
-            )
-            return result, True
-        return result, status
 
     def get_simulator_with_name_request_params(self):
         name = demisto.args().get("Simulator/Node Name")
@@ -796,32 +718,7 @@ class Client(BaseClient):
         request_url = f"/config/v1/accounts/{account_id}/nodes/secret/rotate"
 
         new_token = self.get_response(url=request_url, method=method, body={})
-        if new_token.status_code == 409:
-            return json.dumps(new_token.json()), False
-        new_token = new_token.json()
-        return new_token, True
-
-    def return_rotated_verification_token(self):
-        try:
-            result, status = self.rotate_verification_token()
-            if status:
-                human_readable = tableToMarkdown(
-                    name=" new Token Details",
-                    t=result.get("data"),
-                    headers=["secret"])
-                outputs = [{
-                    'New Token Details': result.get("data", {}).get("secret", ""),
-                }]
-                result = CommandResults(
-                    outputs_prefix="New Token Details",
-                    outputs=outputs,
-                    readable_output=human_readable
-                )
-                return result, True
-            return "Verification Token Could not be created", False
-        except Exception as e:  # noqa: E722
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+        return new_token
 
     def create_user_data(self):
         account_id = literal_eval(demisto.params().get("account_id", 0))
@@ -905,6 +802,33 @@ def get_simulators_and_display_in_table(client: Client, just_name=False):
         )
         return result, True
     return result, status
+
+
+def get_tests_summary(client: Client):
+    test_summaries = client.get_tests_with_args()
+    if test_summaries.status_code == 409:
+        return json.dumps(test_summaries.json()), False
+    test_summaries = test_summaries.json()
+
+    client.flatten_test_summaries(test_summaries)
+    human_readable = tableToMarkdown(
+        name="Test Results",
+        t=test_summaries,
+        headers=['planId', "planName", 'securityActionPerControl', 'planRunId', "runId", "status",
+                 "plannedSimulationsAmount", "simulatorExecutions", "ranBy", "simulatorCount", "endTime", "startTime",
+                 "finalStatus", "stopped", "missed", "logged", "detected", "prevented",
+                 "inconsistent", "drifted", "not_drifted", "baseline"])
+    outputs = [{
+        'tests': test_summaries
+    }]
+
+    result = CommandResults(
+        outputs_prefix="tests_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+
+    return result, True
 
 
 @metadata_collector.command(
@@ -1536,6 +1460,102 @@ def update_simulator_with_given_name(client: Client):
     return result, True
 
 
+@metadata_collector.command(
+    command_name="safebreach-rotate-verification-token",
+    inputs_list=None,
+    outputs_prefix="new_token",
+    outputs_list=simulators_output_fields,
+    description="This command gives simulator with given name")
+def return_rotated_verification_token(client: Client):
+    new_token = client.rotate_verification_token()
+    if new_token.status_code == 409:
+        return json.dumps(new_token.json()), False
+    new_token = new_token.json()
+    human_readable = tableToMarkdown(
+        name=" new Token Details",
+        t=new_token.get("data"),
+        headers=["secret"])
+    outputs = new_token.get("data", {}).get("secret", "")
+    result = CommandResults(
+        outputs_prefix="new_token",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
+
+
+@metadata_collector.command(
+    command_name="safebreach-get-test-summary",
+    inputs_list=[
+        InputArgument(name="Include Archived", description="Should archived tests be included in search.",
+                      options=["true", "false"], default="true", required=False, is_array=False),
+        InputArgument(name="Entries per Page", description="number of entries per page to be retrieved.",
+                      required=False, is_array=False),
+        InputArgument(name="Plan ID", description="plan Id of test.", required=False, is_array=False),
+        InputArgument(name="Status", description="Status of simulation.", required=False, is_array=False,
+                      default="CANCELED", options=["CANCELED", "COMPLETED"]),
+        InputArgument(name="Simulation ID", description="Unique ID of the simulation.", required=False, is_array=False),
+        InputArgument(name="Sort By", description="sort by option", required=False, is_array=False,
+                      options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
+    ],
+    outputs_prefix="test_results",
+    outputs_list=simulation_output_fields,
+    description="This command gets tests with given modifiers")
+def get_all_tests_summary(client: Client):
+    return get_tests_summary(client=client)
+
+
+@metadata_collector.command(
+    command_name="safebreach-get-test-summary-with-plan-run-id",
+    inputs_list=[
+        InputArgument(name="Include Archived", description="Should archived tests be included in search.",
+                      options=["true", "false"], default="true", required=False, is_array=False),
+        InputArgument(name="Entries per Page", description="number of entries per page to be retrieved.",
+                      required=False, is_array=False),
+        InputArgument(name="Plan ID", description="plan Id of test.", required=True, is_array=False),
+        InputArgument(name="Status", description="Status of simulation.", required=False, is_array=False,
+                      options=["CANCELED", "COMPLETED"]),
+        InputArgument(name="Simulation ID", description="Unique ID of the simulation.", required=False, is_array=False),
+        InputArgument(name="Sort By", description="sort by option", required=False, is_array=False,
+                      options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
+    ],
+    outputs_prefix="test_results",
+    outputs_list=simulation_output_fields,
+    description="This command gets tests with given plan ID")
+def get_all_tests_summary_with_plan_id(client: Client):
+    return get_tests_summary(client=client)
+
+
+@metadata_collector.command(
+    command_name="safebreach-delete-test-summary-of-given-test",
+    inputs_list=[
+        InputArgument(name="Test ID", description="number of entries per page to be retrieved.",
+                      required=False, is_array=False),
+        InputArgument(name="Soft Delete", description="Should archived tests be included in search.",
+                      options=["true", "false"], default="true", required=False, is_array=False),
+    ],
+    outputs_prefix="deleted_test_results",
+    outputs_list=simulation_output_fields,
+    description="This command deletes tests with given plan ID")
+def delete_test_result_of_test(client: Client):
+    test_summaries = client.delete_test_result_of_test()
+    if test_summaries.status_code == 409:
+        return json.dumps(test_summaries.json()), False
+    test_summaries = test_summaries.json()
+    human_readable = tableToMarkdown(
+        name="Deleted Test",
+        t=test_summaries.get("data", {}),
+        headers=["id"])
+    outputs = [test_summaries.get("data", {}).get("id")]
+
+    result = CommandResults(
+        outputs_prefix="deleted_test_results",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
+
+
 def main() -> None:
     """main function, parses params and runs command functions
 
@@ -1619,48 +1639,29 @@ def main() -> None:
             result, status = update_simulator_with_given_name(client=client)
             return_results(result) if status else return_error(result)
 
-        elif demisto.command() == "safebreach-get-test-summary":
-            includeArchived = demisto.args().get("include_archived")
-            size = demisto.args().get("entries_per_page")
-            status = demisto.args().get("status_of_test")
-            planId = demisto.args().get("plan_id")
-            simulation_id = demisto.args().get("simulation_id")
-            sort_by = demisto.args().get("sort_by")
+        elif demisto.command() == "safebreach-rotate-verification-token":
+            result, status = return_rotated_verification_token(client=client)
+            return_results(result) if status else return_error(result)
 
-            result, status = client.get_tests_summary(includeArchived, size, status, planId, simulation_id, sort_by)
+        elif demisto.command() == "safebreach-get-test-summary":
+            result, status = get_all_tests_summary(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-get-test-summary-with-plan-run-id":
+            result, status = get_all_tests_summary_with_plan_id(client=client)
             return_results(result) if status else return_error(result)
 
         elif demisto.command() == "safebreach-delete-test-summary-of-given-test":
-            test_id = demisto.args().get("test_id")
-            soft_delete = demisto.args().get("soft_delete")
-
-            result, status = client.delete_test_result_of_test(test_id, soft_delete)
-            return_results(f'test with plan run id {result}, has been deleted') if status else return_error(result)
-
-        elif demisto.command() == "safebreach-get-test-summary-with-plan-run-id":
-            includeArchived = demisto.args().get("include_archived")
-            size = demisto.args().get("entries_per_page")
-            status = demisto.args().get("status_of_test")
-            planId = demisto.args().get("plan_id")
-            simulation_id = demisto.args().get("simulation_id")
-            sort_by = demisto.args().get("sort_by")
-
-            result, status = client.get_test_summary(includeArchived, size, status, planId, simulation_id, sort_by)
-            return_results(result) if status else return_error(result)
-
-        elif demisto.command() == "safebreach-rotate-verification-token":
-
-            result, status = client.return_rotated_verification_token()
+            result, status = delete_test_result_of_test(client=client)
             return_results(result) if status else return_error(result)
 
     # Log exceptions and return errors
     except Exception as e:
-        demisto.error(traceback.format_exc())  # print the traceback
+        demisto.error(traceback.format_exc())
         return_error(f'Failed to execute {demisto.command()} command {traceback.format_exc()}.\nError:\n{str(e)}')
 
 
 ''' ENTRY POINT '''
-
 
 if __name__ in ('__main__', '__builtin__', 'builtins'):
     main()
