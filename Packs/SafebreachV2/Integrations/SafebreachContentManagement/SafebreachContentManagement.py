@@ -5,14 +5,192 @@ New Integration starts from here
 
 """
 import random
-from enum import Enum
 from ast import literal_eval
+
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSOAR
 
+simulator_details_inputs = [
+    InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="secret", description="if secrets are to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="shouldIncludeProxies", description="if proxies are to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="hostname", description="if hostname to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="connectionType", description="if connectionType to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="externalIp", description="if external IP details to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="internalIp", description="if Internal IP are to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="os", description="if Operating system details to be included for search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="sortDirection", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
+                  default="asc", required=False, is_array=False),
+    InputArgument(name="startRow", description="if there are too many entries then where should we start looking from.",
+                  required=False, is_array=False),
+    InputArgument(name="pageSize", description="number of entries to search.", required=False, is_array=False),
+    InputArgument(name="isEnabled", description="if to search only enabled ones.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="isConnected", description="status of connection of nodes to search.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="isCritical", description="whether to search only for critical nodes or not", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="assets", description="Whether search only for assets and which assets.", required=False, is_array=False),
+    InputArgument(name="additionalDetails", description="Whether to show additional details or not",
+                  options=["true", "false"], default="false", required=False, is_array=False),
+    InputArgument(name="impersonatedUsers", description="should search only for impersonated user targets or not",
+                  options=["true", "false"], default="false", required=False, is_array=False),
+    InputArgument(name="isAzureAttacker", description="Whether to search only for azure attackers",
+                  options=["true", "false"], default="false", required=False, is_array=False),
+    InputArgument(name="isAwsAttacker", description="Whether to search only for aws attacker.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="isPreExecutor", description="should search only for pre-executors or not",
+                  options=["true", "false"], default="false", required=False, is_array=False),
+    InputArgument(name="isInfiltrationTarget", description="Whether to search only for infiltration targets",
+                  options=["true", "false"], default="false", required=False, is_array=False),
+    InputArgument(name="isMailTarget", description="Whether to search only for Mail targets.", options=["true", "false"],
+                  default="false", required=False, is_array=False),
+    InputArgument(name="isExfiltrationTarget", description="should search only for exfiltration targets or not",
+                  options=["true", "false"], default="false", required=False, is_array=False),
 
-class InputTypes(Enum):
-    TEXT_AREA = "textArea"
+    # These fields need to be '|' separated  arrays
+    InputArgument(name="deployments", description="deployments list which the search should look",
+                  required=False, is_array=True),
+    InputArgument(name="advancedActions", description="advanced actions to search",
+                  required=False, is_array=True),
+    InputArgument(name="roles", description="roles to search",
+                  required=False, is_array=True),
+    InputArgument(name="userids", description="userids to search",
+                  required=False, is_array=True),
+    InputArgument(name="versions", description="versions to filter by",
+                  required=False, is_array=True),
+    # '|' separated arrays end
 
+    # normal arrays start
+    InputArgument(name="proxyIds", description="proxy ids to search",
+                  required=False, is_array=True),
+    InputArgument(name="assetIds", description="asset ids to search",
+                  required=False, is_array=True),
+    # normal arrays end
+
+    # enums start
+    InputArgument(name="status", description="if simulator status are to be included for search.",
+                  options=["APPROVED", "PENDING", "ALL"],
+                  default="ALL", required=False, is_array=False),
+    # enums end
+]
+
+simulators_output_fields = [
+    OutputArgument(name="is_enabled", description="Whether the node is enabled or not.",
+                   output_type=int),
+    OutputArgument(name="simulator_id", description="The Id of given simulator.",
+                   output_type=str),
+    OutputArgument(name="simulator_name", description="name for given simulator.",
+                   output_type=str),
+    OutputArgument(name="account_id", description="Account Id of account Hosting given simulator",
+                   output_type=str),
+    OutputArgument(name="is_critical", description="Whether the simulator is critical",
+                   output_type=str),
+    OutputArgument(name="is_exfiltration", description="If Simulator is exfiltration target",
+                   output_type=int),
+    OutputArgument(name="is_infiltration", description="If simulator is infiltration target.",
+                   output_type=int),
+    OutputArgument(name="is_mail_target", description="If simulator is mail target.",
+                   output_type=int),
+    OutputArgument(name="is_mail_attacker", description="If simulator is mail attacker.",
+                   output_type=int),
+    OutputArgument(name="is_pre_executor", description="Whether the node is pre executor.",
+                   output_type=int),
+    OutputArgument(name="is_aws_attacker", description="if the given simulator is aws attacker.",
+                   output_type=str),
+    OutputArgument(name="is_azure_attacker", description="If the given simulator is azure attacker",
+                   output_type=str),
+    OutputArgument(name="external_ip", description="external ip of given simulator",
+                   output_type=str),
+    OutputArgument(name="internal_ip", description="internal ip of given simulator",
+                   output_type=str),
+    OutputArgument(name="is_web_application_attacker", description="Whether the simulator is Web application attacker",
+                   output_type=str),
+    OutputArgument(name="preferred_interface", description="Preferred simulator interface",
+                   output_type=int),
+    OutputArgument(name="preferred_ip", description="Preferred Ip of simulator.",
+                   output_type=int),
+    OutputArgument(name="hostname", description="Hostname of given simulator",
+                   output_type=str),
+    OutputArgument(name="connection_type", description="connection_type of given simulator",
+                   output_type=str),
+    OutputArgument(name="simulator_status", description="status of the simulator",
+                   output_type=str),
+    OutputArgument(name="connection_status", description="connection status of node/simulator",
+                   output_type=int),
+    OutputArgument(name="simulator_framework_version", description="Framework version of simulator.",
+                   output_type=int),
+    OutputArgument(name="operating_system_type", description="operating system type of given simulator",
+                   output_type=str),
+    OutputArgument(name="operating_system", description="Operating system of given simulator",
+                   output_type=str),
+    OutputArgument(name="execution_hostname", description="Execution Hostname of the given node",
+                   output_type=str),
+    OutputArgument(name="deployments", description="deployments simulator is part of",
+                   output_type=int),
+    OutputArgument(name="created_at", description="Creation datetime of simulator.",
+                   output_type=int),
+    OutputArgument(name="updated_at", description="Update datetime of given simulator",
+                   output_type=str),
+    OutputArgument(name="deleted_at", description="deletion datetime of given simulator",
+                   output_type=str),
+    OutputArgument(name="assets", description="Assets of given simulator",
+                   output_type=str),
+    OutputArgument(name="simulation_users", description="simulator users list",
+                   output_type=int),
+    OutputArgument(name="proxies", description="Proxies of simulator.",
+                   output_type=int),
+    OutputArgument(name="advanced_actions", description="Advanced simulator details.",
+                   output_type=int)
+]
+
+simulator_details_for_update_fields = [
+    InputArgument(name="isEnabled", description="set true to enable the node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isProxySupported", description="set true to enable the proxy support",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isCritical", description="set true to make node as critical node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isExfiltration", description="set true to make the node as exfiltration node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isInfiltration", description="set true to make the node as infiltration node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isMailTarget", description="set true to make node as mail target",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isMailAttacker", description="set true to make node as MailAttacker node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isPreExecutor", description="set true to enable the node as PreExecutor node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isAWSAttacker", description="set true to make node as AWS attacker target",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isAzureAttacker", description="set true to make node as Azure attacker node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="isWebApplicationAttacker", description="set true to enable the node as web application attacker node",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="useSystemUser", description="set true to enable the node get system user access",
+                  options=["false", "true"], required=False, is_array=False),
+    InputArgument(name="connectionUrl", description="the given value will be set as connection string",
+                  required=False, is_array=False),
+    InputArgument(name="cloudProxyUrl", description="the given value will be set as cloud proxy url",
+                  required=False, is_array=False),
+    InputArgument(name="name", description="the given value will be set as name of simulator",
+                  required=False, is_array=False),
+    InputArgument(name="preferredInterface", description="the given value will be set as preferred interface string",
+                  required=False, is_array=False),
+    InputArgument(name="preferredIp", description="the given value will be set as Preferred IP",
+                  required=False, is_array=False),
+    InputArgument(name="tunnel", description="the given value will be set as tunnel",
+                  required=False, is_array=False),
+]
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
@@ -354,30 +532,11 @@ class Client(BaseClient):
 
     def get_all_error_logs(self):
         account_id = demisto.params().get("account_id", 0)
-        formatted_error_logs = []
         method = "GET"
         url = f"/siem/v1/accounts/{account_id}/config/providers/status"
 
         error_logs = self.get_response(url=url, method=method)
-        if error_logs.status_code == 409:
-            return json.dumps(error_logs.json()), False
-        error_logs = error_logs.json()
-        if error_logs.get("result"):
-            formatted_error_logs = self.flatten_error_logs_for_table_view(error_logs.get("result"))
-            human_readable = tableToMarkdown(
-                name="Integration Connector errors",
-                t=formatted_error_logs,
-                headers=["action", "success", "error", "timestamp", "connector"])
-            outputs = [{
-                'Connector Errors': error_logs.get("result")
-            }]
-            result = CommandResults(
-                outputs_prefix="Integration Error Data",
-                outputs=outputs,
-                readable_output=human_readable
-            )
-            return result, True
-        return formatted_error_logs, True
+        return error_logs
 
     def generate_api_key(self):
         account_id = demisto.params().get("account_id", 0)
@@ -429,10 +588,11 @@ class Client(BaseClient):
         method = "GET"
         url = f"/config/v1/accounts/{account_id}"
         simulator_details = self.get_response(method=method, url=url)
-        if simulator_details.status_code == 409:
-            return json.dumps(simulator_details.json()), False
-        simulator_details = simulator_details.json()
-        return simulator_details, True
+        return simulator_details
+        # if simulator_details.status_code == 409:
+        #     return json.dumps(simulator_details.json()), False
+        # simulator_details = simulator_details.json()
+        # return simulator_details, True
 
     def get_simulator_quota_with_table(self):
         try:
@@ -470,21 +630,20 @@ class Client(BaseClient):
         simulators_details = simulators_details.json()
         if simulators_details.get("data", {}).get("count"):
             return simulators_details, True
-        return f"No Matching simulators found with details name: {demisto.args().get('simulator_name')}", False
+        raise Exception(f"No Matching simulators found with details name: {demisto.args().get('simulator_name')}")
 
     def create_get_simulator_params_dict(self):
         possible_inputs = [
             "details", "deleted", "secret", "shouldIncludeProxies", "hostname", "connectionType", "externalIp", "internalIp",
             "os", "status", "sortDirection", "startRow", "pageSize", "isEnabled", "isConnected", "isCritical",
-            "isExfiltrationEarget", "isInfiltrationTarget", "isMailTarget", "isMailAttacker", "isPreExecutor",
+            "isExfiltrationTarget", "isInfiltrationTarget", "isMailTarget", "isMailAttacker", "isPreExecutor",
             "isAwsAttacker", "isAzureAttacker", "impersonatedUsers", "assets", "advancedActions", "deployments",
             "additionalDetails"]
         request_params = {}
         for parameter in possible_inputs:
             if demisto.args().get(parameter) and demisto.args().get(parameter) != 'false':
                 request_params[parameter] = demisto.args().get(parameter)
-
-        return request_params, True
+        return request_params
 
     def flatten_node_details(self, nodes):
         keys = None
@@ -525,98 +684,69 @@ class Client(BaseClient):
                 "advanced_actions": node.get("advancedActions"),
                 "proxies": node.get("proxies")
             }
+
             if not keys:
                 keys = list(node_details.keys())
-            # for keys in node_details:
-            #     if not node_details[key]:
-            #         node_details.pop(key)
             flattened_nodes.append(node_details)
+
         return flattened_nodes, keys
 
     def get_simulators_and_display_in_table(self, just_name=False):
-        try:
-            request_params, status = self.get_simulator_with_name_request_params() if just_name \
-                else self.create_get_simulator_params_dict()
-            result, status = self.get_simulators_details(request_params=request_params)
-            if status:
-                flattened_nodes, keys = self.flatten_node_details(result.get("data", {}).get("rows", {}))
-                human_readable = tableToMarkdown(
-                    name="Simulators Details",
-                    t=flattened_nodes,
-                    headers=keys)
-                outputs = result.get("data", {}).get("rows")[0]
+        request_params = self.get_simulator_with_name_request_params() if just_name \
+            else self.create_get_simulator_params_dict()
+        result, status = self.get_simulators_details(request_params=request_params)
+        if status:
+            flattened_nodes, keys = self.flatten_node_details(result.get("data", {}).get("rows", {}))
+            human_readable = tableToMarkdown(
+                name="Simulators Details",
+                t=flattened_nodes,
+                headers=keys)
+            outputs = result.get("data", {}).get("rows")[0]
 
-                result = CommandResults(
-                    outputs_prefix="simulator_details",
-                    outputs=outputs,
-                    readable_output=human_readable
-                )
-                return result, True
-            return result, status
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+            result = CommandResults(
+                outputs_prefix="simulator_details",
+                outputs=outputs,
+                readable_output=human_readable
+            )
+            return result, True
+        return result, status
 
     def get_simulator_with_name_request_params(self):
-        name = demisto.args().get("simulator_name")
+        name = demisto.args().get("Simulator/Node Name")
         request_params = {
             "name": name,
             "deleted": "true",
             "details": "true"
         }
-        return request_params, True
+        return request_params
 
     def get_simulator_with_a_name_return_id(self):
-        request_params, status = self.get_simulator_with_name_request_params()
+        request_params = self.get_simulator_with_name_request_params()
         result, status = self.get_simulators_details(request_params=request_params)
         if status:
             try:
                 simulator_id = result.get("data", {}).get("rows", {})[0].get("id")
-                return simulator_id, True
+                return simulator_id
             except IndexError:
-                return "Simulator with given details could not be found", False
-        return "Simulator with given details could not be found", False
+                raise Exception("Simulator with given details could not be found")
+        raise Exception("Simulator with given details could not be found")
 
-    def delete_node_with_given_id(self, node_id, force=False):
+    def delete_node_with_given_id(self, node_id, force: str):
         request_params = {
-            "force": "true" if force else "false"
+            "force": force
         }
         method = "DELETE"
         account_id = demisto.params().get("account_id")
         request_url = f"/config/v1/accounts/{account_id}/nodes/{node_id}"
 
         deleted_node = self.get_response(url=request_url, method=method, request_params=request_params)
-        if deleted_node.status_code == 409:
-            return json.dumps(deleted_node.json()), False
-        deleted_node = deleted_node.json()
-        return deleted_node, True
+        return deleted_node
 
     def delete_simulator_with_given_name(self):
-        try:
-            simulator_id, status = self.get_simulator_with_a_name_return_id()
-            if status:
-                force_delete = demisto.args().get("force_delete")
-                result, status = self.delete_node_with_given_id(node_id=simulator_id, force=force_delete)
-                if status:
-                    flattened_nodes, keys = self.flatten_node_details([result.get("data", {})])
-                    human_readable = tableToMarkdown(
-                        name="Deleted Simulators Details",
-                        t=flattened_nodes,
-                        headers=keys)
-                    outputs = [{
-                        'Deleted simulators Details': result.get("data", {}),
-                    }]
-                    result = CommandResults(
-                        outputs_prefix="Deleted Simulators Details",
-                        outputs=outputs,
-                        readable_output=human_readable
-                    )
-                    return result, True
-                return result, status
-            return simulator_id, status
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+        simulator_id = self.get_simulator_with_a_name_return_id()
+        force_delete = demisto.args().get("Should Force Delete")
+        result = self.delete_node_with_given_id(node_id=simulator_id, force=force_delete)
+        return result
 
     def make_update_node_payload(self):
         # this is created under assumption that only these fields will be  chosen to be updated by user
@@ -652,35 +782,13 @@ class Client(BaseClient):
         request_url = f"/config/v1/accounts/{account_id}/nodes/{node_id}"
 
         updated_node = self.get_response(url=request_url, method=method, body=node_data)
-        if updated_node.status_code == 409:
-            return json.dumps(updated_node.json()), False
-        updated_node = updated_node.json()
-        return updated_node, True
+        return updated_node
 
     def update_simulator_with_given_name(self):
-        try:
-            simulator_id, status = self.get_simulator_with_a_name_return_id()
-            if status:
-                payload = self.make_update_node_payload()
-                result, status = self.update_node(node_id=simulator_id, node_data=payload)
-                if status:
-                    flattened_nodes, keys = self.flatten_node_details([result.get("data", {})])
-                    human_readable = tableToMarkdown(
-                        name="Updated Simulators Details",
-                        t=flattened_nodes,
-                        headers=keys)
-                    outputs = result.get("data", {}), result.get("data", {})
-                    result = CommandResults(
-                        outputs_prefix="updated_simulator_details",
-                        outputs=outputs,
-                        readable_output=human_readable
-                    )
-                    return result, True
-                return result, status
-            return simulator_id, status
-        except Exception as e:
-            demisto.error(traceback.format_exc())  # log exception for debugging purposes
-            return f"Failed to execute {demisto.command()} command.\nError:\n{str(e)}", False
+        simulator_id = self.get_simulator_with_a_name_return_id()
+        payload = self.make_update_node_payload()
+        updated_node = self.update_node(node_id=simulator_id, node_data=payload)
+        return updated_node
 
     def rotate_verification_token(self):
         method = "POST"
@@ -775,6 +883,28 @@ class Client(BaseClient):
                 demisto.info("user has been found and details are being given for updating user")
         user = self.update_user_with_details(user_id, details)
         return user
+
+
+def get_simulators_and_display_in_table(client: Client, just_name=False):
+
+    request_params = client.get_simulator_with_name_request_params() if just_name \
+        else client.create_get_simulator_params_dict()
+    result, status = client.get_simulators_details(request_params=request_params)
+    if status:
+        flattened_nodes, keys = client.flatten_node_details(result.get("data", {}).get("rows", {}))
+        human_readable = tableToMarkdown(
+            name="Simulators Details",
+            t=flattened_nodes,
+            headers=keys)
+        outputs = result.get("data", {}).get("rows")[0]
+
+        result = CommandResults(
+            outputs_prefix="simulator_details",
+            outputs=outputs,
+            readable_output=human_readable
+        )
+        return result, True
+    return result, status
 
 
 @metadata_collector.command(
@@ -1230,6 +1360,182 @@ def delete_api_key(client: Client):
     return result, True
 
 
+@metadata_collector.command(
+    command_name="safebreach-get-integration-errors",
+    inputs_list=None,
+    outputs_prefix="integration_errors",
+    outputs_list=[
+        OutputArgument(name="connector", description="The connector ID of Integration connector retrieved.",
+                       prefix="integration_errors", output_type=int),
+        OutputArgument(name="action", description="The action of Integration connector error.",
+                       prefix="integration_errors", output_type=str),
+        OutputArgument(name="success", description="status of connector error.",
+                       prefix="integration_errors", output_type=str),
+        OutputArgument(name="error", description="Error description.",
+                       prefix="integration_errors", output_type=str),
+        OutputArgument(name="timestamp", description="Time of error.",
+                       prefix="integration_errors", output_type=str),
+    ],
+    description="This command gives all connector related errors")
+def get_all_error_logs(client: Client):
+
+    formatted_error_logs = []
+    error_logs = client.get_all_error_logs()
+    if error_logs.status_code == 409:
+        return json.dumps(error_logs.json()), False
+    error_logs = error_logs.json()
+    if error_logs.get("result"):
+        formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
+        human_readable = tableToMarkdown(
+            name="Integration Connector errors",
+            t=formatted_error_logs,
+            headers=["action", "success", "error", "timestamp", "connector"])
+        outputs = error_logs.get("result")
+        result = CommandResults(
+            outputs_prefix="Integration Error Data",
+            outputs=outputs,
+            readable_output=human_readable
+        )
+        return result, True
+    return formatted_error_logs, True
+
+
+@metadata_collector.command(
+    command_name="safebreach-get-available-simulator-count",
+    inputs_list=None,
+    outputs_prefix="account_details",
+    outputs_list=[
+        OutputArgument(name="id", description="The account ID of account.",
+                       prefix="account_details", output_type=int),
+        OutputArgument(name="name", description="The Account Name of account being queried.",
+                       prefix="account_details", output_type=str),
+        OutputArgument(name="contactName", description="Contact name for given account.",
+                       prefix="account_details", output_type=str),
+        OutputArgument(name="contactEmail", description="Email of the contact person.",
+                       prefix="account_details", output_type=str),
+        OutputArgument(name="userQuota", description="User Quota for the given account, max number of users for this account.",
+                       prefix="account_details", output_type=str),
+        OutputArgument(name="nodesQuota", description="The simulator quota for the given account.",
+                       prefix="account_details", output_type=int),
+        OutputArgument(name="registrationDate", description="The registration date of given account.",
+                       prefix="account_details", output_type=int),
+        OutputArgument(name="activationDate", description="The Activation date of given account.",
+                       prefix="account_details", output_type=int),
+        OutputArgument(name="expirationDate", description="Account expiration date.",
+                       prefix="account_details", output_type=int),
+    ],
+    description="This command gives all details related to account, we are using this to find assigned simulator quota")
+def get_simulator_quota_with_table(client: Client):
+
+    simulator_details = client.get_simulator_quota()
+    if simulator_details.status_code == 409:
+        return json.dumps(simulator_details.json()), False
+    simulator_details = simulator_details.json()
+
+    human_readable = tableToMarkdown(
+        name="Account Details",
+        t=simulator_details.get("data"),
+        headers=["id", "name", "contactName", "contactEmail", "userQuota", "nodesQuota", "registrationDate",
+                 "activationDate", "expirationDate"])
+    outputs = {
+        'account_details': simulator_details.get("data"),
+        "simulator_quota": simulator_details.get("data").get("nodesQuota")
+    }
+    simulator_details = CommandResults(
+        outputs_prefix="account_details",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return simulator_details, True
+
+
+@metadata_collector.command(
+    command_name="safebreach-get-available-simulator-details",
+    inputs_list=simulator_details_inputs,
+    outputs_prefix="simulator_details",
+    outputs_list=simulators_output_fields,
+    description="This command gives all details related to account, we are using this to find assigned simulator quota")
+def get_all_simulator_details(client: Client):
+    return get_simulators_and_display_in_table(client=client, just_name=False)
+
+
+@metadata_collector.command(
+    command_name="safebreach-get-simulator-with-name",
+    inputs_list=[
+        InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
+                      required=False, is_array=False),
+    ],
+    outputs_prefix="simulator_details",
+    outputs_list=simulators_output_fields,
+    description="This command gives simulator with given name")
+def get_simulator_with_name(client: Client):
+    return get_simulators_and_display_in_table(client=client, just_name=True)
+
+
+@metadata_collector.command(
+    command_name="safebreach-delete-simulator-with-name",
+    inputs_list=[
+        InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
+                      required=True, is_array=False),
+        InputArgument(name="Should Force Delete", description="Name of simulator/node to search with.",
+                      default="false", options=["true", "false"], required=True, is_array=False),
+    ],
+    outputs_prefix="deleted_simulator_details",
+    outputs_list=simulators_output_fields,
+    description="This command deletes simulator with given name")
+def delete_simulator_with_given_name(client: Client):
+
+    deleted_node = client.delete_simulator_with_given_name()
+    if deleted_node.status_code == 409:
+        return json.dumps(deleted_node.json()), False
+    deleted_node = deleted_node.json()
+
+    flattened_nodes, keys = client.flatten_node_details([deleted_node.get("data", {})])
+    human_readable = tableToMarkdown(
+        name="Deleted Simulators Details",
+        t=flattened_nodes,
+        headers=keys)
+    outputs = [{
+        'Deleted simulators Details': deleted_node.get("data", {}),
+    }]
+    result = CommandResults(
+        outputs_prefix="deleted_simulator_details",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
+
+
+@metadata_collector.command(
+    command_name="safebreach-update-simulator-with-given-name",
+    inputs_list=[
+        InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
+                      required=True, is_array=False),
+    ] + simulator_details_for_update_fields,
+    outputs_prefix="updated_simulator_details",
+    outputs_list=simulators_output_fields,
+    description="This command updates simulator with given name")
+def update_simulator_with_given_name(client: Client):
+
+    updated_node = client.update_simulator_with_given_name()
+    if updated_node.status_code == 409:
+        return json.dumps(updated_node.json()), False
+    updated_node = updated_node.json()
+
+    flattened_nodes, keys = client.flatten_node_details([updated_node.get("data", {})])
+    human_readable = tableToMarkdown(
+        name="Updated Simulators Details",
+        t=flattened_nodes,
+        headers=keys)
+    outputs = updated_node.get("data", {})
+    result = CommandResults(
+        outputs_prefix="updated_simulator_details",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result, True
+
+
 def main() -> None:
     """main function, parses params and runs command functions
 
@@ -1285,6 +1591,34 @@ def main() -> None:
             result, status = create_api_key(client=client)
             return_results(result) if status else return_error(result)
 
+        elif demisto.command() == "safebreach-delete-api-key":
+            result, status = delete_api_key(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-get-integration-errors":
+            result, status = get_all_error_logs(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-get-available-simulator-count":
+            result, status = get_simulator_quota_with_table(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-get-available-simulator-details":
+            result, status = get_all_simulator_details(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-get-simulator-with-name":
+            result, status = get_simulator_with_name(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-delete-simulator-with-name":
+            result, status = delete_simulator_with_given_name(client=client)
+            return_results(result) if status else return_error(result)
+
+        elif demisto.command() == "safebreach-update-simulator-with-given-name":
+            result, status = update_simulator_with_given_name(client=client)
+            return_results(result) if status else return_error(result)
+
         elif demisto.command() == "safebreach-get-test-summary":
             includeArchived = demisto.args().get("include_archived")
             size = demisto.args().get("entries_per_page")
@@ -1314,39 +1648,6 @@ def main() -> None:
             result, status = client.get_test_summary(includeArchived, size, status, planId, simulation_id, sort_by)
             return_results(result) if status else return_error(result)
 
-        elif demisto.command() == "safebreach-get-integration-errors":
-            result, status = client.get_all_error_logs()
-            return_results(result) if status else return_error(result)
-
-        elif demisto.command() == "safebreach-delete-api-key":
-            result, status = delete_api_key(client=client)
-            return_results(result) if status else return_error(result)
-
-        elif demisto.command() == "safebreach-get-available-simulator-count":
-
-            result, status = client.get_simulator_quota_with_table()
-            return_results(result) if status else return_error
-
-        elif demisto.command() == "safebreach-get-available-simulator-details":
-
-            result, status = client.get_simulators_and_display_in_table()
-            return_results(result) if status else return_error(result)
-
-        elif demisto.command() == "safebreach-get-simulator-with-name":
-
-            result, status = client.get_simulators_and_display_in_table(just_name=True)
-            return_results(result) if status else return_error(result)
-
-        elif demisto.command() == "safebreach-delete-simulator-with-name":
-
-            result, status = client.delete_simulator_with_given_name()
-            return_results(result) if status else return_error(result)
-
-        elif demisto.command() == "safebreach-update-simulator-with-given-name":
-
-            result, status = client.update_simulator_with_given_name()
-            return_results(result) if status else return_error(result)
-
         elif demisto.command() == "safebreach-rotate-verification-token":
 
             result, status = client.return_rotated_verification_token()
@@ -1354,7 +1655,7 @@ def main() -> None:
 
     # Log exceptions and return errors
     except Exception as e:
-        # demisto.debug(traceback.format_exc())  # print the traceback
+        demisto.error(traceback.format_exc())  # print the traceback
         return_error(f'Failed to execute {demisto.command()} command {traceback.format_exc()}.\nError:\n{str(e)}')
 
 
