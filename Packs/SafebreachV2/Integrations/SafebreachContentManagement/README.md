@@ -1,5 +1,5 @@
 This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete         2. Deployment create, update and delete         3. Tests get and delete         4. Nodes get, update, delete 
-This integration was integrated and tested with version xx of Safebreach Content Management.
+This integration was integrated and tested with version 0.0.0 of Safebreach Content Management.
 
 ## Configure Safebreach Content Management on Cortex XSOAR
 
@@ -357,8 +357,8 @@ This command gives all details related to account, we are using this to find ass
 | shouldIncludeProxies | if proxies are to be included for search. Possible values are: true, false. Default is false. | Optional | 
 | hostname | if hostname to be included for search. Possible values are: true, false. Default is false. | Optional | 
 | connectionType | if connectionType to be included for search. Possible values are: true, false. Default is false. | Optional | 
-| externalIp | if external IP details to be included for search. Possible values are: true, false. Default is false. | Optional | 
-| internalIp | if Internal IP are to be included for search. Possible values are: true, false. Default is false. | Optional | 
+| externalIp | if external IP details to be included for search. | Optional | 
+| internalIp | if Internal IP are to be included for search. | Optional | 
 | os | if Operating system details to be included for search. Possible values are: true, false. Default is false. | Optional | 
 | sortDirection | direction in which secrets are to be sorted. Possible values are: asc, desc. Default is asc. | Optional | 
 | startRow | if there are too many entries then where should we start looking from. | Optional | 

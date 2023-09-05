@@ -639,22 +639,12 @@ script:
       required: false
       secret: false
       default: false
-      defaultValue: 'false'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: internalIp
       isArray: false
       description: if Internal IP are to be included for search.
       required: false
       secret: false
       default: false
-      defaultValue: 'false'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: os
       isArray: false
       description: if Operating system details to be included for search.

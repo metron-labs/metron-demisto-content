@@ -22,10 +22,10 @@ simulator_details_inputs = [
                   default="false", required=False, is_array=False),
     InputArgument(name="connectionType", description="if connectionType to be included for search.", options=["true", "false"],
                   default="false", required=False, is_array=False),
-    InputArgument(name="externalIp", description="if external IP details to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
-    InputArgument(name="internalIp", description="if Internal IP are to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+    InputArgument(name="externalIp", description="if external IP details to be included for search.",
+                  required=False, is_array=False),
+    InputArgument(name="internalIp", description="if Internal IP are to be included for search.",
+                  required=False, is_array=False),
     InputArgument(name="os", description="if Operating system details to be included for search.", options=["true", "false"],
                   default="false", required=False, is_array=False),
     InputArgument(name="sortDirection", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
@@ -367,10 +367,10 @@ class Client(BaseClient):
         deployments = response.json()['data']
         return deployments
 
-    def get_deployment_id_by_name(self, deployment_name: str):
+    def get_deployment_id_by_name(self, deployment_name: str) -> dict:
         available_deployments = self.list_deployments()
         needed_deployments = list(filter(lambda deployment: deployment["name"] == deployment_name, available_deployments))
-        return needed_deployments[0] if needed_deployments else []
+        return needed_deployments[0] if needed_deployments else {}
 
     def create_deployment_data(self):
 
