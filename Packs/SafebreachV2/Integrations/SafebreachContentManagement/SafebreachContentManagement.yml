@@ -1,5 +1,5 @@
 category: Data Enrichment & Threat Intelligence
-description: 'This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete         2. Deployment create, update and delete         3. Tests get and delete         4. Nodes get, update, delete '
+description: 'This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete. '
 commonfields:
   id: Safebreach Content Management
   version: -1
@@ -29,7 +29,7 @@ configuration:
 script:
   commands:
   - deprecated: false
-    description: This command creates a API Key with given data
+    description: This command creates a API Key with given data.
     name: safebreach-generate-api-key
     arguments:
     - name: Name
@@ -67,7 +67,7 @@ script:
       description: The role of API Key.
       type: String
   - deprecated: false
-    description: This command creates a deployment with given data
+    description: This command creates a deployment with given data.
     name: safebreach-create-deployment
     arguments:
     - name: Name
@@ -84,7 +84,7 @@ script:
       default: false
     - name: Nodes
       isArray: true
-      description: Comma separated ID of all nodes the deployment should be part of
+      description: Comma separated ID of all nodes the deployment should be part of.
       required: false
       secret: false
       default: false
@@ -108,7 +108,7 @@ script:
       description: The nodes that are part of deployment.
       type: String
   - deprecated: false
-    description: This command creates a user with given data
+    description: This command creates a user with given data.
     name: safebreach-create-user
     arguments:
     - name: Name
@@ -136,7 +136,7 @@ script:
       auto: PREDEFINED
     - name: Email Post Creation
       isArray: false
-      description: Should Email be sent to user on creation
+      description: Should Email be sent to user on creation.
       required: false
       secret: false
       default: false
@@ -159,7 +159,7 @@ script:
       default: false
     - name: Change Password on create
       isArray: false
-      description: Should user change password on creation
+      description: Should user change password on creation.
       required: false
       secret: false
       default: false
@@ -170,7 +170,7 @@ script:
       auto: PREDEFINED
     - name: User role
       isArray: false
-      description: Role of the user being Created
+      description: Role of the user being Created.
       required: false
       secret: false
       default: false
@@ -183,7 +183,7 @@ script:
       auto: PREDEFINED
     - name: Deployments
       isArray: true
-      description: Comma separated ID of all deployments the user should be part of
+      description: Comma separated ID of all deployments the user should be part of.
       required: false
       secret: false
       default: false
@@ -216,7 +216,7 @@ script:
       description: The deployments user is part of.
       type: String
   - deprecated: false
-    description: This command deletes a API key with given name
+    description: This command deletes a API key with given name.
     name: safebreach-delete-api-key
     arguments:
     - name: Key Name
@@ -242,7 +242,7 @@ script:
       description: The deletion time of API key.
       type: String
   - deprecated: false
-    description: This command deletes a deployment with given data
+    description: This command deletes a deployment with given data.
     name: safebreach-delete-deployment
     arguments:
     - name: Deployment ID
@@ -277,7 +277,7 @@ script:
       description: The nodes that are part of deployment.
       type: String
   - deprecated: false
-    description: This command deleted connector related errors
+    description: This command deleted connector related errors.
     name: safebreach-delete-integration-errors
     arguments:
     - name: Connector ID
@@ -294,7 +294,7 @@ script:
       description: error deletion status whether true or false.
       type: String
   - deprecated: false
-    description: This command deletes simulator with given name
+    description: This command deletes simulator with given name.
     name: safebreach-delete-simulator-with-name
     arguments:
     - name: Simulator/Node Name
@@ -305,7 +305,7 @@ script:
       default: false
     - name: Should Force Delete
       isArray: false
-      description: Name of simulator/node to search with.
+      description: Should we force delete the simulator.
       required: true
       secret: false
       default: false
@@ -325,13 +325,13 @@ script:
       description: name for given simulator.
       type: String
     - contextPath: deleted_simulator_details.account_id
-      description: Account Id of account Hosting given simulator
+      description: Account Id of account Hosting given simulator.
       type: String
     - contextPath: deleted_simulator_details.is_critical
-      description: Whether the simulator is critical
+      description: Whether the simulator is critical.
       type: String
     - contextPath: deleted_simulator_details.is_exfiltration
-      description: If Simulator is exfiltration target
+      description: If Simulator is exfiltration target.
       type: Number
     - contextPath: deleted_simulator_details.is_infiltration
       description: If simulator is infiltration target.
@@ -349,64 +349,64 @@ script:
       description: if the given simulator is aws attacker.
       type: String
     - contextPath: deleted_simulator_details.is_azure_attacker
-      description: If the given simulator is azure attacker
+      description: If the given simulator is azure attacker.
       type: String
     - contextPath: deleted_simulator_details.external_ip
-      description: external ip of given simulator
+      description: external ip of given simulator.
       type: String
     - contextPath: deleted_simulator_details.internal_ip
-      description: internal ip of given simulator
+      description: internal ip of given simulator.
       type: String
     - contextPath: deleted_simulator_details.is_web_application_attacker
-      description: Whether the simulator is Web application attacker
+      description: Whether the simulator is Web application attacker.
       type: String
     - contextPath: deleted_simulator_details.preferred_interface
-      description: Preferred simulator interface
+      description: Preferred simulator interface.
       type: Number
     - contextPath: deleted_simulator_details.preferred_ip
       description: Preferred Ip of simulator.
       type: Number
     - contextPath: deleted_simulator_details.hostname
-      description: Hostname of given simulator
+      description: Hostname of given simulator.
       type: String
     - contextPath: deleted_simulator_details.connection_type
-      description: connection_type of given simulator
+      description: connection_type of given simulator.
       type: String
     - contextPath: deleted_simulator_details.simulator_status
-      description: status of the simulator
+      description: status of the simulator.
       type: String
     - contextPath: deleted_simulator_details.connection_status
-      description: connection status of node/simulator
+      description: connection status of node/simulator.
       type: Number
     - contextPath: deleted_simulator_details.simulator_framework_version
       description: Framework version of simulator.
       type: Number
     - contextPath: deleted_simulator_details.operating_system_type
-      description: operating system type of given simulator
+      description: operating system type of given simulator.
       type: String
     - contextPath: deleted_simulator_details.operating_system
-      description: Operating system of given simulator
+      description: Operating system of given simulator.
       type: String
     - contextPath: deleted_simulator_details.execution_hostname
-      description: Execution Hostname of the given node
+      description: Execution Hostname of the given node.
       type: String
     - contextPath: deleted_simulator_details.deployments
-      description: deployments simulator is part of
+      description: deployments simulator is part of.
       type: Number
     - contextPath: deleted_simulator_details.created_at
       description: Creation datetime of simulator.
       type: Number
     - contextPath: deleted_simulator_details.updated_at
-      description: Update datetime of given simulator
+      description: Update datetime of given simulator.
       type: String
     - contextPath: deleted_simulator_details.deleted_at
-      description: deletion datetime of given simulator
+      description: deletion datetime of given simulator.
       type: String
     - contextPath: deleted_simulator_details.assets
-      description: Assets of given simulator
+      description: Assets of given simulator.
       type: String
     - contextPath: deleted_simulator_details.simulation_users
-      description: simulator users list
+      description: simulator users list.
       type: Number
     - contextPath: deleted_simulator_details.proxies
       description: Proxies of simulator.
@@ -415,7 +415,7 @@ script:
       description: Advanced simulator details.
       type: Number
   - deprecated: false
-    description: This command deletes tests with given plan ID
+    description: This command deletes tests with given plan ID.
     name: safebreach-delete-test-summary-of-given-test
     arguments:
     - name: Test ID
@@ -437,75 +437,75 @@ script:
       auto: PREDEFINED
     outputs:
     - contextPath: deleted_test_results.planId
-      description: Plan ID of the simulation
+      description: Plan ID of the simulation.
       type: String
     - contextPath: deleted_test_results.planName
-      description: Plan Name of the simulation
+      description: Plan Name of the simulation.
       type: String
     - contextPath: deleted_test_results.securityActionPerControl
-      description: Security Actions of the simulation
+      description: Security Actions of the simulation.
       type: String
     - contextPath: deleted_test_results.planRunId
-      description: Plan Run ID of the simulation
+      description: Plan Run ID of the simulation.
       type: String
     - contextPath: deleted_test_results.runId
-      description: Run ID of the simulation
+      description: Run ID of the simulation.
       type: String
     - contextPath: deleted_test_results.status
-      description: status of the simulation
+      description: status of the simulation.
       type: String
     - contextPath: deleted_test_results.plannedSimulationsAmount
-      description: Planned simulations amount of the simulation
+      description: Planned simulations amount of the simulation.
       type: String
     - contextPath: deleted_test_results.simulatorExecutions
-      description: simulator executions of the simulation
+      description: simulator executions of the simulation.
       type: String
     - contextPath: deleted_test_results.ranBy
-      description: user who started the simulation
+      description: user who started the simulation.
       type: String
     - contextPath: deleted_test_results.simulatorCount
-      description: simulators count of simulation
+      description: simulators count of simulation.
       type: String
     - contextPath: deleted_test_results.endTime
-      description: End Time of the simulation
+      description: End Time of the simulation.
       type: String
     - contextPath: deleted_test_results.startTime
-      description: start time of the simulation
+      description: start time of the simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.stopped
-      description: stopped count of simulation
+      description: stopped count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.missed
-      description: missed count of simulation
+      description: missed count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.logged
-      description: logged count of simulation
+      description: logged count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.detected
-      description: detected count of simulation
+      description: detected count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.prevented
-      description: prevented count of simulation
+      description: prevented count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.inconsistent
-      description: inconsistent count of simulation
+      description: inconsistent count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.drifted
-      description: drifted count of simulation
+      description: drifted count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.not_drifted
-      description: not drifted count of simulation
+      description: not drifted count of simulation.
       type: String
     - contextPath: deleted_test_results.finalStatus.baseline
-      description: baseline count of simulation
+      description: baseline count of simulation.
       type: String
   - deprecated: false
-    description: This command deletes a user with given data
+    description: This command deletes a user with given data.
     name: safebreach-delete-user
     arguments:
     - name: User ID
       isArray: false
-      description: user ID of user from safebreach to search
+      description: user ID of user from safebreach to search.
       required: false
       secret: false
       default: false
@@ -544,7 +544,7 @@ script:
       description: The deployments user was part of.
       type: String
   - deprecated: false
-    description: This command gives all connector related errors
+    description: This command gives all connector related errors.
     name: safebreach-get-integration-errors
     arguments: []
     outputs:
@@ -564,7 +564,7 @@ script:
       description: Time of error.
       type: String
   - deprecated: false
-    description: This command gives all details related to account, we are using this to find assigned simulator quota
+    description: We are using this command to get all available simulators.
     name: safebreach-get-available-simulator-details
     arguments:
     - name: details
@@ -703,7 +703,7 @@ script:
       auto: PREDEFINED
     - name: isCritical
       isArray: false
-      description: whether to search only for critical nodes or not
+      description: whether to search only for critical nodes or not.
       required: false
       secret: false
       default: false
@@ -720,7 +720,7 @@ script:
       default: false
     - name: additionalDetails
       isArray: false
-      description: Whether to show additional details or not
+      description: Whether to show additional details or not.
       required: false
       secret: false
       default: false
@@ -731,7 +731,7 @@ script:
       auto: PREDEFINED
     - name: impersonatedUsers
       isArray: false
-      description: should search only for impersonated user targets or not
+      description: should search only for impersonated user targets or not.
       required: false
       secret: false
       default: false
@@ -742,7 +742,7 @@ script:
       auto: PREDEFINED
     - name: isAzureAttacker
       isArray: false
-      description: Whether to search only for azure attackers
+      description: Whether to search only for azure attackers.
       required: false
       secret: false
       default: false
@@ -764,7 +764,7 @@ script:
       auto: PREDEFINED
     - name: isPreExecutor
       isArray: false
-      description: should search only for pre-executors or not
+      description: should search only for pre-executors or not.
       required: false
       secret: false
       default: false
@@ -775,7 +775,7 @@ script:
       auto: PREDEFINED
     - name: isInfiltrationTarget
       isArray: false
-      description: Whether to search only for infiltration targets
+      description: Whether to search only for infiltration targets.
       required: false
       secret: false
       default: false
@@ -797,7 +797,7 @@ script:
       auto: PREDEFINED
     - name: isExfiltrationTarget
       isArray: false
-      description: should search only for exfiltration targets or not
+      description: should search only for exfiltration targets or not.
       required: false
       secret: false
       default: false
@@ -808,43 +808,43 @@ script:
       auto: PREDEFINED
     - name: deployments
       isArray: true
-      description: deployments list which the search should look
+      description: deployments list which the search should look.
       required: false
       secret: false
       default: false
     - name: advancedActions
       isArray: true
-      description: advanced actions to search
+      description: advanced actions to search.
       required: false
       secret: false
       default: false
     - name: roles
       isArray: true
-      description: roles to search
+      description: roles to search.
       required: false
       secret: false
       default: false
     - name: userids
       isArray: true
-      description: userids to search
+      description: userids to search.
       required: false
       secret: false
       default: false
     - name: versions
       isArray: true
-      description: versions to filter by
+      description: versions to filter by.
       required: false
       secret: false
       default: false
     - name: proxyIds
       isArray: true
-      description: proxy ids to search
+      description: proxy ids to search.
       required: false
       secret: false
       default: false
     - name: assetIds
       isArray: true
-      description: asset ids to search
+      description: asset ids to search.
       required: false
       secret: false
       default: false
@@ -871,13 +871,13 @@ script:
       description: name for given simulator.
       type: String
     - contextPath: simulator_details.account_id
-      description: Account Id of account Hosting given simulator
+      description: Account Id of account Hosting given simulator.
       type: String
     - contextPath: simulator_details.is_critical
-      description: Whether the simulator is critical
+      description: Whether the simulator is critical.
       type: String
     - contextPath: simulator_details.is_exfiltration
-      description: If Simulator is exfiltration target
+      description: If Simulator is exfiltration target.
       type: Number
     - contextPath: simulator_details.is_infiltration
       description: If simulator is infiltration target.
@@ -895,64 +895,64 @@ script:
       description: if the given simulator is aws attacker.
       type: String
     - contextPath: simulator_details.is_azure_attacker
-      description: If the given simulator is azure attacker
+      description: If the given simulator is azure attacker.
       type: String
     - contextPath: simulator_details.external_ip
-      description: external ip of given simulator
+      description: external ip of given simulator.
       type: String
     - contextPath: simulator_details.internal_ip
-      description: internal ip of given simulator
+      description: internal ip of given simulator.
       type: String
     - contextPath: simulator_details.is_web_application_attacker
-      description: Whether the simulator is Web application attacker
+      description: Whether the simulator is Web application attacker.
       type: String
     - contextPath: simulator_details.preferred_interface
-      description: Preferred simulator interface
+      description: Preferred simulator interface.
       type: Number
     - contextPath: simulator_details.preferred_ip
       description: Preferred Ip of simulator.
       type: Number
     - contextPath: simulator_details.hostname
-      description: Hostname of given simulator
+      description: Hostname of given simulator.
       type: String
     - contextPath: simulator_details.connection_type
-      description: connection_type of given simulator
+      description: connection_type of given simulator.
       type: String
     - contextPath: simulator_details.simulator_status
-      description: status of the simulator
+      description: status of the simulator.
       type: String
     - contextPath: simulator_details.connection_status
-      description: connection status of node/simulator
+      description: connection status of node/simulator.
       type: Number
     - contextPath: simulator_details.simulator_framework_version
       description: Framework version of simulator.
       type: Number
     - contextPath: simulator_details.operating_system_type
-      description: operating system type of given simulator
+      description: operating system type of given simulator.
       type: String
     - contextPath: simulator_details.operating_system
-      description: Operating system of given simulator
+      description: Operating system of given simulator.
       type: String
     - contextPath: simulator_details.execution_hostname
-      description: Execution Hostname of the given node
+      description: Execution Hostname of the given node.
       type: String
     - contextPath: simulator_details.deployments
-      description: deployments simulator is part of
+      description: deployments simulator is part of.
       type: Number
     - contextPath: simulator_details.created_at
       description: Creation datetime of simulator.
       type: Number
     - contextPath: simulator_details.updated_at
-      description: Update datetime of given simulator
+      description: Update datetime of given simulator.
       type: String
     - contextPath: simulator_details.deleted_at
-      description: deletion datetime of given simulator
+      description: deletion datetime of given simulator.
       type: String
     - contextPath: simulator_details.assets
-      description: Assets of given simulator
+      description: Assets of given simulator.
       type: String
     - contextPath: simulator_details.simulation_users
-      description: simulator users list
+      description: simulator users list.
       type: Number
     - contextPath: simulator_details.proxies
       description: Proxies of simulator.
@@ -961,7 +961,7 @@ script:
       description: Advanced simulator details.
       type: Number
   - deprecated: false
-    description: This command gets tests with given modifiers
+    description: This command gets tests with given modifiers.
     name: safebreach-get-test-summary
     arguments:
     - name: Include Archived
@@ -1006,7 +1006,7 @@ script:
       default: false
     - name: Sort By
       isArray: false
-      description: sort by option
+      description: sort by option.
       required: false
       secret: false
       default: false
@@ -1019,70 +1019,70 @@ script:
       auto: PREDEFINED
     outputs:
     - contextPath: test_results.planId
-      description: Plan ID of the simulation
+      description: Plan ID of the simulation.
       type: String
     - contextPath: test_results.planName
-      description: Plan Name of the simulation
+      description: Plan Name of the simulation.
       type: String
     - contextPath: test_results.securityActionPerControl
-      description: Security Actions of the simulation
+      description: Security Actions of the simulation.
       type: String
     - contextPath: test_results.planRunId
-      description: Plan Run ID of the simulation
+      description: Plan Run ID of the simulation.
       type: String
     - contextPath: test_results.runId
-      description: Run ID of the simulation
+      description: Run ID of the simulation.
       type: String
     - contextPath: test_results.status
-      description: status of the simulation
+      description: status of the simulation.
       type: String
     - contextPath: test_results.plannedSimulationsAmount
-      description: Planned simulations amount of the simulation
+      description: Planned simulations amount of the simulation.
       type: String
     - contextPath: test_results.simulatorExecutions
-      description: simulator executions of the simulation
+      description: simulator executions of the simulation.
       type: String
     - contextPath: test_results.ranBy
-      description: user who started the simulation
+      description: user who started the simulation.
       type: String
     - contextPath: test_results.simulatorCount
-      description: simulators count of simulation
+      description: simulators count of simulation.
       type: String
     - contextPath: test_results.endTime
-      description: End Time of the simulation
+      description: End Time of the simulation.
       type: String
     - contextPath: test_results.startTime
-      description: start time of the simulation
+      description: start time of the simulation.
       type: String
     - contextPath: test_results.finalStatus.stopped
-      description: stopped count of simulation
+      description: stopped count of simulation.
       type: String
     - contextPath: test_results.finalStatus.missed
-      description: missed count of simulation
+      description: missed count of simulation.
       type: String
     - contextPath: test_results.finalStatus.logged
-      description: logged count of simulation
+      description: logged count of simulation.
       type: String
     - contextPath: test_results.finalStatus.detected
-      description: detected count of simulation
+      description: detected count of simulation.
       type: String
     - contextPath: test_results.finalStatus.prevented
-      description: prevented count of simulation
+      description: prevented count of simulation.
       type: String
     - contextPath: test_results.finalStatus.inconsistent
-      description: inconsistent count of simulation
+      description: inconsistent count of simulation.
       type: String
     - contextPath: test_results.finalStatus.drifted
-      description: drifted count of simulation
+      description: drifted count of simulation.
       type: String
     - contextPath: test_results.finalStatus.not_drifted
-      description: not drifted count of simulation
+      description: not drifted count of simulation.
       type: String
     - contextPath: test_results.finalStatus.baseline
-      description: baseline count of simulation
+      description: baseline count of simulation.
       type: String
   - deprecated: false
-    description: This command gets tests with given plan ID
+    description: This command gets tests with given plan ID.
     name: safebreach-get-test-summary-with-plan-run-id
     arguments:
     - name: Include Archived
@@ -1126,7 +1126,7 @@ script:
       default: false
     - name: Sort By
       isArray: false
-      description: sort by option
+      description: sort by option.
       required: false
       secret: false
       default: false
@@ -1139,70 +1139,70 @@ script:
       auto: PREDEFINED
     outputs:
     - contextPath: test_results.planId
-      description: Plan ID of the simulation
+      description: Plan ID of the simulation.
       type: String
     - contextPath: test_results.planName
-      description: Plan Name of the simulation
+      description: Plan Name of the simulation.
       type: String
     - contextPath: test_results.securityActionPerControl
-      description: Security Actions of the simulation
+      description: Security Actions of the simulation.
       type: String
     - contextPath: test_results.planRunId
-      description: Plan Run ID of the simulation
+      description: Plan Run ID of the simulation.
       type: String
     - contextPath: test_results.runId
-      description: Run ID of the simulation
+      description: Run ID of the simulation.
       type: String
     - contextPath: test_results.status
-      description: status of the simulation
+      description: status of the simulation.
       type: String
     - contextPath: test_results.plannedSimulationsAmount
-      description: Planned simulations amount of the simulation
+      description: Planned simulations amount of the simulation.
       type: String
     - contextPath: test_results.simulatorExecutions
-      description: simulator executions of the simulation
+      description: simulator executions of the simulation.
       type: String
     - contextPath: test_results.ranBy
-      description: user who started the simulation
+      description: user who started the simulation.
       type: String
     - contextPath: test_results.simulatorCount
-      description: simulators count of simulation
+      description: simulators count of simulation.
       type: String
     - contextPath: test_results.endTime
-      description: End Time of the simulation
+      description: End Time of the simulation.
       type: String
     - contextPath: test_results.startTime
-      description: start time of the simulation
+      description: start time of the simulation.
       type: String
     - contextPath: test_results.finalStatus.stopped
-      description: stopped count of simulation
+      description: stopped count of simulation.
       type: String
     - contextPath: test_results.finalStatus.missed
-      description: missed count of simulation
+      description: missed count of simulation.
       type: String
     - contextPath: test_results.finalStatus.logged
-      description: logged count of simulation
+      description: logged count of simulation.
       type: String
     - contextPath: test_results.finalStatus.detected
-      description: detected count of simulation
+      description: detected count of simulation.
       type: String
     - contextPath: test_results.finalStatus.prevented
-      description: prevented count of simulation
+      description: prevented count of simulation.
       type: String
     - contextPath: test_results.finalStatus.inconsistent
-      description: inconsistent count of simulation
+      description: inconsistent count of simulation.
       type: String
     - contextPath: test_results.finalStatus.drifted
-      description: drifted count of simulation
+      description: drifted count of simulation.
       type: String
     - contextPath: test_results.finalStatus.not_drifted
-      description: not drifted count of simulation
+      description: not drifted count of simulation.
       type: String
     - contextPath: test_results.finalStatus.baseline
-      description: baseline count of simulation
+      description: baseline count of simulation.
       type: String
   - deprecated: false
-    description: This command gives all users depending on inputs given
+    description: This command gives all users depending on inputs given.
     name: safebreach-get-all-users
     arguments: []
     outputs:
@@ -1216,7 +1216,7 @@ script:
       description: The email of User retrieved.
       type: String
   - deprecated: false
-    description: This command gives all details related to account, we are using this to find assigned simulator quota
+    description: This command gives all details related to account, we are using this to find assigned simulator quota.
     name: safebreach-get-available-simulator-count
     arguments: []
     outputs:
@@ -1268,13 +1268,13 @@ script:
       description: name for given simulator.
       type: String
     - contextPath: simulator_details.account_id
-      description: Account Id of account Hosting given simulator
+      description: Account Id of account Hosting given simulator.
       type: String
     - contextPath: simulator_details.is_critical
-      description: Whether the simulator is critical
+      description: Whether the simulator is critical.
       type: String
     - contextPath: simulator_details.is_exfiltration
-      description: If Simulator is exfiltration target
+      description: If Simulator is exfiltration target.
       type: Number
     - contextPath: simulator_details.is_infiltration
       description: If simulator is infiltration target.
@@ -1292,64 +1292,64 @@ script:
       description: if the given simulator is aws attacker.
       type: String
     - contextPath: simulator_details.is_azure_attacker
-      description: If the given simulator is azure attacker
+      description: If the given simulator is azure attacker.
       type: String
     - contextPath: simulator_details.external_ip
-      description: external ip of given simulator
+      description: external ip of given simulator.
       type: String
     - contextPath: simulator_details.internal_ip
-      description: internal ip of given simulator
+      description: internal ip of given simulator.
       type: String
     - contextPath: simulator_details.is_web_application_attacker
-      description: Whether the simulator is Web application attacker
+      description: Whether the simulator is Web application attacker.
       type: String
     - contextPath: simulator_details.preferred_interface
-      description: Preferred simulator interface
+      description: Preferred simulator interface.
       type: Number
     - contextPath: simulator_details.preferred_ip
       description: Preferred Ip of simulator.
       type: Number
     - contextPath: simulator_details.hostname
-      description: Hostname of given simulator
+      description: Hostname of given simulator.
       type: String
     - contextPath: simulator_details.connection_type
-      description: connection_type of given simulator
+      description: connection_type of given simulator.
       type: String
     - contextPath: simulator_details.simulator_status
-      description: status of the simulator
+      description: status of the simulator.
       type: String
     - contextPath: simulator_details.connection_status
-      description: connection status of node/simulator
+      description: connection status of node/simulator.
       type: Number
     - contextPath: simulator_details.simulator_framework_version
       description: Framework version of simulator.
       type: Number
     - contextPath: simulator_details.operating_system_type
-      description: operating system type of given simulator
+      description: operating system type of given simulator.
       type: String
     - contextPath: simulator_details.operating_system
-      description: Operating system of given simulator
+      description: Operating system of given simulator.
       type: String
     - contextPath: simulator_details.execution_hostname
-      description: Execution Hostname of the given node
+      description: Execution Hostname of the given node.
       type: String
     - contextPath: simulator_details.deployments
-      description: deployments simulator is part of
+      description: deployments simulator is part of.
       type: Number
     - contextPath: simulator_details.created_at
       description: Creation datetime of simulator.
       type: Number
     - contextPath: simulator_details.updated_at
-      description: Update datetime of given simulator
+      description: Update datetime of given simulator.
       type: String
     - contextPath: simulator_details.deleted_at
-      description: deletion datetime of given simulator
+      description: deletion datetime of given simulator.
       type: String
     - contextPath: simulator_details.assets
-      description: Assets of given simulator
+      description: Assets of given simulator.
       type: String
     - contextPath: simulator_details.simulation_users
-      description: simulator users list
+      description: simulator users list.
       type: Number
     - contextPath: simulator_details.proxies
       description: Proxies of simulator.
@@ -1358,7 +1358,7 @@ script:
       description: Advanced simulator details.
       type: Number
   - deprecated: false
-    description: This command gives all users depending on inputs given
+    description: This command gives all users depending on inputs given.
     name: safebreach-get-user-with-matching-name-or-email
     arguments:
     - name: name
@@ -1384,7 +1384,7 @@ script:
       description: The email of User retrieved.
       type: String
   - deprecated: false
-    description: This command gives simulator with given name
+    description: This command rotates generated verification token.
     name: safebreach-rotate-verification-token
     arguments: []
     outputs:
@@ -1398,13 +1398,13 @@ script:
       description: name for given simulator.
       type: String
     - contextPath: new_token.account_id
-      description: Account Id of account Hosting given simulator
+      description: Account Id of account Hosting given simulator.
       type: String
     - contextPath: new_token.is_critical
-      description: Whether the simulator is critical
+      description: Whether the simulator is critical.
       type: String
     - contextPath: new_token.is_exfiltration
-      description: If Simulator is exfiltration target
+      description: If Simulator is exfiltration target.
       type: Number
     - contextPath: new_token.is_infiltration
       description: If simulator is infiltration target.
@@ -1422,64 +1422,64 @@ script:
       description: if the given simulator is aws attacker.
       type: String
     - contextPath: new_token.is_azure_attacker
-      description: If the given simulator is azure attacker
+      description: If the given simulator is azure attacker.
       type: String
     - contextPath: new_token.external_ip
-      description: external ip of given simulator
+      description: external ip of given simulator.
       type: String
     - contextPath: new_token.internal_ip
-      description: internal ip of given simulator
+      description: internal ip of given simulator.
       type: String
     - contextPath: new_token.is_web_application_attacker
-      description: Whether the simulator is Web application attacker
+      description: Whether the simulator is Web application attacker.
       type: String
     - contextPath: new_token.preferred_interface
-      description: Preferred simulator interface
+      description: Preferred simulator interface.
       type: Number
     - contextPath: new_token.preferred_ip
       description: Preferred Ip of simulator.
       type: Number
     - contextPath: new_token.hostname
-      description: Hostname of given simulator
+      description: Hostname of given simulator.
       type: String
     - contextPath: new_token.connection_type
-      description: connection_type of given simulator
+      description: connection_type of given simulator.
       type: String
     - contextPath: new_token.simulator_status
-      description: status of the simulator
+      description: status of the simulator.
       type: String
     - contextPath: new_token.connection_status
-      description: connection status of node/simulator
+      description: connection status of node/simulator.
       type: Number
     - contextPath: new_token.simulator_framework_version
       description: Framework version of simulator.
       type: Number
     - contextPath: new_token.operating_system_type
-      description: operating system type of given simulator
+      description: operating system type of given simulator.
       type: String
     - contextPath: new_token.operating_system
-      description: Operating system of given simulator
+      description: Operating system of given simulator.
       type: String
     - contextPath: new_token.execution_hostname
-      description: Execution Hostname of the given node
+      description: Execution Hostname of the given node.
       type: String
     - contextPath: new_token.deployments
-      description: deployments simulator is part of
+      description: deployments simulator is part of.
       type: Number
     - contextPath: new_token.created_at
       description: Creation datetime of simulator.
       type: Number
     - contextPath: new_token.updated_at
-      description: Update datetime of given simulator
+      description: Update datetime of given simulator.
       type: String
     - contextPath: new_token.deleted_at
-      description: deletion datetime of given simulator
+      description: deletion datetime of given simulator.
       type: String
     - contextPath: new_token.assets
-      description: Assets of given simulator
+      description: Assets of given simulator.
       type: String
     - contextPath: new_token.simulation_users
-      description: simulator users list
+      description: simulator users list.
       type: Number
     - contextPath: new_token.proxies
       description: Proxies of simulator.
@@ -1488,7 +1488,7 @@ script:
       description: Advanced simulator details.
       type: Number
   - deprecated: false
-    description: This command updates a deployment with given data
+    description: This command updates a deployment with given data.
     name: safebreach-update-deployment
     arguments:
     - name: Deployment ID
@@ -1505,7 +1505,7 @@ script:
       default: false
     - name: Updated Nodes for Deployment
       isArray: false
-      description: Comma separated ID of all nodes the deployment should be part of
+      description: Comma separated ID of all nodes the deployment should be part of.
       required: false
       secret: false
       default: false
@@ -1515,7 +1515,7 @@ script:
       required: false
       secret: false
       default: false
-    - name: Updated deployment description
+    - name: Updated deployment description.
       isArray: false
       description: name of the deployment to update to.
       required: false
@@ -1541,7 +1541,7 @@ script:
       description: The nodes that are part of deployment.
       type: String
   - deprecated: false
-    description: This command updates simulator with given name
+    description: This command updates simulator with given name with given details.
     name: safebreach-update-simulator-with-given-name
     arguments:
     - name: Simulator/Node Name
@@ -1552,7 +1552,7 @@ script:
       default: false
     - name: isEnabled
       isArray: false
-      description: set true to enable the node
+      description: set true to enable the node.
       required: false
       secret: false
       default: false
@@ -1562,7 +1562,7 @@ script:
       auto: PREDEFINED
     - name: isProxySupported
       isArray: false
-      description: set true to enable the proxy support
+      description: set true to enable the proxy support.
       required: false
       secret: false
       default: false
@@ -1572,7 +1572,7 @@ script:
       auto: PREDEFINED
     - name: isCritical
       isArray: false
-      description: set true to make node as critical node
+      description: set true to make node as critical node.
       required: false
       secret: false
       default: false
@@ -1582,7 +1582,7 @@ script:
       auto: PREDEFINED
     - name: isExfiltration
       isArray: false
-      description: set true to make the node as exfiltration node
+      description: set true to make the node as exfiltration node.
       required: false
       secret: false
       default: false
@@ -1592,7 +1592,7 @@ script:
       auto: PREDEFINED
     - name: isInfiltration
       isArray: false
-      description: set true to make the node as infiltration node
+      description: set true to make the node as infiltration node.
       required: false
       secret: false
       default: false
@@ -1602,7 +1602,7 @@ script:
       auto: PREDEFINED
     - name: isMailTarget
       isArray: false
-      description: set true to make node as mail target
+      description: set true to make node as mail target.
       required: false
       secret: false
       default: false
@@ -1612,7 +1612,7 @@ script:
       auto: PREDEFINED
     - name: isMailAttacker
       isArray: false
-      description: set true to make node as MailAttacker node
+      description: set true to make node as MailAttacker node.
       required: false
       secret: false
       default: false
@@ -1622,7 +1622,7 @@ script:
       auto: PREDEFINED
     - name: isPreExecutor
       isArray: false
-      description: set true to enable the node as PreExecutor node
+      description: set true to enable the node as PreExecutor node.
       required: false
       secret: false
       default: false
@@ -1632,7 +1632,7 @@ script:
       auto: PREDEFINED
     - name: isAWSAttacker
       isArray: false
-      description: set true to make node as AWS attacker target
+      description: set true to make node as AWS attacker target.
       required: false
       secret: false
       default: false
@@ -1642,7 +1642,7 @@ script:
       auto: PREDEFINED
     - name: isAzureAttacker
       isArray: false
-      description: set true to make node as Azure attacker node
+      description: set true to make node as Azure attacker node.
       required: false
       secret: false
       default: false
@@ -1652,7 +1652,7 @@ script:
       auto: PREDEFINED
     - name: isWebApplicationAttacker
       isArray: false
-      description: set true to enable the node as web application attacker node
+      description: set true to enable the node as web application attacker node.
       required: false
       secret: false
       default: false
@@ -1662,7 +1662,7 @@ script:
       auto: PREDEFINED
     - name: useSystemUser
       isArray: false
-      description: set true to enable the node get system user access
+      description: set true to enable the node get system user access.
       required: false
       secret: false
       default: false
@@ -1672,37 +1672,37 @@ script:
       auto: PREDEFINED
     - name: connectionUrl
       isArray: false
-      description: the given value will be set as connection string
+      description: the given value will be set as connection string.
       required: false
       secret: false
       default: false
     - name: cloudProxyUrl
       isArray: false
-      description: the given value will be set as cloud proxy url
+      description: the given value will be set as cloud proxy url.
       required: false
       secret: false
       default: false
     - name: name
       isArray: false
-      description: the given value will be set as name of simulator
+      description: the given value will be set as name of simulator.
       required: false
       secret: false
       default: false
     - name: preferredInterface
       isArray: false
-      description: the given value will be set as preferred interface string
+      description: the given value will be set as preferred interface string.
       required: false
       secret: false
       default: false
     - name: preferredIp
       isArray: false
-      description: the given value will be set as Preferred IP
+      description: the given value will be set as Preferred IP.
       required: false
       secret: false
       default: false
     - name: tunnel
       isArray: false
-      description: the given value will be set as tunnel
+      description: the given value will be set as tunnel.
       required: false
       secret: false
       default: false
@@ -1717,13 +1717,13 @@ script:
       description: name for given simulator.
       type: String
     - contextPath: updated_simulator_details.account_id
-      description: Account Id of account Hosting given simulator
+      description: Account Id of account Hosting given simulator.
       type: String
     - contextPath: updated_simulator_details.is_critical
-      description: Whether the simulator is critical
+      description: Whether the simulator is critical.
       type: String
     - contextPath: updated_simulator_details.is_exfiltration
-      description: If Simulator is exfiltration target
+      description: If Simulator is exfiltration target.
       type: Number
     - contextPath: updated_simulator_details.is_infiltration
       description: If simulator is infiltration target.
@@ -1741,64 +1741,64 @@ script:
       description: if the given simulator is aws attacker.
       type: String
     - contextPath: updated_simulator_details.is_azure_attacker
-      description: If the given simulator is azure attacker
+      description: If the given simulator is azure attacker.
       type: String
     - contextPath: updated_simulator_details.external_ip
-      description: external ip of given simulator
+      description: external ip of given simulator.
       type: String
     - contextPath: updated_simulator_details.internal_ip
-      description: internal ip of given simulator
+      description: internal ip of given simulator.
       type: String
     - contextPath: updated_simulator_details.is_web_application_attacker
-      description: Whether the simulator is Web application attacker
+      description: Whether the simulator is Web application attacker.
       type: String
     - contextPath: updated_simulator_details.preferred_interface
-      description: Preferred simulator interface
+      description: Preferred simulator interface.
       type: Number
     - contextPath: updated_simulator_details.preferred_ip
       description: Preferred Ip of simulator.
       type: Number
     - contextPath: updated_simulator_details.hostname
-      description: Hostname of given simulator
+      description: Hostname of given simulator.
       type: String
     - contextPath: updated_simulator_details.connection_type
-      description: connection_type of given simulator
+      description: connection_type of given simulator.
       type: String
     - contextPath: updated_simulator_details.simulator_status
-      description: status of the simulator
+      description: status of the simulator.
       type: String
     - contextPath: updated_simulator_details.connection_status
-      description: connection status of node/simulator
+      description: connection status of node/simulator.
       type: Number
     - contextPath: updated_simulator_details.simulator_framework_version
       description: Framework version of simulator.
       type: Number
     - contextPath: updated_simulator_details.operating_system_type
-      description: operating system type of given simulator
+      description: operating system type of given simulator.
       type: String
     - contextPath: updated_simulator_details.operating_system
-      description: Operating system of given simulator
+      description: Operating system of given simulator.
       type: String
     - contextPath: updated_simulator_details.execution_hostname
-      description: Execution Hostname of the given node
+      description: Execution Hostname of the given node.
       type: String
     - contextPath: updated_simulator_details.deployments
-      description: deployments simulator is part of
+      description: deployments simulator is part of.
       type: Number
     - contextPath: updated_simulator_details.created_at
       description: Creation datetime of simulator.
       type: Number
     - contextPath: updated_simulator_details.updated_at
-      description: Update datetime of given simulator
+      description: Update datetime of given simulator.
       type: String
     - contextPath: updated_simulator_details.deleted_at
-      description: deletion datetime of given simulator
+      description: deletion datetime of given simulator.
       type: String
     - contextPath: updated_simulator_details.assets
-      description: Assets of given simulator
+      description: Assets of given simulator.
       type: String
     - contextPath: updated_simulator_details.simulation_users
-      description: simulator users list
+      description: simulator users list.
       type: Number
     - contextPath: updated_simulator_details.proxies
       description: Proxies of simulator.
@@ -1807,12 +1807,12 @@ script:
       description: Advanced simulator details.
       type: Number
   - deprecated: false
-    description: This command updates a user with given data
+    description: This command updates a user with given data.
     name: safebreach-update-user-details
     arguments:
     - name: User ID
       isArray: false
-      description: user ID of user from safebreach to search
+      description: user ID of user from safebreach to search.
       required: false
       secret: false
       default: false
@@ -1853,7 +1853,7 @@ script:
       default: false
     - name: User role
       isArray: false
-      description: Role of the user to be changed to
+      description: Role of the user to be changed to.
       required: false
       secret: false
       default: false
@@ -1866,7 +1866,7 @@ script:
       auto: PREDEFINED
     - name: Deployments
       isArray: true
-      description: Comma separated ID of all deployments the user should be part of
+      description: Comma separated ID of all deployments the user should be part of.
       required: false
       secret: false
       default: false

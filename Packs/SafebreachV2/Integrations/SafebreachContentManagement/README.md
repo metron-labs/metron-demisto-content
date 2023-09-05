@@ -1,4 +1,4 @@
-This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete         2. Deployment create, update and delete         3. Tests get and delete         4. Nodes get, update, delete 
+This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete. 
 This integration was integrated and tested with version 0.0.0 of Safebreach Content Management.
 
 ## Configure Safebreach Content Management on Cortex XSOAR
@@ -24,7 +24,7 @@ After you successfully execute a command, a DBot message appears in the War Room
 ### safebreach-generate-api-key
 
 ***
-This command creates a API Key with given data
+This command creates a API Key with given data.
 
 #### Base Command
 
@@ -52,7 +52,7 @@ This command creates a API Key with given data
 ### safebreach-create-deployment
 
 ***
-This command creates a deployment with given data
+This command creates a deployment with given data.
 
 #### Base Command
 
@@ -80,7 +80,7 @@ This command creates a deployment with given data
 ### safebreach-create-user
 
 ***
-This command creates a user with given data
+This command creates a user with given data.
 
 #### Base Command
 
@@ -117,7 +117,7 @@ This command creates a user with given data
 ### safebreach-delete-api-key
 
 ***
-This command deletes a API key with given name
+This command deletes a API key with given name.
 
 #### Base Command
 
@@ -142,7 +142,7 @@ This command deletes a API key with given name
 ### safebreach-delete-deployment
 
 ***
-This command deletes a deployment with given data
+This command deletes a deployment with given data.
 
 #### Base Command
 
@@ -169,7 +169,7 @@ This command deletes a deployment with given data
 ### safebreach-delete-integration-errors
 
 ***
-This command deleted connector related errors
+This command deleted connector related errors.
 
 #### Base Command
 
@@ -191,7 +191,7 @@ This command deleted connector related errors
 ### safebreach-delete-simulator-with-name
 
 ***
-This command deletes simulator with given name
+This command deletes simulator with given name.
 
 #### Base Command
 
@@ -202,7 +202,7 @@ This command deletes simulator with given name
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | Simulator/Node Name | Name of simulator/node to search with. | Required | 
-| Should Force Delete | Name of simulator/node to search with. Possible values are: true, false. Default is false. | Required | 
+| Should Force Delete | Should we force delete the simulator. Possible values are: true, false. Default is false. | Required | 
 
 #### Context Output
 
@@ -211,41 +211,41 @@ This command deletes simulator with given name
 | deleted_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | deleted_simulator_details.simulator_id | String | The Id of given simulator. | 
 | deleted_simulator_details.simulator_name | String | name for given simulator. | 
-| deleted_simulator_details.account_id | String | Account Id of account Hosting given simulator | 
-| deleted_simulator_details.is_critical | String | Whether the simulator is critical | 
-| deleted_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target | 
+| deleted_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
+| deleted_simulator_details.is_critical | String | Whether the simulator is critical. | 
+| deleted_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
 | deleted_simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
 | deleted_simulator_details.is_mail_target | Number | If simulator is mail target. | 
 | deleted_simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
 | deleted_simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
 | deleted_simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| deleted_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker | 
-| deleted_simulator_details.external_ip | String | external ip of given simulator | 
-| deleted_simulator_details.internal_ip | String | internal ip of given simulator | 
-| deleted_simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker | 
-| deleted_simulator_details.preferred_interface | Number | Preferred simulator interface | 
+| deleted_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| deleted_simulator_details.external_ip | String | external ip of given simulator. | 
+| deleted_simulator_details.internal_ip | String | internal ip of given simulator. | 
+| deleted_simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| deleted_simulator_details.preferred_interface | Number | Preferred simulator interface. | 
 | deleted_simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
-| deleted_simulator_details.hostname | String | Hostname of given simulator | 
-| deleted_simulator_details.connection_type | String | connection_type of given simulator | 
-| deleted_simulator_details.simulator_status | String | status of the simulator | 
-| deleted_simulator_details.connection_status | Number | connection status of node/simulator | 
+| deleted_simulator_details.hostname | String | Hostname of given simulator. | 
+| deleted_simulator_details.connection_type | String | connection_type of given simulator. | 
+| deleted_simulator_details.simulator_status | String | status of the simulator. | 
+| deleted_simulator_details.connection_status | Number | connection status of node/simulator. | 
 | deleted_simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
-| deleted_simulator_details.operating_system_type | String | operating system type of given simulator | 
-| deleted_simulator_details.operating_system | String | Operating system of given simulator | 
-| deleted_simulator_details.execution_hostname | String | Execution Hostname of the given node | 
-| deleted_simulator_details.deployments | Number | deployments simulator is part of | 
+| deleted_simulator_details.operating_system_type | String | operating system type of given simulator. | 
+| deleted_simulator_details.operating_system | String | Operating system of given simulator. | 
+| deleted_simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| deleted_simulator_details.deployments | Number | deployments simulator is part of. | 
 | deleted_simulator_details.created_at | Number | Creation datetime of simulator. | 
-| deleted_simulator_details.updated_at | String | Update datetime of given simulator | 
-| deleted_simulator_details.deleted_at | String | deletion datetime of given simulator | 
-| deleted_simulator_details.assets | String | Assets of given simulator | 
-| deleted_simulator_details.simulation_users | Number | simulator users list | 
+| deleted_simulator_details.updated_at | String | Update datetime of given simulator. | 
+| deleted_simulator_details.deleted_at | String | deletion datetime of given simulator. | 
+| deleted_simulator_details.assets | String | Assets of given simulator. | 
+| deleted_simulator_details.simulation_users | Number | simulator users list. | 
 | deleted_simulator_details.proxies | Number | Proxies of simulator. | 
 | deleted_simulator_details.advanced_actions | Number | Advanced simulator details. | 
 
 ### safebreach-delete-test-summary-of-given-test
 
 ***
-This command deletes tests with given plan ID
+This command deletes tests with given plan ID.
 
 #### Base Command
 
@@ -262,32 +262,32 @@ This command deletes tests with given plan ID
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| deleted_test_results.planId | String | Plan ID of the simulation | 
-| deleted_test_results.planName | String | Plan Name of the simulation | 
-| deleted_test_results.securityActionPerControl | String | Security Actions of the simulation | 
-| deleted_test_results.planRunId | String | Plan Run ID of the simulation | 
-| deleted_test_results.runId | String | Run ID of the simulation | 
-| deleted_test_results.status | String | status of the simulation | 
-| deleted_test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation | 
-| deleted_test_results.simulatorExecutions | String | simulator executions of the simulation | 
-| deleted_test_results.ranBy | String | user who started the simulation | 
-| deleted_test_results.simulatorCount | String | simulators count of simulation | 
-| deleted_test_results.endTime | String | End Time of the simulation | 
-| deleted_test_results.startTime | String | start time of the simulation | 
-| deleted_test_results.finalStatus.stopped | String | stopped count of simulation | 
-| deleted_test_results.finalStatus.missed | String | missed count of simulation | 
-| deleted_test_results.finalStatus.logged | String | logged count of simulation | 
-| deleted_test_results.finalStatus.detected | String | detected count of simulation | 
-| deleted_test_results.finalStatus.prevented | String | prevented count of simulation | 
-| deleted_test_results.finalStatus.inconsistent | String | inconsistent count of simulation | 
-| deleted_test_results.finalStatus.drifted | String | drifted count of simulation | 
-| deleted_test_results.finalStatus.not_drifted | String | not drifted count of simulation | 
-| deleted_test_results.finalStatus.baseline | String | baseline count of simulation | 
+| deleted_test_results.planId | String | Plan ID of the simulation. | 
+| deleted_test_results.planName | String | Plan Name of the simulation. | 
+| deleted_test_results.securityActionPerControl | String | Security Actions of the simulation. | 
+| deleted_test_results.planRunId | String | Plan Run ID of the simulation. | 
+| deleted_test_results.runId | String | Run ID of the simulation. | 
+| deleted_test_results.status | String | status of the simulation. | 
+| deleted_test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation. | 
+| deleted_test_results.simulatorExecutions | String | simulator executions of the simulation. | 
+| deleted_test_results.ranBy | String | user who started the simulation. | 
+| deleted_test_results.simulatorCount | String | simulators count of simulation. | 
+| deleted_test_results.endTime | String | End Time of the simulation. | 
+| deleted_test_results.startTime | String | start time of the simulation. | 
+| deleted_test_results.finalStatus.stopped | String | stopped count of simulation. | 
+| deleted_test_results.finalStatus.missed | String | missed count of simulation. | 
+| deleted_test_results.finalStatus.logged | String | logged count of simulation. | 
+| deleted_test_results.finalStatus.detected | String | detected count of simulation. | 
+| deleted_test_results.finalStatus.prevented | String | prevented count of simulation. | 
+| deleted_test_results.finalStatus.inconsistent | String | inconsistent count of simulation. | 
+| deleted_test_results.finalStatus.drifted | String | drifted count of simulation. | 
+| deleted_test_results.finalStatus.not_drifted | String | not drifted count of simulation. | 
+| deleted_test_results.finalStatus.baseline | String | baseline count of simulation. | 
 
 ### safebreach-delete-user
 
 ***
-This command deletes a user with given data
+This command deletes a user with given data.
 
 #### Base Command
 
@@ -317,7 +317,7 @@ This command deletes a user with given data
 ### safebreach-get-integration-errors
 
 ***
-This command gives all connector related errors
+This command gives all connector related errors.
 
 #### Base Command
 
@@ -341,7 +341,7 @@ This command gives all connector related errors
 ### safebreach-get-available-simulator-details
 
 ***
-This command gives all details related to account, we are using this to find assigned simulator quota
+We are using this command to get all available simulators.
 
 #### Base Command
 
@@ -391,41 +391,41 @@ This command gives all details related to account, we are using this to find ass
 | simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | simulator_details.simulator_id | String | The Id of given simulator. | 
 | simulator_details.simulator_name | String | name for given simulator. | 
-| simulator_details.account_id | String | Account Id of account Hosting given simulator | 
-| simulator_details.is_critical | String | Whether the simulator is critical | 
-| simulator_details.is_exfiltration | Number | If Simulator is exfiltration target | 
+| simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
+| simulator_details.is_critical | String | Whether the simulator is critical. | 
+| simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
 | simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
 | simulator_details.is_mail_target | Number | If simulator is mail target. | 
 | simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
 | simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
 | simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| simulator_details.is_azure_attacker | String | If the given simulator is azure attacker | 
-| simulator_details.external_ip | String | external ip of given simulator | 
-| simulator_details.internal_ip | String | internal ip of given simulator | 
-| simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker | 
-| simulator_details.preferred_interface | Number | Preferred simulator interface | 
+| simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| simulator_details.external_ip | String | external ip of given simulator. | 
+| simulator_details.internal_ip | String | internal ip of given simulator. | 
+| simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| simulator_details.preferred_interface | Number | Preferred simulator interface. | 
 | simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
-| simulator_details.hostname | String | Hostname of given simulator | 
-| simulator_details.connection_type | String | connection_type of given simulator | 
-| simulator_details.simulator_status | String | status of the simulator | 
-| simulator_details.connection_status | Number | connection status of node/simulator | 
+| simulator_details.hostname | String | Hostname of given simulator. | 
+| simulator_details.connection_type | String | connection_type of given simulator. | 
+| simulator_details.simulator_status | String | status of the simulator. | 
+| simulator_details.connection_status | Number | connection status of node/simulator. | 
 | simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
-| simulator_details.operating_system_type | String | operating system type of given simulator | 
-| simulator_details.operating_system | String | Operating system of given simulator | 
-| simulator_details.execution_hostname | String | Execution Hostname of the given node | 
-| simulator_details.deployments | Number | deployments simulator is part of | 
+| simulator_details.operating_system_type | String | operating system type of given simulator. | 
+| simulator_details.operating_system | String | Operating system of given simulator. | 
+| simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| simulator_details.deployments | Number | deployments simulator is part of. | 
 | simulator_details.created_at | Number | Creation datetime of simulator. | 
-| simulator_details.updated_at | String | Update datetime of given simulator | 
-| simulator_details.deleted_at | String | deletion datetime of given simulator | 
-| simulator_details.assets | String | Assets of given simulator | 
-| simulator_details.simulation_users | Number | simulator users list | 
+| simulator_details.updated_at | String | Update datetime of given simulator. | 
+| simulator_details.deleted_at | String | deletion datetime of given simulator. | 
+| simulator_details.assets | String | Assets of given simulator. | 
+| simulator_details.simulation_users | Number | simulator users list. | 
 | simulator_details.proxies | Number | Proxies of simulator. | 
 | simulator_details.advanced_actions | Number | Advanced simulator details. | 
 
 ### safebreach-get-test-summary
 
 ***
-This command gets tests with given modifiers
+This command gets tests with given modifiers.
 
 #### Base Command
 
@@ -446,32 +446,32 @@ This command gets tests with given modifiers
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| test_results.planId | String | Plan ID of the simulation | 
-| test_results.planName | String | Plan Name of the simulation | 
-| test_results.securityActionPerControl | String | Security Actions of the simulation | 
-| test_results.planRunId | String | Plan Run ID of the simulation | 
-| test_results.runId | String | Run ID of the simulation | 
-| test_results.status | String | status of the simulation | 
-| test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation | 
-| test_results.simulatorExecutions | String | simulator executions of the simulation | 
-| test_results.ranBy | String | user who started the simulation | 
-| test_results.simulatorCount | String | simulators count of simulation | 
-| test_results.endTime | String | End Time of the simulation | 
-| test_results.startTime | String | start time of the simulation | 
-| test_results.finalStatus.stopped | String | stopped count of simulation | 
-| test_results.finalStatus.missed | String | missed count of simulation | 
-| test_results.finalStatus.logged | String | logged count of simulation | 
-| test_results.finalStatus.detected | String | detected count of simulation | 
-| test_results.finalStatus.prevented | String | prevented count of simulation | 
-| test_results.finalStatus.inconsistent | String | inconsistent count of simulation | 
-| test_results.finalStatus.drifted | String | drifted count of simulation | 
-| test_results.finalStatus.not_drifted | String | not drifted count of simulation | 
-| test_results.finalStatus.baseline | String | baseline count of simulation | 
+| test_results.planId | String | Plan ID of the simulation. | 
+| test_results.planName | String | Plan Name of the simulation. | 
+| test_results.securityActionPerControl | String | Security Actions of the simulation. | 
+| test_results.planRunId | String | Plan Run ID of the simulation. | 
+| test_results.runId | String | Run ID of the simulation. | 
+| test_results.status | String | status of the simulation. | 
+| test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation. | 
+| test_results.simulatorExecutions | String | simulator executions of the simulation. | 
+| test_results.ranBy | String | user who started the simulation. | 
+| test_results.simulatorCount | String | simulators count of simulation. | 
+| test_results.endTime | String | End Time of the simulation. | 
+| test_results.startTime | String | start time of the simulation. | 
+| test_results.finalStatus.stopped | String | stopped count of simulation. | 
+| test_results.finalStatus.missed | String | missed count of simulation. | 
+| test_results.finalStatus.logged | String | logged count of simulation. | 
+| test_results.finalStatus.detected | String | detected count of simulation. | 
+| test_results.finalStatus.prevented | String | prevented count of simulation. | 
+| test_results.finalStatus.inconsistent | String | inconsistent count of simulation. | 
+| test_results.finalStatus.drifted | String | drifted count of simulation. | 
+| test_results.finalStatus.not_drifted | String | not drifted count of simulation. | 
+| test_results.finalStatus.baseline | String | baseline count of simulation. | 
 
 ### safebreach-get-test-summary-with-plan-run-id
 
 ***
-This command gets tests with given plan ID
+This command gets tests with given plan ID.
 
 #### Base Command
 
@@ -492,32 +492,32 @@ This command gets tests with given plan ID
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| test_results.planId | String | Plan ID of the simulation | 
-| test_results.planName | String | Plan Name of the simulation | 
-| test_results.securityActionPerControl | String | Security Actions of the simulation | 
-| test_results.planRunId | String | Plan Run ID of the simulation | 
-| test_results.runId | String | Run ID of the simulation | 
-| test_results.status | String | status of the simulation | 
-| test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation | 
-| test_results.simulatorExecutions | String | simulator executions of the simulation | 
-| test_results.ranBy | String | user who started the simulation | 
-| test_results.simulatorCount | String | simulators count of simulation | 
-| test_results.endTime | String | End Time of the simulation | 
-| test_results.startTime | String | start time of the simulation | 
-| test_results.finalStatus.stopped | String | stopped count of simulation | 
-| test_results.finalStatus.missed | String | missed count of simulation | 
-| test_results.finalStatus.logged | String | logged count of simulation | 
-| test_results.finalStatus.detected | String | detected count of simulation | 
-| test_results.finalStatus.prevented | String | prevented count of simulation | 
-| test_results.finalStatus.inconsistent | String | inconsistent count of simulation | 
-| test_results.finalStatus.drifted | String | drifted count of simulation | 
-| test_results.finalStatus.not_drifted | String | not drifted count of simulation | 
-| test_results.finalStatus.baseline | String | baseline count of simulation | 
+| test_results.planId | String | Plan ID of the simulation. | 
+| test_results.planName | String | Plan Name of the simulation. | 
+| test_results.securityActionPerControl | String | Security Actions of the simulation. | 
+| test_results.planRunId | String | Plan Run ID of the simulation. | 
+| test_results.runId | String | Run ID of the simulation. | 
+| test_results.status | String | status of the simulation. | 
+| test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation. | 
+| test_results.simulatorExecutions | String | simulator executions of the simulation. | 
+| test_results.ranBy | String | user who started the simulation. | 
+| test_results.simulatorCount | String | simulators count of simulation. | 
+| test_results.endTime | String | End Time of the simulation. | 
+| test_results.startTime | String | start time of the simulation. | 
+| test_results.finalStatus.stopped | String | stopped count of simulation. | 
+| test_results.finalStatus.missed | String | missed count of simulation. | 
+| test_results.finalStatus.logged | String | logged count of simulation. | 
+| test_results.finalStatus.detected | String | detected count of simulation. | 
+| test_results.finalStatus.prevented | String | prevented count of simulation. | 
+| test_results.finalStatus.inconsistent | String | inconsistent count of simulation. | 
+| test_results.finalStatus.drifted | String | drifted count of simulation. | 
+| test_results.finalStatus.not_drifted | String | not drifted count of simulation. | 
+| test_results.finalStatus.baseline | String | baseline count of simulation. | 
 
 ### safebreach-get-all-users
 
 ***
-This command gives all users depending on inputs given
+This command gives all users depending on inputs given.
 
 #### Base Command
 
@@ -539,7 +539,7 @@ This command gives all users depending on inputs given
 ### safebreach-get-available-simulator-count
 
 ***
-This command gives all details related to account, we are using this to find assigned simulator quota
+This command gives all details related to account, we are using this to find assigned simulator quota.
 
 #### Base Command
 
@@ -586,41 +586,41 @@ This command gives simulator with given name
 | simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | simulator_details.simulator_id | String | The Id of given simulator. | 
 | simulator_details.simulator_name | String | name for given simulator. | 
-| simulator_details.account_id | String | Account Id of account Hosting given simulator | 
-| simulator_details.is_critical | String | Whether the simulator is critical | 
-| simulator_details.is_exfiltration | Number | If Simulator is exfiltration target | 
+| simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
+| simulator_details.is_critical | String | Whether the simulator is critical. | 
+| simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
 | simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
 | simulator_details.is_mail_target | Number | If simulator is mail target. | 
 | simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
 | simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
 | simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| simulator_details.is_azure_attacker | String | If the given simulator is azure attacker | 
-| simulator_details.external_ip | String | external ip of given simulator | 
-| simulator_details.internal_ip | String | internal ip of given simulator | 
-| simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker | 
-| simulator_details.preferred_interface | Number | Preferred simulator interface | 
+| simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| simulator_details.external_ip | String | external ip of given simulator. | 
+| simulator_details.internal_ip | String | internal ip of given simulator. | 
+| simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| simulator_details.preferred_interface | Number | Preferred simulator interface. | 
 | simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
-| simulator_details.hostname | String | Hostname of given simulator | 
-| simulator_details.connection_type | String | connection_type of given simulator | 
-| simulator_details.simulator_status | String | status of the simulator | 
-| simulator_details.connection_status | Number | connection status of node/simulator | 
+| simulator_details.hostname | String | Hostname of given simulator. | 
+| simulator_details.connection_type | String | connection_type of given simulator. | 
+| simulator_details.simulator_status | String | status of the simulator. | 
+| simulator_details.connection_status | Number | connection status of node/simulator. | 
 | simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
-| simulator_details.operating_system_type | String | operating system type of given simulator | 
-| simulator_details.operating_system | String | Operating system of given simulator | 
-| simulator_details.execution_hostname | String | Execution Hostname of the given node | 
-| simulator_details.deployments | Number | deployments simulator is part of | 
+| simulator_details.operating_system_type | String | operating system type of given simulator. | 
+| simulator_details.operating_system | String | Operating system of given simulator. | 
+| simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| simulator_details.deployments | Number | deployments simulator is part of. | 
 | simulator_details.created_at | Number | Creation datetime of simulator. | 
-| simulator_details.updated_at | String | Update datetime of given simulator | 
-| simulator_details.deleted_at | String | deletion datetime of given simulator | 
-| simulator_details.assets | String | Assets of given simulator | 
-| simulator_details.simulation_users | Number | simulator users list | 
+| simulator_details.updated_at | String | Update datetime of given simulator. | 
+| simulator_details.deleted_at | String | deletion datetime of given simulator. | 
+| simulator_details.assets | String | Assets of given simulator. | 
+| simulator_details.simulation_users | Number | simulator users list. | 
 | simulator_details.proxies | Number | Proxies of simulator. | 
 | simulator_details.advanced_actions | Number | Advanced simulator details. | 
 
 ### safebreach-get-user-with-matching-name-or-email
 
 ***
-This command gives all users depending on inputs given
+This command gives all users depending on inputs given.
 
 #### Base Command
 
@@ -644,7 +644,7 @@ This command gives all users depending on inputs given
 ### safebreach-rotate-verification-token
 
 ***
-This command gives simulator with given name
+This command rotates generated verification token.
 
 #### Base Command
 
@@ -662,41 +662,41 @@ This command gives simulator with given name
 | new_token.is_enabled | String | Whether the node is enabled or not. | 
 | new_token.simulator_id | String | The Id of given simulator. | 
 | new_token.simulator_name | String | name for given simulator. | 
-| new_token.account_id | String | Account Id of account Hosting given simulator | 
-| new_token.is_critical | String | Whether the simulator is critical | 
-| new_token.is_exfiltration | Number | If Simulator is exfiltration target | 
+| new_token.account_id | String | Account Id of account Hosting given simulator. | 
+| new_token.is_critical | String | Whether the simulator is critical. | 
+| new_token.is_exfiltration | Number | If Simulator is exfiltration target. | 
 | new_token.is_infiltration | Number | If simulator is infiltration target. | 
 | new_token.is_mail_target | Number | If simulator is mail target. | 
 | new_token.is_mail_attacker | Number | If simulator is mail attacker. | 
 | new_token.is_pre_executor | Number | Whether the node is pre executor. | 
 | new_token.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| new_token.is_azure_attacker | String | If the given simulator is azure attacker | 
-| new_token.external_ip | String | external ip of given simulator | 
-| new_token.internal_ip | String | internal ip of given simulator | 
-| new_token.is_web_application_attacker | String | Whether the simulator is Web application attacker | 
-| new_token.preferred_interface | Number | Preferred simulator interface | 
+| new_token.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| new_token.external_ip | String | external ip of given simulator. | 
+| new_token.internal_ip | String | internal ip of given simulator. | 
+| new_token.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| new_token.preferred_interface | Number | Preferred simulator interface. | 
 | new_token.preferred_ip | Number | Preferred Ip of simulator. | 
-| new_token.hostname | String | Hostname of given simulator | 
-| new_token.connection_type | String | connection_type of given simulator | 
-| new_token.simulator_status | String | status of the simulator | 
-| new_token.connection_status | Number | connection status of node/simulator | 
+| new_token.hostname | String | Hostname of given simulator. | 
+| new_token.connection_type | String | connection_type of given simulator. | 
+| new_token.simulator_status | String | status of the simulator. | 
+| new_token.connection_status | Number | connection status of node/simulator. | 
 | new_token.simulator_framework_version | Number | Framework version of simulator. | 
-| new_token.operating_system_type | String | operating system type of given simulator | 
-| new_token.operating_system | String | Operating system of given simulator | 
-| new_token.execution_hostname | String | Execution Hostname of the given node | 
-| new_token.deployments | Number | deployments simulator is part of | 
+| new_token.operating_system_type | String | operating system type of given simulator. | 
+| new_token.operating_system | String | Operating system of given simulator. | 
+| new_token.execution_hostname | String | Execution Hostname of the given node. | 
+| new_token.deployments | Number | deployments simulator is part of. | 
 | new_token.created_at | Number | Creation datetime of simulator. | 
-| new_token.updated_at | String | Update datetime of given simulator | 
-| new_token.deleted_at | String | deletion datetime of given simulator | 
-| new_token.assets | String | Assets of given simulator | 
-| new_token.simulation_users | Number | simulator users list | 
+| new_token.updated_at | String | Update datetime of given simulator. | 
+| new_token.deleted_at | String | deletion datetime of given simulator. | 
+| new_token.assets | String | Assets of given simulator. | 
+| new_token.simulation_users | Number | simulator users list. | 
 | new_token.proxies | Number | Proxies of simulator. | 
 | new_token.advanced_actions | Number | Advanced simulator details. | 
 
 ### safebreach-update-deployment
 
 ***
-This command updates a deployment with given data
+This command updates a deployment with given data.
 
 #### Base Command
 
@@ -710,7 +710,7 @@ This command updates a deployment with given data
 | Deployment Name | Description of the deployment to update. | Optional | 
 | Updated Nodes for Deployment | Comma separated ID of all nodes the deployment should be part of. | Optional | 
 | Updated Deployment Name | Name of the deployment to update to. | Optional | 
-| Updated deployment description | name of the deployment to update to. | Optional | 
+| Updated deployment description. | name of the deployment to update to. | Optional | 
 
 #### Context Output
 
@@ -726,7 +726,7 @@ This command updates a deployment with given data
 ### safebreach-update-simulator-with-given-name
 
 ***
-This command updates simulator with given name
+This command updates simulator with given name with given details.
 
 #### Base Command
 
@@ -763,41 +763,41 @@ This command updates simulator with given name
 | updated_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | updated_simulator_details.simulator_id | String | The Id of given simulator. | 
 | updated_simulator_details.simulator_name | String | name for given simulator. | 
-| updated_simulator_details.account_id | String | Account Id of account Hosting given simulator | 
-| updated_simulator_details.is_critical | String | Whether the simulator is critical | 
-| updated_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target | 
+| updated_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
+| updated_simulator_details.is_critical | String | Whether the simulator is critical. | 
+| updated_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
 | updated_simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
 | updated_simulator_details.is_mail_target | Number | If simulator is mail target. | 
 | updated_simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
 | updated_simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
 | updated_simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| updated_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker | 
-| updated_simulator_details.external_ip | String | external ip of given simulator | 
-| updated_simulator_details.internal_ip | String | internal ip of given simulator | 
-| updated_simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker | 
-| updated_simulator_details.preferred_interface | Number | Preferred simulator interface | 
+| updated_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| updated_simulator_details.external_ip | String | external ip of given simulator. | 
+| updated_simulator_details.internal_ip | String | internal ip of given simulator. | 
+| updated_simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| updated_simulator_details.preferred_interface | Number | Preferred simulator interface. | 
 | updated_simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
-| updated_simulator_details.hostname | String | Hostname of given simulator | 
-| updated_simulator_details.connection_type | String | connection_type of given simulator | 
-| updated_simulator_details.simulator_status | String | status of the simulator | 
-| updated_simulator_details.connection_status | Number | connection status of node/simulator | 
+| updated_simulator_details.hostname | String | Hostname of given simulator. | 
+| updated_simulator_details.connection_type | String | connection_type of given simulator. | 
+| updated_simulator_details.simulator_status | String | status of the simulator. | 
+| updated_simulator_details.connection_status | Number | connection status of node/simulator. | 
 | updated_simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
-| updated_simulator_details.operating_system_type | String | operating system type of given simulator | 
-| updated_simulator_details.operating_system | String | Operating system of given simulator | 
-| updated_simulator_details.execution_hostname | String | Execution Hostname of the given node | 
-| updated_simulator_details.deployments | Number | deployments simulator is part of | 
+| updated_simulator_details.operating_system_type | String | operating system type of given simulator. | 
+| updated_simulator_details.operating_system | String | Operating system of given simulator. | 
+| updated_simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| updated_simulator_details.deployments | Number | deployments simulator is part of. | 
 | updated_simulator_details.created_at | Number | Creation datetime of simulator. | 
-| updated_simulator_details.updated_at | String | Update datetime of given simulator | 
-| updated_simulator_details.deleted_at | String | deletion datetime of given simulator | 
-| updated_simulator_details.assets | String | Assets of given simulator | 
-| updated_simulator_details.simulation_users | Number | simulator users list | 
+| updated_simulator_details.updated_at | String | Update datetime of given simulator. | 
+| updated_simulator_details.deleted_at | String | deletion datetime of given simulator. | 
+| updated_simulator_details.assets | String | Assets of given simulator. | 
+| updated_simulator_details.simulation_users | Number | simulator users list. | 
 | updated_simulator_details.proxies | Number | Proxies of simulator. | 
 | updated_simulator_details.advanced_actions | Number | Advanced simulator details. | 
 
 ### safebreach-update-user-details
 
 ***
-This command updates a user with given data
+This command updates a user with given data.
 
 #### Base Command
 

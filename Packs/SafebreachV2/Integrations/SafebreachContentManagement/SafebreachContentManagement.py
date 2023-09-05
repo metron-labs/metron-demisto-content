@@ -37,43 +37,43 @@ simulator_details_inputs = [
                   default="false", required=False, is_array=False),
     InputArgument(name="isConnected", description="status of connection of nodes to search.", options=["true", "false"],
                   default="false", required=False, is_array=False),
-    InputArgument(name="isCritical", description="whether to search only for critical nodes or not", options=["true", "false"],
+    InputArgument(name="isCritical", description="whether to search only for critical nodes or not.", options=["true", "false"],
                   default="false", required=False, is_array=False),
     InputArgument(name="assets", description="Whether search only for assets and which assets.", required=False, is_array=False),
-    InputArgument(name="additionalDetails", description="Whether to show additional details or not",
+    InputArgument(name="additionalDetails", description="Whether to show additional details or not.",
                   options=["true", "false"], default="false", required=False, is_array=False),
-    InputArgument(name="impersonatedUsers", description="should search only for impersonated user targets or not",
+    InputArgument(name="impersonatedUsers", description="should search only for impersonated user targets or not.",
                   options=["true", "false"], default="false", required=False, is_array=False),
-    InputArgument(name="isAzureAttacker", description="Whether to search only for azure attackers",
+    InputArgument(name="isAzureAttacker", description="Whether to search only for azure attackers.",
                   options=["true", "false"], default="false", required=False, is_array=False),
     InputArgument(name="isAwsAttacker", description="Whether to search only for aws attacker.", options=["true", "false"],
                   default="false", required=False, is_array=False),
-    InputArgument(name="isPreExecutor", description="should search only for pre-executors or not",
+    InputArgument(name="isPreExecutor", description="should search only for pre-executors or not.",
                   options=["true", "false"], default="false", required=False, is_array=False),
-    InputArgument(name="isInfiltrationTarget", description="Whether to search only for infiltration targets",
+    InputArgument(name="isInfiltrationTarget", description="Whether to search only for infiltration targets.",
                   options=["true", "false"], default="false", required=False, is_array=False),
     InputArgument(name="isMailTarget", description="Whether to search only for Mail targets.", options=["true", "false"],
                   default="false", required=False, is_array=False),
-    InputArgument(name="isExfiltrationTarget", description="should search only for exfiltration targets or not",
+    InputArgument(name="isExfiltrationTarget", description="should search only for exfiltration targets or not.",
                   options=["true", "false"], default="false", required=False, is_array=False),
 
     # These fields need to be '|' separated  arrays
-    InputArgument(name="deployments", description="deployments list which the search should look",
+    InputArgument(name="deployments", description="deployments list which the search should look.",
                   required=False, is_array=True),
-    InputArgument(name="advancedActions", description="advanced actions to search",
+    InputArgument(name="advancedActions", description="advanced actions to search.",
                   required=False, is_array=True),
-    InputArgument(name="roles", description="roles to search",
+    InputArgument(name="roles", description="roles to search.",
                   required=False, is_array=True),
-    InputArgument(name="userids", description="userids to search",
+    InputArgument(name="userids", description="userids to search.",
                   required=False, is_array=True),
-    InputArgument(name="versions", description="versions to filter by",
+    InputArgument(name="versions", description="versions to filter by.",
                   required=False, is_array=True),
     # '|' separated arrays end
 
     # normal arrays start
-    InputArgument(name="proxyIds", description="proxy ids to search",
+    InputArgument(name="proxyIds", description="proxy ids to search.",
                   required=False, is_array=True),
-    InputArgument(name="assetIds", description="asset ids to search",
+    InputArgument(name="assetIds", description="asset ids to search.",
                   required=False, is_array=True),
     # normal arrays end
 
@@ -91,11 +91,11 @@ simulators_output_fields = [
                    output_type=str),
     OutputArgument(name="simulator_name", description="name for given simulator.",
                    output_type=str),
-    OutputArgument(name="account_id", description="Account Id of account Hosting given simulator",
+    OutputArgument(name="account_id", description="Account Id of account Hosting given simulator.",
                    output_type=str),
-    OutputArgument(name="is_critical", description="Whether the simulator is critical",
+    OutputArgument(name="is_critical", description="Whether the simulator is critical.",
                    output_type=str),
-    OutputArgument(name="is_exfiltration", description="If Simulator is exfiltration target",
+    OutputArgument(name="is_exfiltration", description="If Simulator is exfiltration target.",
                    output_type=int),
     OutputArgument(name="is_infiltration", description="If simulator is infiltration target.",
                    output_type=int),
@@ -107,45 +107,45 @@ simulators_output_fields = [
                    output_type=int),
     OutputArgument(name="is_aws_attacker", description="if the given simulator is aws attacker.",
                    output_type=str),
-    OutputArgument(name="is_azure_attacker", description="If the given simulator is azure attacker",
+    OutputArgument(name="is_azure_attacker", description="If the given simulator is azure attacker.",
                    output_type=str),
-    OutputArgument(name="external_ip", description="external ip of given simulator",
+    OutputArgument(name="external_ip", description="external ip of given simulator.",
                    output_type=str),
-    OutputArgument(name="internal_ip", description="internal ip of given simulator",
+    OutputArgument(name="internal_ip", description="internal ip of given simulator.",
                    output_type=str),
-    OutputArgument(name="is_web_application_attacker", description="Whether the simulator is Web application attacker",
+    OutputArgument(name="is_web_application_attacker", description="Whether the simulator is Web application attacker.",
                    output_type=str),
-    OutputArgument(name="preferred_interface", description="Preferred simulator interface",
+    OutputArgument(name="preferred_interface", description="Preferred simulator interface.",
                    output_type=int),
     OutputArgument(name="preferred_ip", description="Preferred Ip of simulator.",
                    output_type=int),
-    OutputArgument(name="hostname", description="Hostname of given simulator",
+    OutputArgument(name="hostname", description="Hostname of given simulator.",
                    output_type=str),
-    OutputArgument(name="connection_type", description="connection_type of given simulator",
+    OutputArgument(name="connection_type", description="connection_type of given simulator.",
                    output_type=str),
-    OutputArgument(name="simulator_status", description="status of the simulator",
+    OutputArgument(name="simulator_status", description="status of the simulator.",
                    output_type=str),
-    OutputArgument(name="connection_status", description="connection status of node/simulator",
+    OutputArgument(name="connection_status", description="connection status of node/simulator.",
                    output_type=int),
     OutputArgument(name="simulator_framework_version", description="Framework version of simulator.",
                    output_type=int),
-    OutputArgument(name="operating_system_type", description="operating system type of given simulator",
+    OutputArgument(name="operating_system_type", description="operating system type of given simulator.",
                    output_type=str),
-    OutputArgument(name="operating_system", description="Operating system of given simulator",
+    OutputArgument(name="operating_system", description="Operating system of given simulator.",
                    output_type=str),
-    OutputArgument(name="execution_hostname", description="Execution Hostname of the given node",
+    OutputArgument(name="execution_hostname", description="Execution Hostname of the given node.",
                    output_type=str),
-    OutputArgument(name="deployments", description="deployments simulator is part of",
+    OutputArgument(name="deployments", description="deployments simulator is part of.",
                    output_type=int),
     OutputArgument(name="created_at", description="Creation datetime of simulator.",
                    output_type=int),
-    OutputArgument(name="updated_at", description="Update datetime of given simulator",
+    OutputArgument(name="updated_at", description="Update datetime of given simulator.",
                    output_type=str),
-    OutputArgument(name="deleted_at", description="deletion datetime of given simulator",
+    OutputArgument(name="deleted_at", description="deletion datetime of given simulator.",
                    output_type=str),
-    OutputArgument(name="assets", description="Assets of given simulator",
+    OutputArgument(name="assets", description="Assets of given simulator.",
                    output_type=str),
-    OutputArgument(name="simulation_users", description="simulator users list",
+    OutputArgument(name="simulation_users", description="simulator users list.",
                    output_type=int),
     OutputArgument(name="proxies", description="Proxies of simulator.",
                    output_type=int),
@@ -154,76 +154,76 @@ simulators_output_fields = [
 ]
 
 simulator_details_for_update_fields = [
-    InputArgument(name="isEnabled", description="set true to enable the node",
+    InputArgument(name="isEnabled", description="set true to enable the node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isProxySupported", description="set true to enable the proxy support",
+    InputArgument(name="isProxySupported", description="set true to enable the proxy support.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isCritical", description="set true to make node as critical node",
+    InputArgument(name="isCritical", description="set true to make node as critical node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isExfiltration", description="set true to make the node as exfiltration node",
+    InputArgument(name="isExfiltration", description="set true to make the node as exfiltration node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isInfiltration", description="set true to make the node as infiltration node",
+    InputArgument(name="isInfiltration", description="set true to make the node as infiltration node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isMailTarget", description="set true to make node as mail target",
+    InputArgument(name="isMailTarget", description="set true to make node as mail target.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isMailAttacker", description="set true to make node as MailAttacker node",
+    InputArgument(name="isMailAttacker", description="set true to make node as MailAttacker node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isPreExecutor", description="set true to enable the node as PreExecutor node",
+    InputArgument(name="isPreExecutor", description="set true to enable the node as PreExecutor node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isAWSAttacker", description="set true to make node as AWS attacker target",
+    InputArgument(name="isAWSAttacker", description="set true to make node as AWS attacker target.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isAzureAttacker", description="set true to make node as Azure attacker node",
+    InputArgument(name="isAzureAttacker", description="set true to make node as Azure attacker node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isWebApplicationAttacker", description="set true to enable the node as web application attacker node",
+    InputArgument(name="isWebApplicationAttacker", description="set true to enable the node as web application attacker node.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="useSystemUser", description="set true to enable the node get system user access",
+    InputArgument(name="useSystemUser", description="set true to enable the node get system user access.",
                   options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="connectionUrl", description="the given value will be set as connection string",
+    InputArgument(name="connectionUrl", description="the given value will be set as connection string.",
                   required=False, is_array=False),
-    InputArgument(name="cloudProxyUrl", description="the given value will be set as cloud proxy url",
+    InputArgument(name="cloudProxyUrl", description="the given value will be set as cloud proxy url.",
                   required=False, is_array=False),
-    InputArgument(name="name", description="the given value will be set as name of simulator",
+    InputArgument(name="name", description="the given value will be set as name of simulator.",
                   required=False, is_array=False),
-    InputArgument(name="preferredInterface", description="the given value will be set as preferred interface string",
+    InputArgument(name="preferredInterface", description="the given value will be set as preferred interface string.",
                   required=False, is_array=False),
-    InputArgument(name="preferredIp", description="the given value will be set as Preferred IP",
+    InputArgument(name="preferredIp", description="the given value will be set as Preferred IP.",
                   required=False, is_array=False),
-    InputArgument(name="tunnel", description="the given value will be set as tunnel",
+    InputArgument(name="tunnel", description="the given value will be set as tunnel.",
                   required=False, is_array=False),
 ]
 
 simulation_output_fields = [
-    OutputArgument(name="planId", description="Plan ID of the simulation", output_type=str),
-    OutputArgument(name="planName", description="Plan Name of the simulation", output_type=str),
-    OutputArgument(name="securityActionPerControl", description="Security Actions of the simulation", output_type=str),
-    OutputArgument(name="planRunId", description="Plan Run ID of the simulation", output_type=str),
-    OutputArgument(name="runId", description="Run ID of the simulation", output_type=str),
-    OutputArgument(name="status", description="status of the simulation", output_type=str),
-    OutputArgument(name="plannedSimulationsAmount", description="Planned simulations amount of the simulation", output_type=str),
-    OutputArgument(name="simulatorExecutions", description="simulator executions of the simulation", output_type=str),
-    OutputArgument(name="ranBy", description="user who started the simulation", output_type=str),
-    OutputArgument(name="simulatorCount", description="simulators count of simulation", output_type=str),
-    OutputArgument(name="endTime", description="End Time of the simulation", output_type=str),
-    OutputArgument(name="startTime", description="start time of the simulation", output_type=str),
-    OutputArgument(name="finalStatus.stopped", description="stopped count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.missed", description="missed count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.logged", description="logged count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.detected", description="detected count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.prevented", description="prevented count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.inconsistent", description="inconsistent count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.drifted", description="drifted count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.not_drifted", description="not drifted count of simulation", output_type=str),
-    OutputArgument(name="finalStatus.baseline", description="baseline count of simulation", output_type=str),
+    OutputArgument(name="planId", description="Plan ID of the simulation.", output_type=str),
+    OutputArgument(name="planName", description="Plan Name of the simulation.", output_type=str),
+    OutputArgument(name="securityActionPerControl", description="Security Actions of the simulation.", output_type=str),
+    OutputArgument(name="planRunId", description="Plan Run ID of the simulation.", output_type=str),
+    OutputArgument(name="runId", description="Run ID of the simulation.", output_type=str),
+    OutputArgument(name="status", description="status of the simulation.", output_type=str),
+    OutputArgument(name="plannedSimulationsAmount", description="Planned simulations amount of the simulation.", output_type=str),
+    OutputArgument(name="simulatorExecutions", description="simulator executions of the simulation.", output_type=str),
+    OutputArgument(name="ranBy", description="user who started the simulation.", output_type=str),
+    OutputArgument(name="simulatorCount", description="simulators count of simulation.", output_type=str),
+    OutputArgument(name="endTime", description="End Time of the simulation.", output_type=str),
+    OutputArgument(name="startTime", description="start time of the simulation.", output_type=str),
+    OutputArgument(name="finalStatus.stopped", description="stopped count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.missed", description="missed count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.logged", description="logged count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.detected", description="detected count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.prevented", description="prevented count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.inconsistent", description="inconsistent count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.drifted", description="drifted count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.not_drifted", description="not drifted count of simulation.", output_type=str),
+    OutputArgument(name="finalStatus.baseline", description="baseline count of simulation.", output_type=str),
 ]
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
     description="This Integration aims to provide easy access to safebreach from XSOAR.\
         Following are the things that user can get access through XSOAR command integration: \
-        1. User get, create, update and delete \
-        2. Deployment create, update and delete \
-        3. Tests get and delete \
-        4. Nodes get, update, delete ",
+        1. User get, create, update and delete. \
+        2. Deployment create, update and delete. \
+        3. Tests get and delete. \
+        4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
     category="Data Enrichment & Threat Intelligence",
     docker_image="demisto/python3:3.10.13.72123",
@@ -853,7 +853,7 @@ def get_tests_summary(client: Client):
         OutputArgument(name="email", description="The email of User retrieved.",
                        prefix="user_data", output_type=str),
     ],
-    description="This command gives all users depending on inputs given")
+    description="This command gives all users depending on inputs given.")
 def get_all_users(client: Client):
 
     user_data = client.get_users_list()
@@ -884,7 +884,7 @@ def get_all_users(client: Client):
         OutputArgument(name="email", description="The email of User retrieved.",
                        prefix="user_data", output_type=str),
     ],
-    description="This command gives all users depending on inputs given")
+    description="This command gives all users depending on inputs given.")
 def get_user_id_by_name_or_email(client: Client):
     name = demisto.args().get("name")
     email = demisto.args().get("email")
@@ -914,18 +914,18 @@ def get_user_id_by_name_or_email(client: Client):
                       is_array=False),
         InputArgument(name="Is Active", description="Whether the user is active upon creation.",
                       required=False, is_array=False, options=["True", "False"], default="False"),
-        InputArgument(name="Email Post Creation", description="Should Email be sent to user on creation",
+        InputArgument(name="Email Post Creation", description="Should Email be sent to user on creation.",
                       required=False, is_array=False, options=["True", "False"], default="False"),
         InputArgument(name="Password", description="Password of user being created.", required=True,
                       is_array=False),
         InputArgument(name="Admin Name", description="Name of the Admin creating user.", required=False,
                       is_array=False),
-        InputArgument(name="Change Password on create", description="Should user change password on creation",
+        InputArgument(name="Change Password on create", description="Should user change password on creation.",
                       required=False, is_array=False, options=["True", "False"], default="False"),
-        InputArgument(name="User role", description="Role of the user being Created", required=False,
+        InputArgument(name="User role", description="Role of the user being Created.", required=False,
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
-        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of",
+        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of.",
                       required=False, is_array=True)
     ],
     outputs_prefix="created_user_data",
@@ -948,7 +948,7 @@ def get_user_id_by_name_or_email(client: Client):
         OutputArgument(name="deployments", description="The deployments user is part of.", prefix="created_user_data",
                        output_type=str),
     ],
-    description="This command creates a user with given data")
+    description="This command creates a user with given data.")
 def create_user(client: Client):
 
     created_user = client.create_user_data()
@@ -973,7 +973,7 @@ def create_user(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-user-details",
     inputs_list=[
-        InputArgument(name="User ID", description="user ID of user from safebreach to search",
+        InputArgument(name="User ID", description="user ID of user from safebreach to search.",
                       required=False, is_array=False),
         InputArgument(name="Email", description="Email of the user to Search for updating user details.", required=True,
                       is_array=False),
@@ -985,10 +985,10 @@ def create_user(client: Client):
                       required=False, is_array=False, options=["True", "False", ""], default=""),
         InputArgument(name="Password", description="Password of user to be updated with.", required=False,
                       is_array=False),
-        InputArgument(name="User role", description="Role of the user to be changed to", required=False,
+        InputArgument(name="User role", description="Role of the user to be changed to.", required=False,
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
-        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of",
+        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of.",
                       required=False, is_array=True)
     ],
     outputs_prefix="updated_user_data",
@@ -1011,7 +1011,7 @@ def create_user(client: Client):
         OutputArgument(name="deployments", description="The deployments user is part of.", prefix="updated_user_data",
                        output_type=str),
     ],
-    description="This command updates a user with given data")
+    description="This command updates a user with given data.")
 def update_user_with_details(client: Client):
 
     updated_user = client.update_user_data()
@@ -1036,7 +1036,7 @@ def update_user_with_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-user",
     inputs_list=[
-        InputArgument(name="User ID", description="user ID of user from safebreach to search",
+        InputArgument(name="User ID", description="user ID of user from safebreach to search.",
                       required=False, is_array=False),
         InputArgument(name="Email", description="Email of the user to Search for updating user details.", required=True,
                       is_array=False)
@@ -1061,7 +1061,7 @@ def update_user_with_details(client: Client):
         OutputArgument(name="deployments", description="The deployments user was part of.", prefix="deleted_user_data",
                        output_type=str),
     ],
-    description="This command deletes a user with given data")
+    description="This command deletes a user with given data.")
 def delete_user_with_details(client: Client):
 
     deleted_user = client.delete_user()
@@ -1087,7 +1087,7 @@ def delete_user_with_details(client: Client):
     inputs_list=[
         InputArgument(name="Name", description="Name of the deployment to create.", required=False, is_array=False),
         InputArgument(name="Description", description="Description of the deployment to create.", required=False, is_array=False),
-        InputArgument(name="Nodes", description="Comma separated ID of all nodes the deployment should be part of",
+        InputArgument(name="Nodes", description="Comma separated ID of all nodes the deployment should be part of.",
                       required=False, is_array=True)
     ],
     outputs_prefix="created_deployment_data",
@@ -1104,7 +1104,7 @@ def delete_user_with_details(client: Client):
         OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="created_deployment_data",
                        output_type=str),
     ],
-    description="This command creates a deployment with given data")
+    description="This command creates a deployment with given data.")
 def create_deployment(client: Client):
 
     created_deployment = client.create_deployment_data()
@@ -1132,10 +1132,10 @@ def create_deployment(client: Client):
         InputArgument(name="Deployment Name", description="Description of the deployment to update.",
                       required=False, is_array=False),
         InputArgument(name="Updated Nodes for Deployment", required=False, is_array=False,
-                      description="Comma separated ID of all nodes the deployment should be part of"),
+                      description="Comma separated ID of all nodes the deployment should be part of."),
         InputArgument(name="Updated Deployment Name", description="Name of the deployment to update to.",
                       required=False, is_array=False),
-        InputArgument(name="Updated deployment description", required=False, is_array=False,
+        InputArgument(name="Updated deployment description.", required=False, is_array=False,
                       description="name of the deployment to update to."),
     ],
     outputs_prefix="updated_deployment_data",
@@ -1152,7 +1152,7 @@ def create_deployment(client: Client):
         OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="updated_deployment_data",
                        output_type=str),
     ],
-    description="This command updates a deployment with given data")
+    description="This command updates a deployment with given data.")
 def update_deployment(client: Client):
 
     updated_deployment = client.update_deployment()
@@ -1193,7 +1193,7 @@ def update_deployment(client: Client):
         OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="deleted_deployment_data",
                        output_type=str),
     ],
-    description="This command deletes a deployment with given data")
+    description="This command deletes a deployment with given data.")
 def delete_deployment(client: Client):
 
     deleted_deployment = client.delete_deployment()
@@ -1235,7 +1235,7 @@ def delete_deployment(client: Client):
         OutputArgument(name="role", description="The role of API Key.", prefix="generated_api_key",
                        output_type=str),
     ],
-    description="This command creates a API Key with given data")
+    description="This command creates a API Key with given data.")
 def create_api_key(client: Client):
 
     generated_api_key = client.generate_api_key()
@@ -1273,7 +1273,7 @@ def create_api_key(client: Client):
         OutputArgument(name="deletedAt", description="The deletion time of API key.", prefix="deleted_api_key",
                        output_type=str),
     ],
-    description="This command deletes a API key with given name")
+    description="This command deletes a API key with given name.")
 def delete_api_key(client: Client):
 
     deleted_api_key = client.delete_api_key()
@@ -1310,7 +1310,7 @@ def delete_api_key(client: Client):
         OutputArgument(name="timestamp", description="Time of error.",
                        prefix="integration_errors", output_type=str),
     ],
-    description="This command gives all connector related errors")
+    description="This command gives all connector related errors.")
 def get_all_error_logs(client: Client):
 
     formatted_error_logs = []
@@ -1347,7 +1347,7 @@ def get_all_error_logs(client: Client):
         OutputArgument(name="result", description="error deletion status whether true or false.",
                        prefix="integration_errors", output_type=str),
     ],
-    description="This command deleted connector related errors")
+    description="This command deleted connector related errors.")
 def delete_integration_error_logs(client: Client):
 
     error_logs = client.delete_integration_error_logs()
@@ -1391,7 +1391,7 @@ def delete_integration_error_logs(client: Client):
         OutputArgument(name="expirationDate", description="Account expiration date.",
                        prefix="account_details", output_type=int),
     ],
-    description="This command gives all details related to account, we are using this to find assigned simulator quota")
+    description="This command gives all details related to account, we are using this to find assigned simulator quota.")
 def get_simulator_quota_with_table(client: Client):
 
     simulator_details = client.get_simulator_quota()
@@ -1421,7 +1421,7 @@ def get_simulator_quota_with_table(client: Client):
     inputs_list=simulator_details_inputs,
     outputs_prefix="simulator_details",
     outputs_list=simulators_output_fields,
-    description="This command gives all details related to account, we are using this to find assigned simulator quota")
+    description="We are using this command to get all available simulators.")
 def get_all_simulator_details(client: Client):
     return get_simulators_and_display_in_table(client=client, just_name=False)
 
@@ -1444,12 +1444,12 @@ def get_simulator_with_name(client: Client):
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
-        InputArgument(name="Should Force Delete", description="Name of simulator/node to search with.",
+        InputArgument(name="Should Force Delete", description="Should we force delete the simulator.",
                       default="false", options=["true", "false"], required=True, is_array=False),
     ],
     outputs_prefix="deleted_simulator_details",
     outputs_list=simulators_output_fields,
-    description="This command deletes simulator with given name")
+    description="This command deletes simulator with given name.")
 def delete_simulator_with_given_name(client: Client):
 
     deleted_node = client.delete_simulator_with_given_name()
@@ -1481,7 +1481,7 @@ def delete_simulator_with_given_name(client: Client):
     ] + simulator_details_for_update_fields,
     outputs_prefix="updated_simulator_details",
     outputs_list=simulators_output_fields,
-    description="This command updates simulator with given name")
+    description="This command updates simulator with given name with given details.")
 def update_simulator_with_given_name(client: Client):
 
     updated_node = client.update_simulator_with_given_name()
@@ -1508,7 +1508,7 @@ def update_simulator_with_given_name(client: Client):
     inputs_list=None,
     outputs_prefix="new_token",
     outputs_list=simulators_output_fields,
-    description="This command gives simulator with given name")
+    description="This command rotates generated verification token.")
 def return_rotated_verification_token(client: Client):
     new_token = client.rotate_verification_token()
     if new_token.status_code == 409:
@@ -1538,12 +1538,12 @@ def return_rotated_verification_token(client: Client):
         InputArgument(name="Status", description="Status of simulation.", required=False, is_array=False,
                       default="CANCELED", options=["CANCELED", "COMPLETED"]),
         InputArgument(name="Simulation ID", description="Unique ID of the simulation.", required=False, is_array=False),
-        InputArgument(name="Sort By", description="sort by option", required=False, is_array=False,
+        InputArgument(name="Sort By", description="sort by option.", required=False, is_array=False,
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
     outputs_list=simulation_output_fields,
-    description="This command gets tests with given modifiers")
+    description="This command gets tests with given modifiers.")
 def get_all_tests_summary(client: Client):
     return get_tests_summary(client=client)
 
@@ -1559,12 +1559,12 @@ def get_all_tests_summary(client: Client):
         InputArgument(name="Status", description="Status of simulation.", required=False, is_array=False,
                       options=["CANCELED", "COMPLETED"]),
         InputArgument(name="Simulation ID", description="Unique ID of the simulation.", required=False, is_array=False),
-        InputArgument(name="Sort By", description="sort by option", required=False, is_array=False,
+        InputArgument(name="Sort By", description="sort by option.", required=False, is_array=False,
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
     outputs_list=simulation_output_fields,
-    description="This command gets tests with given plan ID")
+    description="This command gets tests with given plan ID.")
 def get_all_tests_summary_with_plan_id(client: Client):
     return get_tests_summary(client=client)
 
@@ -1579,7 +1579,7 @@ def get_all_tests_summary_with_plan_id(client: Client):
     ],
     outputs_prefix="deleted_test_results",
     outputs_list=simulation_output_fields,
-    description="This command deletes tests with given plan ID")
+    description="This command deletes tests with given plan ID.")
 def delete_test_result_of_test(client: Client):
     test_summaries = client.delete_test_result_of_test()
     if test_summaries.status_code == 409:
