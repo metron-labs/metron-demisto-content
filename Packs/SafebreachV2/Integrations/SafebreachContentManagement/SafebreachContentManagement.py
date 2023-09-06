@@ -259,6 +259,44 @@ metadata_collector = YMLMetadataCollector(
           ])
 
 
+def format_sb_code_error(errors_data):
+    error_data = ""
+    sbcode_error_dict = {
+        700: f"{error_data} value is below permitted minimum",
+        701: f"{error_data} value is above permitted maximum",
+        702: f"{error_data} length is more than permitted length",
+        703: f"{error_data} field is expected to be integer but received something else",
+        704: f"{error_data} field cant be empty",
+        705: f"{error_data} field cant permit this value",
+        706: f"{error_data} field value is supposed to be unique, value is already taken",
+        707: f"{error_data} requested value not found",
+        708: f"{error_data} expected UUID but found something else",
+        709: f"{error_data} cannot be null",
+        710: f"{error_data} is not a valid URL",
+        711: f"{error_data} field should not be changed but has been changed",
+        712: "license is invalid",
+        713: f"{error_data} fields have opposite Attributes",
+        714: f"{error_data} fields block association with each other",
+        715: "weak password is set",
+        716: "account name and account number dont match",
+        718: "license expired",
+        719: "Connection Refused",
+        720: "passwords dont match",
+        721: "gateway timeout"
+    }
+    errors = errors_data.get("errors")
+    final_error_string = ""
+    for error in errors:
+        error_data = error.get("data")
+        error_code = error.get("sbcode")
+        final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
+    return final_error_string
+
+
+class SbException(Exception):
+    pass
+
+
 class Client(BaseClient):
     """Client class to interact with the service API
 
@@ -281,32 +319,19 @@ class Client(BaseClient):
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
         request_url = f"{base_url}/api/{url}"
-        verify = demisto.params().get("verify", True)
         api_key = demisto.params().get("api_key")
         headers = {
             'Accept': 'application/json',
             'x-apitoken': api_key
         }
 
-        try:
-            response = requests.request(method=method, url=request_url, json=body, headers=headers,
-                                        params=request_params, verify=verify)
-            # print(f"response, {response.__dict__}, request, {response.__dict__['request'].__dict__}")  # noqa: T201
-            if response.status_code in [201, 200, 409]:
-                return response
-            self.handle_error(response, response.status_code, response.reason)
-        except requests.exceptions.SSLError as e:
-            demisto.error(f"response, {response.__dict__}, request, {response.__dict__['request'].__dict__}")
-            raise Exception(json.dumps(e.__dict__))
+        response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
+                                      params=request_params, ok_codes=[200, 201, 204, 400])
+        return response if not response.get("error") else self.handle_sbcodes(response)
 
-    def handle_error(self, response, status_code, reason):
-        error_dict = {
-            401: f"{reason}, API-Key might be invalid, Please check and try again",
-            404: f"{reason}, The given URL is not found, please check and try again",
-            500: f"{reason}, There was an error on safebreach side",
-            400: f"{reason} ,{response.text}"
-        }
-        raise Exception(error_dict.get(status_code) or reason)
+    def handle_sbcodes(self, response: dict):
+        exception_string = format_sb_code_error(response.get("error"))
+        raise SbException(exception_string)
 
     def get_all_users_for_test(self):
 
@@ -314,8 +339,8 @@ class Client(BaseClient):
         url = f"/config/v1/accounts/{account_id}/users"
         response = self.get_response(url=url)
         if response:
-            return "ok", True
-        return "", False
+            return "ok"
+        return "Could not verify the connection"
 
     def get_users_list(self):
         account_id = demisto.params().get("account_id", 0)
@@ -325,7 +350,7 @@ class Client(BaseClient):
             "deleted": "true"
         }
         response = self.get_response(url=url, request_params=params)
-        user_data = response.json()['data']
+        user_data = response['data']
         return user_data
 
     def delete_user(self):
@@ -364,7 +389,7 @@ class Client(BaseClient):
         url = f"/config/v1/accounts/{account_id}/deployments"
 
         response = self.get_response(url=url)
-        deployments = response.json()['data']
+        deployments = response['data']
         return deployments
 
     def get_deployment_id_by_name(self, deployment_name: str) -> dict:
@@ -542,9 +567,6 @@ class Client(BaseClient):
             "details": "true"
         }
         keys_data = self.get_response(url=url, method=method, request_params=request_params)
-        if keys_data.status_code == 409:
-            return json.dumps(keys_data.json()), False
-        keys_data = keys_data.json()
         return keys_data, True
 
     def filter_api_key_with_key_name(self, key_name):
@@ -577,11 +599,8 @@ class Client(BaseClient):
         url = f"/config/v1/accounts/{account_id}/nodes/bulk"
 
         simulators_details = self.get_response(method=method, url=url, request_params=request_params)
-        if simulators_details.status_code == 409:
-            return json.dumps(simulators_details.json()), False
-        simulators_details = simulators_details.json()
         if simulators_details.get("data", {}).get("count"):
-            return simulators_details, True
+            return simulators_details
         raise Exception(f"No Matching simulators found with details name: {demisto.args().get('simulator_name')}")
 
     def create_get_simulator_params_dict(self):
@@ -810,16 +829,12 @@ def get_simulators_and_display_in_table(client: Client, just_name=False):
             outputs=outputs,
             readable_output=human_readable
         )
-        return result, True
-    return result, status
+        return result
+    return result
 
 
 def get_tests_summary(client: Client):
     test_summaries = client.get_tests_with_args()
-    if test_summaries.status_code == 409:
-        return json.dumps(test_summaries.json()), False
-    test_summaries = test_summaries.json()
-
     client.flatten_test_summaries(test_summaries)
     human_readable = tableToMarkdown(
         name="Test Results",
@@ -838,7 +853,7 @@ def get_tests_summary(client: Client):
         readable_output=human_readable
     )
 
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -866,7 +881,7 @@ def get_all_users(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -902,7 +917,7 @@ def get_user_id_by_name_or_email(client: Client):
             readable_output=human_readable
         )
 
-        return (result, True)
+        return result
     raise Exception(f"user with name {name} or email {email} was not found")
 
 
@@ -952,9 +967,6 @@ def get_user_id_by_name_or_email(client: Client):
 def create_user(client: Client):
 
     created_user = client.create_user_data()
-    if created_user.status_code == 409:
-        return json.dumps(created_user.json()), False
-    created_user = created_user.json()
 
     human_readable = tableToMarkdown(name="Created User Data", t=created_user.get("data", {}),
                                      headers=['id', 'name', 'email', "mustChangePassword", "roles", "description",
@@ -967,7 +979,7 @@ def create_user(client: Client):
         outputs_key_field="created_user_data",
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1016,10 +1028,6 @@ def update_user_with_details(client: Client):
 
     updated_user = client.update_user_data()
 
-    if updated_user.status_code == 400:
-        return json.dumps(updated_user.json()), False
-
-    updated_user = updated_user.json()
     human_readable = tableToMarkdown(name="Updated User Data", t=updated_user.get("data", {}),
                                      headers=['id', 'name', 'email', "deletedAt", "roles", "description",
                                               "role", "deployments", "createdAt", "updatedAt"])
@@ -1030,7 +1038,7 @@ def update_user_with_details(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1065,10 +1073,6 @@ def update_user_with_details(client: Client):
 def delete_user_with_details(client: Client):
 
     deleted_user = client.delete_user()
-    if deleted_user.status_code == 400:
-        return json.dumps(deleted_user.json()), False
-
-    deleted_user = deleted_user.json()
 
     human_readable = tableToMarkdown(name="Deleted User Data", t=deleted_user.get("data", {}),
                                      headers=['id', 'name', 'email', "deletedAt", "roles",
@@ -1079,7 +1083,7 @@ def delete_user_with_details(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1108,9 +1112,6 @@ def delete_user_with_details(client: Client):
 def create_deployment(client: Client):
 
     created_deployment = client.create_deployment_data()
-    if created_deployment.status_code == 409:
-        return json.dumps(created_deployment.json()), False
-    created_deployment = created_deployment.json()
 
     human_readable = tableToMarkdown(name="Created Deployment", t=created_deployment.get("data", {}),
                                      headers=['id', "accountId", 'name', 'createdAt', "description", "nodes"])
@@ -1122,7 +1123,7 @@ def create_deployment(client: Client):
         readable_output=human_readable
     )
 
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1156,9 +1157,6 @@ def create_deployment(client: Client):
 def update_deployment(client: Client):
 
     updated_deployment = client.update_deployment()
-    if updated_deployment.status_code == 409:
-        return json.dumps(updated_deployment.json()), False
-    updated_deployment = updated_deployment.json()
 
     human_readable = tableToMarkdown(name="Updated Deployment", t=updated_deployment.get("data", {}),
                                      headers=['id', "accountId", 'name', 'createdAt',
@@ -1169,7 +1167,7 @@ def update_deployment(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1197,9 +1195,6 @@ def update_deployment(client: Client):
 def delete_deployment(client: Client):
 
     deleted_deployment = client.delete_deployment()
-    if deleted_deployment.status_code == 409:
-        return json.dumps(deleted_deployment.json()), False
-    deleted_deployment = deleted_deployment.json()
 
     human_readable = tableToMarkdown(name="Deleted Deployment", t=deleted_deployment.get("data", {}),
                                      headers=['id', "accountId", 'name', 'createdAt',
@@ -1210,7 +1205,7 @@ def delete_deployment(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1239,9 +1234,6 @@ def delete_deployment(client: Client):
 def create_api_key(client: Client):
 
     generated_api_key = client.generate_api_key()
-    if generated_api_key.status_code == 409:
-        return json.dumps(generated_api_key.json()), False
-    generated_api_key = generated_api_key.json()
 
     human_readable = tableToMarkdown(
         name="Generated API key Data",
@@ -1253,7 +1245,7 @@ def create_api_key(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1277,9 +1269,6 @@ def create_api_key(client: Client):
 def delete_api_key(client: Client):
 
     deleted_api_key = client.delete_api_key()
-    if deleted_api_key.status_code == 409:
-        return json.dumps(deleted_api_key.json()), False
-    deleted_api_key = deleted_api_key.json()
 
     human_readable = tableToMarkdown(
         name="Deleted API key Data",
@@ -1291,7 +1280,7 @@ def delete_api_key(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1315,9 +1304,7 @@ def get_all_error_logs(client: Client):
 
     formatted_error_logs = []
     error_logs = client.get_all_error_logs()
-    if error_logs.status_code == 409:
-        return json.dumps(error_logs.json()), False
-    error_logs = error_logs.json()
+
     if error_logs.get("result"):
         formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
         human_readable = tableToMarkdown(
@@ -1330,8 +1317,8 @@ def get_all_error_logs(client: Client):
             outputs=outputs,
             readable_output=human_readable
         )
-        return result, True
-    return formatted_error_logs, True
+        return result
+    return formatted_error_logs
 
 
 @metadata_collector.command(
@@ -1351,9 +1338,7 @@ def get_all_error_logs(client: Client):
 def delete_integration_error_logs(client: Client):
 
     error_logs = client.delete_integration_error_logs()
-    if error_logs.status_code == 409:
-        return json.dumps(error_logs.json()), False
-    error_logs = error_logs.json()
+
     human_readable = tableToMarkdown(
         name="Integration Connector errors Status",
         t=error_logs,
@@ -1364,7 +1349,7 @@ def delete_integration_error_logs(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1395,9 +1380,6 @@ def delete_integration_error_logs(client: Client):
 def get_simulator_quota_with_table(client: Client):
 
     simulator_details = client.get_simulator_quota()
-    if simulator_details.status_code == 409:
-        return json.dumps(simulator_details.json()), False
-    simulator_details = simulator_details.json()
 
     human_readable = tableToMarkdown(
         name="Account Details",
@@ -1413,7 +1395,7 @@ def get_simulator_quota_with_table(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return simulator_details, True
+    return simulator_details
 
 
 @metadata_collector.command(
@@ -1453,9 +1435,6 @@ def get_simulator_with_name(client: Client):
 def delete_simulator_with_given_name(client: Client):
 
     deleted_node = client.delete_simulator_with_given_name()
-    if deleted_node.status_code == 409:
-        return json.dumps(deleted_node.json()), False
-    deleted_node = deleted_node.json()
 
     flattened_nodes, keys = client.flatten_node_details([deleted_node.get("data", {})])
     human_readable = tableToMarkdown(
@@ -1470,7 +1449,7 @@ def delete_simulator_with_given_name(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1485,9 +1464,6 @@ def delete_simulator_with_given_name(client: Client):
 def update_simulator_with_given_name(client: Client):
 
     updated_node = client.update_simulator_with_given_name()
-    if updated_node.status_code == 409:
-        return json.dumps(updated_node.json()), False
-    updated_node = updated_node.json()
 
     flattened_nodes, keys = client.flatten_node_details([updated_node.get("data", {})])
     human_readable = tableToMarkdown(
@@ -1500,7 +1476,7 @@ def update_simulator_with_given_name(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1511,9 +1487,7 @@ def update_simulator_with_given_name(client: Client):
     description="This command rotates generated verification token.")
 def return_rotated_verification_token(client: Client):
     new_token = client.rotate_verification_token()
-    if new_token.status_code == 409:
-        return json.dumps(new_token.json()), False
-    new_token = new_token.json()
+
     human_readable = tableToMarkdown(
         name=" new Token Details",
         t=new_token.get("data"),
@@ -1524,7 +1498,7 @@ def return_rotated_verification_token(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 @metadata_collector.command(
@@ -1582,9 +1556,7 @@ def get_all_tests_summary_with_plan_id(client: Client):
     description="This command deletes tests with given plan ID.")
 def delete_test_result_of_test(client: Client):
     test_summaries = client.delete_test_result_of_test()
-    if test_summaries.status_code == 409:
-        return json.dumps(test_summaries.json()), False
-    test_summaries = test_summaries.json()
+
     human_readable = tableToMarkdown(
         name="Deleted Test",
         t=test_summaries.get("data", {}),
@@ -1596,7 +1568,7 @@ def delete_test_result_of_test(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-    return result, True
+    return result
 
 
 def main() -> None:
@@ -1615,97 +1587,99 @@ def main() -> None:
 
         if demisto.command() == 'test-module':
             # This is the call made when pressing the integration Test button.
-            result, _ = client.get_all_users_for_test()
+            result = client.get_all_users_for_test()
             return_results(result)
 
         elif demisto.command() == "safebreach-get-all-users":
-            users, status = get_all_users(client=client)
-            return_results(users) if status else return_error(users)
+            users = get_all_users(client=client)
+            return_results(users)
 
         elif demisto.command() == "safebreach-get-user-with-matching-name-or-email":
-            result, status = get_user_id_by_name_or_email(client=client)
-            return_results(result) if status else return_error(result)
+            result = get_user_id_by_name_or_email(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-create-user":
-            user, status = create_user(client=client)
-            return_results(user) if status else return_error(user)
+            user = create_user(client=client)
+            return_results(user)
 
         elif demisto.command() == "safebreach-delete-user":
-            user, status = delete_user_with_details(client=client)
-            return_results(user) if status else return_error(user)
+            user = delete_user_with_details(client=client)
+            return_results(user)
 
         elif demisto.command() == 'safebreach-update-user-details':
-            user, status = update_user_with_details(client=client)
-            return_results(user) if status else return_error(user)
+            user = update_user_with_details(client=client)
+            return_results(user)
 
         elif demisto.command() == 'safebreach-create-deployment':
-            deployment, status = create_deployment(client=client)
-            return_results(deployment) if status else return_error(deployment)
+            deployment = create_deployment(client=client)
+            return_results(deployment)
 
         elif demisto.command() == 'safebreach-update-deployment':
-            deployment, status = update_deployment(client=client)
-            return_results(deployment) if status else return_error(deployment)
+            deployment = update_deployment(client=client)
+            return_results(deployment)
 
         elif demisto.command() == "safebreach-delete-deployment":
-            deployment, status = delete_deployment(client=client)
-            return_results(deployment) if status else return_error(deployment)
+            deployment = delete_deployment(client=client)
+            return_results(deployment)
 
         elif demisto.command() == "safebreach-generate-api-key":
-            result, status = create_api_key(client=client)
-            return_results(result) if status else return_error(result)
+            result = create_api_key(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-delete-api-key":
-            result, status = delete_api_key(client=client)
-            return_results(result) if status else return_error(result)
+            result = delete_api_key(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-get-integration-errors":
-            result, status = get_all_error_logs(client=client)
-            return_results(result) if status else return_error(result)
+            result = get_all_error_logs(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-delete-integration-errors":
-            result, status = delete_integration_error_logs(client=client)
-            return_results(result) if status else return_error(result)
+            result = delete_integration_error_logs(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-get-available-simulator-count":
-            result, status = get_simulator_quota_with_table(client=client)
-            return_results(result) if status else return_error(result)
+            result = get_simulator_quota_with_table(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-get-available-simulator-details":
-            result, status = get_all_simulator_details(client=client)
-            return_results(result) if status else return_error(result)
+            result = get_all_simulator_details(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-get-simulator-with-name":
-            result, status = get_simulator_with_name(client=client)
-            return_results(result) if status else return_error(result)
+            result = get_simulator_with_name(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-delete-simulator-with-name":
-            result, status = delete_simulator_with_given_name(client=client)
-            return_results(result) if status else return_error(result)
+            result = delete_simulator_with_given_name(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-update-simulator-with-given-name":
-            result, status = update_simulator_with_given_name(client=client)
-            return_results(result) if status else return_error(result)
+            result = update_simulator_with_given_name(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-rotate-verification-token":
-            result, status = return_rotated_verification_token(client=client)
-            return_results(result) if status else return_error(result)
+            result = return_rotated_verification_token(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-get-test-summary":
-            result, status = get_all_tests_summary(client=client)
-            return_results(result) if status else return_error(result)
+            result = get_all_tests_summary(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-get-test-summary-with-plan-run-id":
-            result, status = get_all_tests_summary_with_plan_id(client=client)
-            return_results(result) if status else return_error(result)
+            result = get_all_tests_summary_with_plan_id(client=client)
+            return_results(result)
 
         elif demisto.command() == "safebreach-delete-test-summary-of-given-test":
-            result, status = delete_test_result_of_test(client=client)
-            return_results(result) if status else return_error(result)
+            result = delete_test_result_of_test(client=client)
+            return_results(result)
 
-    # Log exceptions and return errors
+    # except SbException as sb_error:
+    #     return_error(sb_error)
+
     except Exception as e:
-        demisto.error(traceback.format_exc())
-        return_error(f'Failed to execute {demisto.command()} command {traceback.format_exc()}.\nError:\n{str(e)}')
+        demisto.error(f"Error generated while executing {demisto.command}, \n {traceback.format_exc()}")
+        return_error(f'Failed to execute {demisto.command()} command .\nError:\n{str(e)}')
 
 
 ''' ENTRY POINT '''
