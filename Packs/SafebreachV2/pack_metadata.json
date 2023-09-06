@@ -2,7 +2,7 @@
     "name": "Safebreach Content Management",
     "description": "This Integration aims to provide easy access to safebreach from XSOAR.",
     "support": "partner",
-    "currentVersion": "0.0.0",
+    "currentVersion": "0.1.0",
     "author": "metron",
     "url": "https://demo.safebreach.com/#/help/support",
     "email": "",
