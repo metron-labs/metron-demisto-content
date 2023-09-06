@@ -13,7 +13,7 @@ metadata_collector = YMLMetadataCollector(
         3. Tests get and delete. \
         4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
-    category="Data Enrichment & Threat Intelligence",
+    category="Deception & Breach Simulation",
     docker_image="demisto/python3:3.10.13.72123",
     is_fetch=False,
     long_running=False,
