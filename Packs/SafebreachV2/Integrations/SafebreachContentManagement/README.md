@@ -1,5 +1,4 @@
-This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete. 
-
+This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete .
 ## Configure Safebreach Content Management on Cortex XSOAR
 
 1. Navigate to **Settings** > **Integrations** > **Servers & Services**.
@@ -35,6 +34,8 @@ This command deletes simulator with given name.
 | --- | --- | --- |
 | Simulator/Node Name | Name of simulator/node to search with. | Required | 
 | Should Force Delete | Should we force delete the simulator. Possible values are: true, false. Default is false. | Required | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Optional | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Optional | 
 
 #### Context Output
 
@@ -42,7 +43,7 @@ This command deletes simulator with given name.
 | --- | --- | --- |
 | deleted_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | deleted_simulator_details.simulator_id | String | The Id of given simulator. | 
-| deleted_simulator_details.simulator_name | String | name for given simulator. | 
+| deleted_simulator_details.name | String | name for given simulator. | 
 | deleted_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | deleted_simulator_details.is_critical | String | Whether the simulator is critical. | 
 | deleted_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
@@ -87,8 +88,8 @@ We are using this command to get all available simulators.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| details | if details are to be included for search. Possible values are: true, false. | Optional | 
-| deleted | if deleted are to be included for search. Possible values are: true, false. | Optional | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | secret | if secrets are to be included for search. Possible values are: true, false. | Optional | 
 | shouldIncludeProxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
 | hostname | if hostname to be included for search. Possible values are: true, false. | Optional | 
@@ -126,7 +127,7 @@ We are using this command to get all available simulators.
 | --- | --- | --- |
 | simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | simulator_details.simulator_id | String | The Id of given simulator. | 
-| simulator_details.simulator_name | String | name for given simulator. | 
+| simulator_details.name | String | name for given simulator. | 
 | simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | simulator_details.is_critical | String | Whether the simulator is critical. | 
 | simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
@@ -200,6 +201,8 @@ This command gives simulator with given name
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | Simulator/Node Name | Name of simulator/node to search with. | Optional | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -207,7 +210,7 @@ This command gives simulator with given name
 | --- | --- | --- |
 | simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | simulator_details.simulator_id | String | The Id of given simulator. | 
-| simulator_details.simulator_name | String | name for given simulator. | 
+| simulator_details.name | String | name for given simulator. | 
 | simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | simulator_details.is_critical | String | Whether the simulator is critical. | 
 | simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
@@ -253,6 +256,8 @@ This command updates simulator with given name with given details.
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | Simulator/Node Name | Name of simulator/node to search with. | Required | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Optional | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Optional | 
 | isEnabled | set true to enable the node. Possible values are: false, true. | Optional | 
 | isProxySupported | set true to enable the proxy support. Possible values are: false, true. | Optional | 
 | isCritical | set true to make node as critical node. Possible values are: false, true. | Optional | 
@@ -278,7 +283,7 @@ This command updates simulator with given name with given details.
 | --- | --- | --- |
 | updated_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | updated_simulator_details.simulator_id | String | The Id of given simulator. | 
-| updated_simulator_details.simulator_name | String | name for given simulator. | 
+| updated_simulator_details.name | String | name for given simulator. | 
 | updated_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | updated_simulator_details.is_critical | String | Whether the simulator is critical. | 
 | updated_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 

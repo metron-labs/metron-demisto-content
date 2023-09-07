@@ -49,6 +49,28 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
+    - name: details
+      isArray: false
+      description: if details are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: deleted
+      isArray: false
+      description: if deleted are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
     outputs:
     - contextPath: deleted_simulator_details.is_enabled
       description: Whether the node is enabled or not.
@@ -56,7 +78,7 @@ script:
     - contextPath: deleted_simulator_details.simulator_id
       description: The Id of given simulator.
       type: String
-    - contextPath: deleted_simulator_details.simulator_name
+    - contextPath: deleted_simulator_details.name
       description: name for given simulator.
       type: String
     - contextPath: deleted_simulator_details.account_id
@@ -156,9 +178,10 @@ script:
     - name: details
       isArray: false
       description: if details are to be included for search.
-      required: false
+      required: true
       secret: false
       default: false
+      defaultValue: 'true'
       predefined:
       - 'true'
       - 'false'
@@ -166,9 +189,10 @@ script:
     - name: deleted
       isArray: false
       description: if deleted are to be included for search.
-      required: false
+      required: true
       secret: false
       default: false
+      defaultValue: 'true'
       predefined:
       - 'true'
       - 'false'
@@ -435,7 +459,7 @@ script:
     - contextPath: simulator_details.simulator_id
       description: The Id of given simulator.
       type: String
-    - contextPath: simulator_details.simulator_name
+    - contextPath: simulator_details.name
       description: name for given simulator.
       type: String
     - contextPath: simulator_details.account_id
@@ -570,6 +594,28 @@ script:
       required: false
       secret: false
       default: false
+    - name: details
+      isArray: false
+      description: if details are to be included for search.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: deleted
+      isArray: false
+      description: if deleted are to be included for search.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
     outputs:
     - contextPath: simulator_details.is_enabled
       description: Whether the node is enabled or not.
@@ -577,7 +623,7 @@ script:
     - contextPath: simulator_details.simulator_id
       description: The Id of given simulator.
       type: String
-    - contextPath: simulator_details.simulator_name
+    - contextPath: simulator_details.name
       description: name for given simulator.
       type: String
     - contextPath: simulator_details.account_id
@@ -680,6 +726,28 @@ script:
       required: true
       secret: false
       default: false
+    - name: details
+      isArray: false
+      description: if details are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: deleted
+      isArray: false
+      description: if deleted are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
     - name: isEnabled
       isArray: false
       description: set true to enable the node.
@@ -843,7 +911,7 @@ script:
     - contextPath: updated_simulator_details.simulator_id
       description: The Id of given simulator.
       type: String
-    - contextPath: updated_simulator_details.simulator_name
+    - contextPath: updated_simulator_details.name
       description: name for given simulator.
       type: String
     - contextPath: updated_simulator_details.account_id
@@ -945,6 +1013,6 @@ script:
   runonce: false
   longRunning: false
   longRunningPort: false
-fromversion: 6.9.0
+fromversion: 6.2.0
 tests:
 - No tests

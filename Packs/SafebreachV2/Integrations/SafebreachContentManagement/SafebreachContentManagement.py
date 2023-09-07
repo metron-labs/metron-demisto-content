@@ -5,9 +5,9 @@ DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSO
 
 simulator_details_inputs = [
     InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                  required=False, is_array=False),
+                  default="true", required=True, is_array=False),
     InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
-                  required=False, is_array=False),
+                  default="true", required=True, is_array=False),
     InputArgument(name="secret", description="if secrets are to be included for search.", options=["true", "false"],
                   required=False, is_array=False),
     InputArgument(name="shouldIncludeProxies", description="if proxies are to be included for search.", options=["true", "false"],
@@ -83,7 +83,7 @@ simulators_output_fields = [
                    output_type=str),
     OutputArgument(name="simulator_id", description="The Id of given simulator.",
                    output_type=str),
-    OutputArgument(name="simulator_name", description="name for given simulator.",
+    OutputArgument(name="name", description="name for given simulator.",
                    output_type=str),
     OutputArgument(name="account_id", description="Account Id of account Hosting given simulator.",
                    output_type=str),
@@ -486,8 +486,8 @@ class Client(BaseClient):
         name = demisto.args().get("Simulator/Node Name")
         request_params = {
             "name": name,
-            "deleted": demisto.args().get("deleted"),
-            "details": demisto.args().get("details")
+            "deleted": demisto.args().get("deleted", "false"),
+            "details": demisto.args().get("details", "false")
         }
         return request_params
 
@@ -624,8 +624,8 @@ def get_simulators_and_display_in_table(client: Client, just_name=False):
         name="Simulators Details",
         t=flattened_nodes,
         headers=keys)
-    outputs = result.get("data", {}).get("rows")[0]
-
+    outputs = result.get("data", {}).get("rows")
+    outputs = outputs[0] if just_name else outputs
     result = CommandResults(
         outputs_prefix="simulator_details",
         outputs=outputs,
@@ -710,6 +710,10 @@ def get_all_simulator_details(client: Client):
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
                       required=False, is_array=False),
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
     ],
     outputs_prefix="simulator_details",
     outputs_list=simulators_output_fields,
@@ -733,6 +737,10 @@ def get_simulator_with_name(client: Client):
                       required=True, is_array=False),
         InputArgument(name="Should Force Delete", description="Should we force delete the simulator.",
                       default="false", options=["true", "false"], required=True, is_array=False),
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
     ],
     outputs_prefix="deleted_simulator_details",
     outputs_list=simulators_output_fields,
@@ -769,6 +777,10 @@ def delete_simulator_with_given_name(client: Client):
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
     ] + simulator_details_for_update_fields,
     outputs_prefix="updated_simulator_details",
     outputs_list=simulators_output_fields,
