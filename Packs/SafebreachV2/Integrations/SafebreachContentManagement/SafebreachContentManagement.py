@@ -226,7 +226,7 @@ metadata_collector = YMLMetadataCollector(
         4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
     category="Data Enrichment & Threat Intelligence",
-    docker_image="demisto/python3:3.10.13.72123",
+    docker_image="demisto/python3:3.10.13.73190",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -314,7 +314,17 @@ class Client(BaseClient):
         self.account_id = account_id
 
     def get_response(self, url: str = "", method: str = "GET", request_params: dict = {}, body: dict = None):
+        """_summary_
 
+        Args:
+            url (str, optional): endpoint url which follows base URL will be this input . Defaults to "".
+            method (str, optional): HTTP method to be used, Defaults to "GET".
+            request_params (dict, optional): request parameters if any. Defaults to {}.
+            body (dict, optional): request body for API call. Defaults to None.
+
+        Returns:
+            (dict,list,Exception): a dictionary or list with data based on API call OR Throws an error based on status code
+        """
         base_url = demisto.params().get("base_url", "")
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
@@ -327,7 +337,8 @@ class Client(BaseClient):
 
         response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
                                       params=request_params, ok_codes=[200, 201, 204, 400])
-        return response if not response.get("error") else self.handle_sbcodes(response)
+        return response if not ((type(response) == dict) and (response.get("error") and not response.get("errorCode")))\
+            else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
         exception_string = format_sb_code_error(response.get("error"))
@@ -1304,7 +1315,6 @@ def get_all_error_logs(client: Client):
 
     formatted_error_logs = []
     error_logs = client.get_all_error_logs()
-
     if error_logs.get("result"):
         formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
         human_readable = tableToMarkdown(
@@ -1338,7 +1348,6 @@ def get_all_error_logs(client: Client):
 def delete_integration_error_logs(client: Client):
 
     error_logs = client.delete_integration_error_logs()
-
     human_readable = tableToMarkdown(
         name="Integration Connector errors Status",
         t=error_logs,
@@ -1487,7 +1496,6 @@ def update_simulator_with_given_name(client: Client):
     description="This command rotates generated verification token.")
 def return_rotated_verification_token(client: Client):
     new_token = client.rotate_verification_token()
-
     human_readable = tableToMarkdown(
         name=" new Token Details",
         t=new_token.get("data"),
@@ -1556,7 +1564,6 @@ def get_all_tests_summary_with_plan_id(client: Client):
     description="This command deletes tests with given plan ID.")
 def delete_test_result_of_test(client: Client):
     test_summaries = client.delete_test_result_of_test()
-
     human_readable = tableToMarkdown(
         name="Deleted Test",
         t=test_summaries.get("data", {}),
@@ -1681,8 +1688,6 @@ def main() -> None:
         demisto.error(f"Error generated while executing {demisto.command}, \n {traceback.format_exc()}")
         return_error(f'Failed to execute {demisto.command()} command .\nError:\n{str(e)}')
 
-
-''' ENTRY POINT '''
 
 if __name__ in ('__main__', '__builtin__', 'builtins'):
     main()
