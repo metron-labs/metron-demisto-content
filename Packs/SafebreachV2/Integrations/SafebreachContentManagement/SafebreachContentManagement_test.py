@@ -328,3 +328,75 @@ def test_delete_deployment(mocker):
 
         else:
             assert test_output["outputs"][key].get("data").get("deletedAt") is None
+
+
+def test_create_api_key(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_create_api_key_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_create_api_key_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+
+        assert command_results.outputs_prefix == "generated_api_key"
+        assert command_results.readable_output == tableToMarkdown(
+            name="Generated API key Data", t=command_results.outputs,
+            headers=["name", "description", "createdBy", "createdAt", "key", "roles", "role"])
+
+        if key == "successful_creation":
+            assert command_results.outputs == test_output["outputs"][key].get("data")
+            assert test_output["outputs"][key].get("data") is not None
+            assert test_output["outputs"][key].get("data")["name"] == \
+                test_input[key]["args"]["Name"]
+            assert test_output["outputs"][key].get("data")["description"] == \
+                test_input[key]["args"]["Description"]
+            assert test_output["outputs"][key].get("data")["deletedAt"] is None
+
+        else:
+            assert isinstance(test_output["outputs"][key]["error"], dict)
+            assert test_output["outputs"][key]["error"].get("errors") is not None
+
+
+def test_delete_api_key(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_delete_api_key_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_delete_api_key_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        mocker.patch.object(safebreach_client, 'get_all_active_api_keys_with_details',
+                            return_value=test_input[key]["all_active_api_keys_data"])
+        if key == "successful_delete_just_name":
+            main()
+        else:
+            try:
+                safebreach_content_management.delete_api_key(safebreach_client(**{
+                    'base_url': SERVER_URL,
+                    'api_key': 'api_key',
+                    'account_id': 1234567,
+                    'verify': True}))
+            except Exception as err:
+                assert f"couldn't find APi key with given name: {test_input[key]['args']['Key Name']}" == str(err)
+            continue
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+
+        assert command_results.outputs_prefix == "deleted_api_key"
+        assert command_results.readable_output == tableToMarkdown(
+            name="Deleted API key Data", t=command_results.outputs,
+            headers=["name", "description", "createdBy", "createdAt", "deletedAt"])
+
+        assert command_results.outputs == test_output["outputs"][key].get("data")
+        assert test_output["outputs"][key].get("data") is not None
+        assert test_output["outputs"][key].get("data")["name"] == \
+            test_input[key]["args"]["Key Name"]
+        assert test_output["outputs"][key].get("data")["deletedAt"] is not None
