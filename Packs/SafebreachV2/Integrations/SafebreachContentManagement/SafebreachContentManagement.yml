@@ -129,10 +129,10 @@ script:
       required: false
       secret: false
       default: false
-      defaultValue: 'False'
+      defaultValue: 'false'
       predefined:
-      - 'True'
-      - 'False'
+      - 'true'
+      - 'false'
       auto: PREDEFINED
     - name: Email Post Creation
       isArray: false
@@ -140,10 +140,10 @@ script:
       required: false
       secret: false
       default: false
-      defaultValue: 'False'
+      defaultValue: 'false'
       predefined:
-      - 'True'
-      - 'False'
+      - 'true'
+      - 'false'
       auto: PREDEFINED
     - name: Password
       isArray: false
@@ -163,10 +163,10 @@ script:
       required: false
       secret: false
       default: false
-      defaultValue: 'False'
+      defaultValue: 'false'
       predefined:
-      - 'True'
-      - 'False'
+      - 'true'
+      - 'false'
       auto: PREDEFINED
     - name: User role
       isArray: false
@@ -1448,13 +1448,12 @@ script:
     - name: Should Include Details
       isArray: false
       description: If Details of user are to be included while             querying all users.
-      required: false
+      required: true
       secret: false
       default: false
       defaultValue: 'true'
       predefined:
       - 'true'
-      - 'false'
       auto: PREDEFINED
     - name: Should Include Deleted
       isArray: false
@@ -1861,8 +1860,8 @@ script:
       secret: false
       default: false
       predefined:
-      - 'True'
-      - 'False'
+      - 'true'
+      - 'false'
       - ''
       auto: PREDEFINED
     - name: Password

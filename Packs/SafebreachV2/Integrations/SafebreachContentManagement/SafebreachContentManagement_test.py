@@ -229,3 +229,102 @@ def test_delete_user_with_details(mocker):
             test_input[key]["args"]["Email"]
         assert test_output["outputs"][key].get("data")["description"] == \
             test_input[key]["args"]["User Description"]
+
+
+def test_create_deployment(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_create_deployment_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_create_deployment_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+
+        assert command_results.outputs_prefix == "created_deployment_data"
+        assert command_results.readable_output == tableToMarkdown(
+            name="Created Deployment", t=command_results.outputs, headers=['id', "accountId", 'name',
+                                                                           'createdAt', "description", "nodes"])
+
+        if key == "successful_creation":
+            assert command_results.outputs == test_output["outputs"][key].get("data")
+            assert test_output["outputs"][key].get("data") is not None
+            assert test_output["outputs"][key].get("data")["name"] == \
+                test_input[key]["args"]["Name"]
+            assert test_output["outputs"][key].get("data")["description"] == \
+                test_input[key]["args"]["Description"]
+            assert test_output["outputs"][key].get("data")["deletedAt"] is None
+
+        else:
+            assert isinstance(test_output["outputs"][key]["error"], dict)
+
+
+def test_update_deployment(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_update_deployment_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_update_deployment_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        mocker.patch.object(safebreach_client, 'get_deployment_id_by_name',
+                            return_value=[test_output["outputs"][key]["data"]])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+
+        assert command_results.outputs_prefix == "updated_deployment_data"
+        assert command_results.readable_output == tableToMarkdown(
+            name="Updated Deployment", t=command_results.outputs, headers=['id', "accountId", 'name', 'createdAt',
+                                                                           "description", "nodes", "updatedAt"])
+
+        if key != "failed_update":
+            assert command_results.outputs == test_output["outputs"][key].get("data")
+            assert test_output["outputs"][key].get("data") is not None
+            assert test_output["outputs"][key].get("data")["name"] == \
+                test_input[key]["args"]["Updated Deployment Name"]
+            assert test_output["outputs"][key].get("data")["description"] == \
+                test_input[key]["args"]["Updated deployment description."]
+            assert test_output["outputs"][key].get("data")["deletedAt"] is None
+
+        else:
+            assert test_output["outputs"][key].get("data").get("Updated Deployment Name") is None
+
+
+def test_delete_deployment(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_delete_deployment_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_delete_deployment_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        mocker.patch.object(safebreach_client, 'get_deployment_id_by_name',
+                            return_value=[test_output["outputs"][key]["data"]])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+
+        assert command_results.outputs_prefix == "deleted_deployment_data"
+        assert command_results.readable_output == tableToMarkdown(
+            name="Deleted Deployment", t=command_results.outputs, headers=['id', "accountId", 'name', 'createdAt',
+                                                                           "description", "nodes", "updatedAt"])
+
+        if key != "failed_delete":
+            assert key == key
+            assert command_results.outputs == test_output["outputs"][key].get("data")
+            assert test_output["outputs"][key].get("data") is not None
+            assert test_output["outputs"][key].get("data")["deletedAt"] is not None
+
+        else:
+            assert test_output["outputs"][key].get("data").get("deletedAt") is None

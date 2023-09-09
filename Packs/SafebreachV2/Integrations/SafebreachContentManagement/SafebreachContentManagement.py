@@ -462,10 +462,12 @@ class Client(BaseClient):
             dict: deployment related details found while we find deployment with given name
         """
         available_deployments = self.list_deployments()
+        if not available_deployments:
+            raise NotFoundError(f"deployments with name: {deployment_name} not found as you dont have any deployments")
         needed_deployments = list(filter(lambda deployment: deployment["name"] == deployment_name, available_deployments))
-        if needed_deployments:
-            return needed_deployments[0]
-        raise Exception("related deployment with given name couldn't be found")
+        if not needed_deployments:
+            raise NotFoundError("related deployment with given name couldn't be found")
+        return needed_deployments[0]
 
     def create_deployment_data(self):
         """This function creates a deployment based on data given by user, this will be called by an external function
