@@ -1,4 +1,3 @@
-from ast import literal_eval
 import demistomock as demisto  # noqa: F401
 from CommonServerPython import *  # noqa: F401
 
@@ -297,6 +296,11 @@ def format_sb_code_error(errors_data):
         error_code = error.get("sbcode")
         final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
     return final_error_string
+
+
+class NotFoundError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 class Client(BaseClient):
@@ -996,14 +1000,14 @@ class Client(BaseClient):
         Returns:
             dict: created user data
         """
-        account_id = literal_eval(demisto.params().get("account_id", 0))
+        account_id = demisto.params().get("account_id", 0)
         name = demisto.args().get("Name")
         email = demisto.args().get("Email")
-        is_active = literal_eval(demisto.args().get("Is Active", False))
-        send_email_post_creation = literal_eval(demisto.args().get("Email Post Creation", False))
+        is_active = demisto.args().get("Is Active", False)
+        send_email_post_creation = demisto.args().get("Email Post Creation", False)
         password = demisto.args().get("Password")
         admin_name = demisto.args().get("Admin Name", "")
-        change_password = literal_eval(demisto.args().get("Change Password on create", False))
+        change_password = demisto.args().get("Change Password on create", False)
         role = demisto.args().get("User role", "")
         deployment_list = demisto.args().get("Deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
@@ -1038,12 +1042,12 @@ class Client(BaseClient):
         user_email = demisto.args().get("Email")
 
         name = demisto.args().get("Name")
-        is_active = literal_eval(demisto.args().get("Is Active", False))
+        is_active = demisto.args().get("Is Active", False)
         description = demisto.args().get("User Description", "")
         role = demisto.args().get("User role")
         password = demisto.args().get("Password")
         deployment_list = demisto.args().get("Deployments", [])
-        deployment_list = list(literal_eval(deployment_list)) if deployment_list else []
+        deployment_list = list(deployment_list) if deployment_list else []
         # formatting the update user payload, we remove false values after passing to function which calls endpoint
         details = {
             "name": name,
@@ -1057,10 +1061,11 @@ class Client(BaseClient):
         if user_email and not user_id:
             user_list = self.get_users_list()
             demisto.info("retrieved user list which contains all available users in safebreach")
-            user = list(filter(lambda user_data: user_data["email"] == user_email, user_list))
-            if user:
-                user_id = user[0]["id"]
-                demisto.info("user has been found and details are being given for updating user")
+            user = list(filter(lambda user_data: user_data.get("email") == user_email, user_list))
+            if not user:
+                raise NotFoundError(f"User with {user_id} or {user_email} not found")
+            user_id = user[0]["id"]
+            demisto.info("user has been found and details are being given for updating user")
         user = self.update_user_with_details(user_id, details)
         return user
 
@@ -1173,7 +1178,7 @@ def get_all_users(client: Client):
         InputArgument(name="name", description="Name of the user to lookup.", required=False, is_array=False),
         InputArgument(name="email", description="Email of the user to lookup.", required=True, is_array=False),
         InputArgument(name="Should Include Details", description="If Details of user are to be included while \
-            querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
+            querying all users.", default="true", options=["true"], required=True, is_array=False),
         InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
                       default="true", options=["true", "false"], required=True, is_array=False),
     ],
@@ -1219,7 +1224,7 @@ def get_user_id_by_name_or_email(client: Client):
         )
 
         return result
-    raise Exception(f"user with name {name} or email {email} was not found")
+    raise NotFoundError(f"user with name {name} or email {email} was not found")
 
 
 @metadata_collector.command(
@@ -1229,15 +1234,15 @@ def get_user_id_by_name_or_email(client: Client):
         InputArgument(name="Email", description="Email of the user to Create.", required=True,
                       is_array=False),
         InputArgument(name="Is Active", description="Whether the user is active upon creation.",
-                      required=False, is_array=False, options=["True", "False"], default="False"),
+                      required=False, is_array=False, options=["true", "false"], default="false"),
         InputArgument(name="Email Post Creation", description="Should Email be sent to user on creation.",
-                      required=False, is_array=False, options=["True", "False"], default="False"),
+                      required=False, is_array=False, options=["true", "false"], default="false"),
         InputArgument(name="Password", description="Password of user being created.", required=True,
                       is_array=False),
         InputArgument(name="Admin Name", description="Name of the Admin creating user.", required=False,
                       is_array=False),
         InputArgument(name="Change Password on create", description="Should user change password on creation.",
-                      required=False, is_array=False, options=["True", "False"], default="False"),
+                      required=False, is_array=False, options=["true", "false"], default="false"),
         InputArgument(name="User role", description="Role of the user being Created.", required=False,
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
@@ -1304,7 +1309,7 @@ def create_user(client: Client):
         InputArgument(name="User Description", description="Update the user Description to given string.",
                       required=False, is_array=False),
         InputArgument(name="Is Active", description="Update the user Status.",
-                      required=False, is_array=False, options=["True", "False", ""], default=""),
+                      required=False, is_array=False, options=["true", "false", ""], default=""),
         InputArgument(name="Password", description="Password of user to be updated with.", required=False,
                       is_array=False),
         InputArgument(name="User role", description="Role of the user to be changed to.", required=False,
