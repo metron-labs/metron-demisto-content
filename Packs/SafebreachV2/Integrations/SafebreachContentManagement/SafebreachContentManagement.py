@@ -1,61 +1,56 @@
+from ast import literal_eval
 import demistomock as demisto  # noqa: F401
 from CommonServerPython import *  # noqa: F401
-"""
-New Integration starts from here
-
-"""
-import random
-from ast import literal_eval
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSOAR
 
 simulator_details_inputs = [
     InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  default="true", required=True, is_array=False),
     InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  default="true", required=True, is_array=False),
     InputArgument(name="secret", description="if secrets are to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="shouldIncludeProxies", description="if proxies are to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="hostname", description="if hostname to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="connectionType", description="if connectionType to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="externalIp", description="if external IP details to be included for search.",
                   required=False, is_array=False),
     InputArgument(name="internalIp", description="if Internal IP are to be included for search.",
                   required=False, is_array=False),
     InputArgument(name="os", description="if Operating system details to be included for search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="sortDirection", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
                   default="asc", required=False, is_array=False),
     InputArgument(name="startRow", description="if there are too many entries then where should we start looking from.",
                   required=False, is_array=False),
     InputArgument(name="pageSize", description="number of entries to search.", required=False, is_array=False),
     InputArgument(name="isEnabled", description="if to search only enabled ones.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="isConnected", description="status of connection of nodes to search.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="isCritical", description="whether to search only for critical nodes or not.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="assets", description="Whether search only for assets and which assets.", required=False, is_array=False),
     InputArgument(name="additionalDetails", description="Whether to show additional details or not.",
-                  options=["true", "false"], default="false", required=False, is_array=False),
+                  options=["true", "false"], required=False, is_array=False),
     InputArgument(name="impersonatedUsers", description="should search only for impersonated user targets or not.",
-                  options=["true", "false"], default="false", required=False, is_array=False),
+                  options=["true", "false"], required=False, is_array=False),
     InputArgument(name="isAzureAttacker", description="Whether to search only for azure attackers.",
-                  options=["true", "false"], default="false", required=False, is_array=False),
+                  options=["true", "false"], required=False, is_array=False),
     InputArgument(name="isAwsAttacker", description="Whether to search only for aws attacker.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="isPreExecutor", description="should search only for pre-executors or not.",
-                  options=["true", "false"], default="false", required=False, is_array=False),
+                  options=["true", "false"], required=False, is_array=False),
     InputArgument(name="isInfiltrationTarget", description="Whether to search only for infiltration targets.",
-                  options=["true", "false"], default="false", required=False, is_array=False),
+                  options=["true", "false"], required=False, is_array=False),
     InputArgument(name="isMailTarget", description="Whether to search only for Mail targets.", options=["true", "false"],
-                  default="false", required=False, is_array=False),
+                  required=False, is_array=False),
     InputArgument(name="isExfiltrationTarget", description="should search only for exfiltration targets or not.",
-                  options=["true", "false"], default="false", required=False, is_array=False),
+                  options=["true", "false"], required=False, is_array=False),
 
     # These fields need to be '|' separated  arrays
     InputArgument(name="deployments", description="deployments list which the search should look.",
@@ -89,7 +84,7 @@ simulators_output_fields = [
                    output_type=str),
     OutputArgument(name="simulator_id", description="The Id of given simulator.",
                    output_type=str),
-    OutputArgument(name="simulator_name", description="name for given simulator.",
+    OutputArgument(name="name", description="name for given simulator.",
                    output_type=str),
     OutputArgument(name="account_id", description="Account Id of account Hosting given simulator.",
                    output_type=str),
@@ -192,7 +187,7 @@ simulator_details_for_update_fields = [
                   required=False, is_array=False),
 ]
 
-simulation_output_fields = [
+tests_output_fields = [
     OutputArgument(name="planId", description="Plan ID of the simulation.", output_type=str),
     OutputArgument(name="planName", description="Plan Name of the simulation.", output_type=str),
     OutputArgument(name="securityActionPerControl", description="Security Actions of the simulation.", output_type=str),
@@ -225,7 +220,7 @@ metadata_collector = YMLMetadataCollector(
         3. Tests get and delete. \
         4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
-    category="Data Enrichment & Threat Intelligence",
+    category="Deception & Breach Simulation",
     docker_image="demisto/python3:3.10.13.73190",
     is_fetch=False,
     long_running=False,
@@ -260,6 +255,16 @@ metadata_collector = YMLMetadataCollector(
 
 
 def format_sb_code_error(errors_data):
+    """This function gets all errors for when we get a 400 status and
+       formats the errors accordingly
+
+    Args:
+        errors_data (dict): This is all errors with sbcodes returned by safebreach API
+
+    Returns:
+        (str,optional): returns error codes which are formatted as string
+    """
+
     error_data = ""
     sbcode_error_dict = {
         700: f"{error_data} value is below permitted minimum",
@@ -286,15 +291,12 @@ def format_sb_code_error(errors_data):
     }
     errors = errors_data.get("errors")
     final_error_string = ""
+    # here we are formatting errors and then we are making them as a string
     for error in errors:
         error_data = error.get("data")
         error_code = error.get("sbcode")
         final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
     return final_error_string
-
-
-class SbException(Exception):
-    pass
 
 
 class Client(BaseClient):
@@ -341,11 +343,25 @@ class Client(BaseClient):
             else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
+        """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
+
+        Args:
+            response (dict): all errors given by 400 response code will be accepted as dictionary and are formatted based on 
+            the state of error
+
+        Raises:
+            Exception: all errors will be formatted and then thrown as exception string which will show as error_results in XSOAR
+        """
         exception_string = format_sb_code_error(response.get("error"))
-        raise SbException(exception_string)
+        raise Exception(exception_string)
 
     def get_all_users_for_test(self):
+        """This function is being used for testing connection with safebreach 
+        after API credentials re taken from user when creating instance
 
+        Returns:
+            str: This is just status string, if "ok" then it will show test as success else it throws error
+        """
         account_id = demisto.params().get("account_id", 0)
         url = f"/config/v1/accounts/{account_id}/users"
         response = self.get_response(url=url)
@@ -354,28 +370,39 @@ class Client(BaseClient):
         return "Could not verify the connection"
 
     def get_users_list(self):
+        """This function returns all users present based on modifiers
+
+        Returns:
+            list: this is list of users queried based on modifiers specified
+        """
         account_id = demisto.params().get("account_id", 0)
         url = f"/config/v1/accounts/{account_id}/users"
         params = {
-            "details": "true",
-            "deleted": "true"
+            "details": demisto.args().get("Should Include Details", "true"),
+            "deleted": demisto.args().get("Should Include Deleted", "true")
         }
         response = self.get_response(url=url, request_params=params)
         user_data = response['data']
         return user_data
 
     def delete_user(self):
+        """This function deletes a given user based on arguments of commands
 
+        Returns:
+            dict: user data related to the user who has been deleted
+        """
         user_id = demisto.args().get("User ID")
         user_email = demisto.args().get("Email")
+        # we are prioritizing email or ID when both are given by user
         if user_email and not user_id:
+            # retrieve all users and filter with given details
             user_list = self.get_users_list()
             demisto.info("retrieved user list which contains all available users in safebreach")
             user = list(filter(lambda user_data: user_data["email"] == user_email, user_list))
             if user:
                 user_id = int(user[0]["id"])
                 demisto.info("user has been found and details are being given for deleting user")
-
+        # since we have user ID we can delete the user
         account_id = demisto.params().get("account_id", 0)
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/users/{user_id}"
@@ -384,6 +411,16 @@ class Client(BaseClient):
         return deleted_user
 
     def update_user_with_details(self, user_id: str, user_details: dict):
+        """This function updates user with given details
+
+        Args:
+            user_id (str): this is ID of user to update
+            user_details (dict): this is list of user details to update
+
+        Returns:
+            dict: user data post update
+        """
+        # we dont want to update details as empty if user is not giving data in inputs , hence remove false values
         for key in list(user_details.keys()):
             if not user_details[key]:
                 user_details.pop(key)
@@ -396,6 +433,11 @@ class Client(BaseClient):
         return updated_user
 
     def list_deployments(self):
+        """This function lists all deployments we extracted from safebreach
+
+        Returns:
+            list: List of deployments data retrieved
+        """
         account_id = demisto.params().get("account_id", 0)
         url = f"/config/v1/accounts/{account_id}/deployments"
 
@@ -404,12 +446,30 @@ class Client(BaseClient):
         return deployments
 
     def get_deployment_id_by_name(self, deployment_name: str) -> dict:
+        """This function gets deployment with given name
+
+        Args:
+            deployment_name (str): name of the given deployment
+
+        Raises:
+            Exception: If no deployment with given name is found then this exception is raised
+
+        Returns:
+            dict: deployment related details found while we find deployment with given name
+        """
         available_deployments = self.list_deployments()
         needed_deployments = list(filter(lambda deployment: deployment["name"] == deployment_name, available_deployments))
-        return needed_deployments[0] if needed_deployments else {}
+        if needed_deployments:
+            return needed_deployments[0]
+        raise Exception("related deployment with given name couldn't be found")
 
     def create_deployment_data(self):
+        """This function creates a deployment based on data given by user, this will be called by an external function
+        which is triggered with a command for creating deployment
 
+        Returns:
+            dict: the data of deployment created
+        """
         account_id = demisto.params().get("account_id", 0)
         name = demisto.args().get("Name")
         description = demisto.args().get("Description")
@@ -418,7 +478,6 @@ class Client(BaseClient):
             "nodes": nodes,
             "name": name,
             "description": description,
-            "id": random.getrandbits(20)
         }
 
         method = "POST"
@@ -427,6 +486,15 @@ class Client(BaseClient):
         return created_deployment
 
     def update_deployment(self):
+        """This function is called when we want to update a deployment data
+
+        Raises:
+            Exception: This will raise an exception if a deployment with given name or id couldn't be found 
+
+        Returns:
+            dict: updated deployment data
+        """
+
         account_id = demisto.params().get("account_id", 0)
         deployment_id = demisto.args().get("Deployment ID", None)
         deployment_name = demisto.args().get("Deployment Name")
@@ -435,13 +503,13 @@ class Client(BaseClient):
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
             if needed_deployment:
                 deployment_id = needed_deployment['name']
-        if deployment_id:
-            name = demisto.args().get("Updated Deployment Name")
-            nodes = demisto.args().get("Updated Nodes for Deployment", None)
-            description = demisto.args().get("Updated deployment description")
-        else:
+        if not deployment_id:
             raise Exception(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
+
+        name = demisto.args().get("Updated Deployment Name")
+        nodes = demisto.args().get("Updated Nodes for Deployment", None)
+        description = demisto.args().get("Updated deployment description")
         deployment_payload = {}
         if name:
             deployment_payload["name"] = name
@@ -456,7 +524,14 @@ class Client(BaseClient):
         return updated_deployment
 
     def delete_deployment(self):
+        """This function deletes a deployment with given id or name
 
+        Raises:
+            Exception: raised when a deployment with given name or id could not be found
+
+        Returns:
+            dict: deleted deployment data
+        """
         account_id = demisto.params().get("account_id", 0)
         deployment_id = demisto.args().get("Deployment ID", None)
         deployment_name = demisto.args().get("Deployment Name")
@@ -465,16 +540,29 @@ class Client(BaseClient):
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
             if needed_deployment:
                 deployment_id = needed_deployment['name']
-        if deployment_id:
-            method = "DELETE"
-            url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
-            deleted_deployment = self.get_response(url=url, method=method)
-            return deleted_deployment
-        else:
+        if not deployment_id:
             raise Exception(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
+        method = "DELETE"
+        url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
+        deleted_deployment = self.get_response(url=url, method=method)
+        return deleted_deployment
 
     def get_tests_with_args(self):
+        """This function calls GET of testsummaries endpoint and returns data related to test
+        The parameters are all optional
+
+        parameters include:
+        1. including archived, this will retrieve archived test summaries too
+        2. size, Number of tests to retrieve
+        3. status, status of test - CANCELED,COMPLETED
+        4. plan_id : Plan id of test -  this is not plan run id
+        5. simulator_id : this is simulator ID 
+        6. sort by: default its sorted by endDate but can be altered with respect to given enum
+
+        Returns:
+            List[Dict]: Returns test data as a list of dictionaries
+        """
         account_id = demisto.params().get("account_id", 0)
 
         include_archived = demisto.args().get("Include Archived")
@@ -495,6 +583,12 @@ class Client(BaseClient):
         return test_summaries
 
     def flatten_test_summaries(self, test_summaries):
+        """This function flattens the test summaries related data for table view
+
+        Args:
+            test_summaries (dict): This returns a lit of dictionaries of test summaries 
+            which are flattened versions of data retrieved for tests
+        """
         for test_summary in test_summaries:
             for key in list(test_summary.keys()):
                 if key == "finalStatus":
@@ -514,6 +608,11 @@ class Client(BaseClient):
                     test_summary[key] = datetime.utcfromtimestamp(test_summary[key] / 1000).strftime(DATE_FORMAT)
 
     def delete_test_result_of_test(self):
+        """This function deletes test results of a given test ID by calling related endpoint
+
+        Returns:
+            dict: Deleted test data results
+        """
         account_id = demisto.params().get("account_id", 0)
         test_id = demisto.args().get("Test ID")
         soft_delete = demisto.args().get("Soft Delete")
@@ -528,6 +627,14 @@ class Client(BaseClient):
         return test_summaries
 
     def flatten_error_logs_for_table_view(self, error_logs):
+        """This function flattens error logs into a single leveled dictionary for table view
+
+        Args:
+            error_logs (dict): This is list of dictionaries which have multiple levels of data
+
+        Returns:
+            dict : flattened error logs which are easier to display on table
+        """
         flattened_logs_list = []
         for connector in error_logs:
             logs = error_logs[connector]["logs"] if error_logs[connector].get("status") == "error" else []
@@ -538,6 +645,11 @@ class Client(BaseClient):
         return flattened_logs_list
 
     def get_all_error_logs(self):
+        """This function retrieves all error logs of a given account
+
+        Returns:
+            dict: This will be having dict containing results and status
+        """
         account_id = demisto.params().get("account_id", 0)
         method = "GET"
         url = f"/siem/v1/accounts/{account_id}/config/providers/status"
@@ -546,6 +658,11 @@ class Client(BaseClient):
         return error_logs
 
     def delete_integration_error_logs(self):
+        """This function accepts connector ID related to a connector and then returns a status
+
+        Returns:
+            dict: status stating whether its success and how many errors are remaining incase of failure to delete some
+        """
         account_id = demisto.params().get("account_id", 0)
         connector_id = demisto.args().get("Connector ID")
 
@@ -556,6 +673,12 @@ class Client(BaseClient):
         return error_logs
 
     def generate_api_key(self):
+        """This function calls generate API key endpoint
+
+        Returns:
+            dict: response of generate API key API call which contains generated \
+                API key and name along with additional details
+        """
         account_id = demisto.params().get("account_id", 0)
         name = demisto.args().get("Name")
         description = demisto.args().get("Description")
@@ -571,6 +694,11 @@ class Client(BaseClient):
         return generated_api_key
 
     def get_all_active_api_keys_with_details(self):
+        """This function retrieves all available API keys
+
+        Returns:
+            dict: This function retrieves API keys which are active for the given account
+        """
         account_id = demisto.params().get("account_id", 0)
         method = "GET"
         url = f"config/v1/accounts/{account_id}/apikeys"
@@ -578,19 +706,34 @@ class Client(BaseClient):
             "details": "true"
         }
         keys_data = self.get_response(url=url, method=method, request_params=request_params)
-        return keys_data, True
+        return keys_data
 
     def filter_api_key_with_key_name(self, key_name):
-        active_keys, status = self.get_all_active_api_keys_with_details()
-        if status:
-            required_key_object = list(filter(lambda key_obj: key_obj["name"] == key_name, active_keys.get("data")))
-        if required_key_object:
-            return required_key_object[0]["id"], True
-        raise Exception(f"couldn't find APi key with given name: {key_name}")
+        """This function retrieves all active keys and then filters key based on given input name
+
+        Args:
+            key_name (str): The API key name for searching API key
+
+        Raises:
+            Exception: if it couldn't find API key with given name
+
+        Returns:
+            _type_: key ID for API key
+        """
+        active_keys = self.get_all_active_api_keys_with_details()
+        required_key_object = list(filter(lambda key_obj: key_obj["name"] == key_name, active_keys.get("data")))
+        if not required_key_object:
+            raise Exception(f"couldn't find APi key with given name: {key_name}")
+        return required_key_object[0]["id"]
 
     def delete_api_key(self):
+        """This function calls API key delete endpoint
+
+        Returns:
+            dict: Deleted API key data
+        """
         key_name = demisto.args().get("Key Name")
-        key_id, status = self.filter_api_key_with_key_name(key_name=key_name)
+        key_id = self.filter_api_key_with_key_name(key_name=key_name)
         account_id = demisto.params().get("account_id", 0)
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/apikeys/{key_id}"
@@ -598,6 +741,12 @@ class Client(BaseClient):
         return deleted_api_key
 
     def get_simulator_quota(self):
+        """This function calls Account details end point which will return account details
+        which has nodesQuota
+
+        Returns:
+            dict: user details related to the queried account
+        """
         account_id = demisto.params().get("account_id", 0)
         method = "GET"
         url = f"/config/v1/accounts/{account_id}"
@@ -605,16 +754,34 @@ class Client(BaseClient):
         return simulator_details
 
     def get_simulators_details(self, request_params):
+        """This function queries for simulators along with modifiers which are request_params
+        based on that we get simulator related details and this raises an exception if 
+        no simulator with given details are found
+
+        Args:
+            request_params (dict): filters when querying the data related to nodes/simulators
+
+        Raises:
+            Exception: Raised when no entries are found related to given filters
+
+        Returns:
+            list(dict): returns simulator related data which fulfils the given input parameters
+        """
         account_id = demisto.params().get("account_id", 0)
         method = "GET"
         url = f"/config/v1/accounts/{account_id}/nodes/bulk"
 
         simulators_details = self.get_response(method=method, url=url, request_params=request_params)
-        if simulators_details.get("data", {}).get("count"):
-            return simulators_details
-        raise Exception(f"No Matching simulators found with details name: {demisto.args().get('simulator_name')}")
+        if not simulators_details.get("data", {}).get("count"):
+            raise Exception(f"No Matching simulators found with details not found details are {request_params}")
+        return simulators_details
 
-    def create_get_simulator_params_dict(self):
+    def create_simulator_params(self):
+        """This function creates parameters related to simulator as a dictionary
+
+        Returns:
+            dict: parameters dictionary
+        """
         possible_inputs = [
             "details", "deleted", "secret", "shouldIncludeProxies", "hostname", "connectionType", "externalIp", "internalIp",
             "os", "status", "sortDirection", "startRow", "pageSize", "isEnabled", "isConnected", "isCritical",
@@ -623,11 +790,21 @@ class Client(BaseClient):
             "additionalDetails"]
         request_params = {}
         for parameter in possible_inputs:
-            if demisto.args().get(parameter) and demisto.args().get(parameter) != 'false':
+            if demisto.args().get(parameter):
                 request_params[parameter] = demisto.args().get(parameter)
         return request_params
 
     def flatten_node_details(self, nodes):
+        """this function will flatten the nested simulator data 
+        into a flatter structure for table display
+
+        Args:
+            nodes List(dict): This is list of nodes which are to be flattened
+
+        Returns:
+            List(dict): This is list of nodes related data for table which is flattened 
+            List : This is list of keys which are present in the dict
+        """
         keys = None
         flattened_nodes = []
         for node in nodes:
@@ -674,26 +851,46 @@ class Client(BaseClient):
         return flattened_nodes, keys
 
     def get_simulator_with_name_request_params(self):
+        """This will return parameters for getting simulators data
+
+        Returns:
+            dict: dict of request parameters
+        """
         name = demisto.args().get("Simulator/Node Name")
         request_params = {
             "name": name,
-            "deleted": "true",
-            "details": "true"
+            "deleted": demisto.args().get("deleted", "false"),
+            "details": demisto.args().get("details", "false")
         }
         return request_params
 
     def get_simulator_with_a_name_return_id(self):
+        """This function returns id of a given simulator when a name is given as input
+
+        Raises:
+            Exception: This is thrown when no simulator with given name is found
+
+        Returns:
+            int: Simulator ID with given name
+        """
         request_params = self.get_simulator_with_name_request_params()
-        result, status = self.get_simulators_details(request_params=request_params)
-        if status:
-            try:
-                simulator_id = result.get("data", {}).get("rows", {})[0].get("id")
-                return simulator_id
-            except IndexError:
-                raise Exception("Simulator with given details could not be found")
-        raise Exception("Simulator with given details could not be found")
+        result = self.get_simulators_details(request_params=request_params)
+        try:
+            simulator_id = result.get("data", {}).get("rows", {})[0].get("id")
+            return simulator_id
+        except IndexError:
+            raise Exception("Simulator with given details could not be found")
 
     def delete_node_with_given_id(self, node_id, force: str):
+        """This function calls delete simulator on simulator with given ID
+
+        Args:
+            node_id (str): This is node ID to delete
+            force (str): If the node is to be force deleted even if its not connected 
+
+        Returns:
+            dict: Deleted node data
+        """
         request_params = {
             "force": force
         }
@@ -705,6 +902,14 @@ class Client(BaseClient):
         return deleted_node
 
     def delete_simulator_with_given_name(self):
+        """This function deletes a node with given name,
+        This achieves this by retrieving ID by querying all nodes
+        and then retrieving ID of name if it matches. 
+        Then it calls a function which makes API call with this ID
+
+        Returns:
+            dict: deleted node related data
+        """
         simulator_id = self.get_simulator_with_a_name_return_id()
         force_delete = demisto.args().get("Should Force Delete")
         result = self.delete_node_with_given_id(node_id=simulator_id, force=force_delete)
@@ -712,6 +917,11 @@ class Client(BaseClient):
 
     def make_update_node_payload(self):
         # this is created under assumption that only these fields will be  chosen to be updated by user
+        """This function returns a payload with update related data
+
+        Returns:
+            dict: Update Node payload
+        """
         data_dict = {
             "isEnabled": demisto.args().get("isEnabled", "").lower(),
             "isProxySupported": demisto.args().get("isProxySupported", "").lower(),
@@ -739,6 +949,15 @@ class Client(BaseClient):
         return data_dict
 
     def update_node(self, node_id, node_data):
+        """This function calls update node details API and returns updated datas
+
+        Args:
+            node_id (str): ID of node to update
+            node_data (dict): Payload for PUT call
+
+        Returns:
+            dict: Updated node details
+        """
         method = "PUT"
         account_id = demisto.params().get("account_id")
         request_url = f"/config/v1/accounts/{account_id}/nodes/{node_id}"
@@ -747,12 +966,22 @@ class Client(BaseClient):
         return updated_node
 
     def update_simulator_with_given_name(self):
+        """This function updates simulator with given name
+
+        Returns:
+            dict: this is updated node details for given node ID
+        """
         simulator_id = self.get_simulator_with_a_name_return_id()
         payload = self.make_update_node_payload()
         updated_node = self.update_node(node_id=simulator_id, node_data=payload)
         return updated_node
 
     def rotate_verification_token(self):
+        """This function rotates a verification token thus generating a new token
+
+        Returns:
+            dict: dict containing a new token
+        """
         method = "POST"
         account_id = demisto.params().get("account_id")
         request_url = f"/config/v1/accounts/{account_id}/nodes/secret/rotate"
@@ -761,6 +990,12 @@ class Client(BaseClient):
         return new_token
 
     def create_user_data(self):
+        """This function takes user inputs and then formats it and 
+        then calls create user endpoint.
+
+        Returns:
+            dict: created user data
+        """
         account_id = literal_eval(demisto.params().get("account_id", 0))
         name = demisto.args().get("Name")
         email = demisto.args().get("Email")
@@ -785,12 +1020,20 @@ class Client(BaseClient):
             "isActive": is_active,
             "deployments": deployment_list,
         }
+
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/users"
         created_user = self.get_response(url=url, method=method, body=user_payload)
         return created_user
 
     def update_user_data(self):
+        """This function takes user inputs and then formats it and 
+        then makes a call to function that handles updating user.
+
+        Returns:
+            dict: updated user data
+        """
+
         user_id = demisto.args().get("User ID")
         user_email = demisto.args().get("Email")
 
@@ -801,16 +1044,16 @@ class Client(BaseClient):
         password = demisto.args().get("Password")
         deployment_list = demisto.args().get("Deployments", [])
         deployment_list = list(literal_eval(deployment_list)) if deployment_list else []
+        # formatting the update user payload, we remove false values after passing to function which calls endpoint
         details = {
             "name": name,
             "is_active": is_active,
             "deployments": deployment_list,
-            "description": description
+            "description": description,
+            "role": role,
+            "password": password
         }
-        if role:
-            details["role"] = role
-        if password:
-            details["password"] = password
+        # retrieve user based on email and user_id whichever is present
         if user_email and not user_id:
             user_list = self.get_users_list()
             demisto.info("retrieved user list which contains all available users in safebreach")
@@ -823,28 +1066,44 @@ class Client(BaseClient):
 
 
 def get_simulators_and_display_in_table(client: Client, just_name=False):
+    """This function gets all simulators and displays in table
 
+    Args:
+        client (Client): Client class for API calls
+        just_name (bool, optional): This will be used to know whether to search and return all 
+        simulators or only one. Defaults to False.
+
+    Returns:
+        CommandResults : table showing simulator details
+        dict: simulator details
+    """
     request_params = client.get_simulator_with_name_request_params() if just_name \
-        else client.create_get_simulator_params_dict()
-    result, status = client.get_simulators_details(request_params=request_params)
-    if status:
-        flattened_nodes, keys = client.flatten_node_details(result.get("data", {}).get("rows", {}))
-        human_readable = tableToMarkdown(
-            name="Simulators Details",
-            t=flattened_nodes,
-            headers=keys)
-        outputs = result.get("data", {}).get("rows")[0]
-
-        result = CommandResults(
-            outputs_prefix="simulator_details",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-        return result
+        else client.create_simulator_params()
+    result = client.get_simulators_details(request_params=request_params)
+    flattened_nodes, keys = client.flatten_node_details(result.get("data", {}).get("rows", {}))
+    human_readable = tableToMarkdown(
+        name="Simulators Details",
+        t=flattened_nodes,
+        headers=keys)
+    outputs = result.get("data", {}).get("rows")
+    outputs = outputs[0] if just_name else outputs
+    result = CommandResults(
+        outputs_prefix="simulator_details",
+        outputs=outputs,
+        readable_output=human_readable
+    )
     return result
 
 
 def get_tests_summary(client: Client):
+    """This function retrieves tests and then flattens them and shows them in  a table
+
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict: This returns a table view of data and a dictionary as output
+    """
     test_summaries = client.get_tests_with_args()
     client.flatten_test_summaries(test_summaries)
     human_readable = tableToMarkdown(
@@ -854,9 +1113,9 @@ def get_tests_summary(client: Client):
                  "plannedSimulationsAmount", "simulatorExecutions", "ranBy", "simulatorCount", "endTime", "startTime",
                  "finalStatus", "stopped", "missed", "logged", "detected", "prevented",
                  "inconsistent", "drifted", "not_drifted", "baseline"])
-    outputs = [{
-        'tests': test_summaries
-    }]
+    outputs = {
+        'tests_data': test_summaries
+    }
 
     result = CommandResults(
         outputs_prefix="tests_data",
@@ -869,7 +1128,12 @@ def get_tests_summary(client: Client):
 
 @metadata_collector.command(
     command_name="safebreach-get-all-users",
-    inputs_list=None,
+    inputs_list=[
+        InputArgument(name="Should Include Details", description="If Details of user are to be included while querying all \
+            users.", default="true", options=["true", "false"], required=False, is_array=False),
+        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+                      default="true", options=["true", "false"], required=True, is_array=False),
+    ],
     outputs_prefix="user_data",
     outputs_list=[
         OutputArgument(name="id", description="The ID of User retrieved.",
@@ -881,7 +1145,15 @@ def get_tests_summary(client: Client):
     ],
     description="This command gives all users depending on inputs given.")
 def get_all_users(client: Client):
+    """This function is executed when 'safebreach-get-all-users' command is executed
 
+    Args:
+        client (Client): This is client class
+
+    Returns:
+        CommandResults,dict: This returns all user data retrieved based on given parameters,
+        as a table and as a dictionary
+    """
     user_data = client.get_users_list()
     demisto.info(f"users retrieved when executing {demisto.command()} command \n Data: \n{user_data}")
 
@@ -899,7 +1171,11 @@ def get_all_users(client: Client):
     command_name="safebreach-get-user-with-matching-name-or-email",
     inputs_list=[
         InputArgument(name="name", description="Name of the user to lookup.", required=False, is_array=False),
-        InputArgument(name="email", description="Email of the user to lookup.", required=True, is_array=False)
+        InputArgument(name="email", description="Email of the user to lookup.", required=True, is_array=False),
+        InputArgument(name="Should Include Details", description="If Details of user are to be included while \
+            querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
+        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+                      default="true", options=["true", "false"], required=True, is_array=False),
     ],
     outputs_prefix="filtered_users",
     outputs_list=[
@@ -912,6 +1188,20 @@ def get_all_users(client: Client):
     ],
     description="This command gives all users depending on inputs given.")
 def get_user_id_by_name_or_email(client: Client):
+    """This Command Returns a user or their email by a given name or email.
+
+    Args:
+        client (Client): Client class for calling API
+
+    Raises:
+        Exception: Raised when no user with given name or email or found
+
+    Returns:
+        CommandResults,dict,Exception: We create a table showing all details related to users found and 
+        give JSON which has all data related to filtered users if any users match given criterion,
+        else we raise an exception which is shown as error_result in XSOAR saying user is not found
+    """
+
     name = demisto.args().get("name")
     email = demisto.args().get("email")
     user_list = client.get_users_list()
@@ -976,7 +1266,16 @@ def get_user_id_by_name_or_email(client: Client):
     ],
     description="This command creates a user with given data.")
 def create_user(client: Client):
+    """this function is executed when 'safebreach-create-user' is called and this creates a user.
+    This function calls another function which handles getting inputs and calling API, 
+    This function just handles creating table and returning table and json
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict: This will show a dictionary based on user data created
+    """
     created_user = client.create_user_data()
 
     human_readable = tableToMarkdown(name="Created User Data", t=created_user.get("data", {}),
@@ -1012,7 +1311,11 @@ def create_user(client: Client):
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
         InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of.",
-                      required=False, is_array=True)
+                      required=False, is_array=True),
+        InputArgument(name="Should Include Details", description="If Details of user are to be included while\
+            querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
+        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+                      default="true", options=["true", "false"], required=True, is_array=False)
     ],
     outputs_prefix="updated_user_data",
     outputs_list=[
@@ -1036,7 +1339,15 @@ def create_user(client: Client):
     ],
     description="This command updates a user with given data.")
 def update_user_with_details(client: Client):
+    """This function is executed when 'safebreach-update-user-details' command is being executed.
+    This function will call another function which receives inputs from user and creates payload for upload user.
 
+    Args:
+        client (Client): Client class for API call
+
+    Returns:
+        CommandResults,dict: This function returns updated user in form of table and dictionary
+    """
     updated_user = client.update_user_data()
 
     human_readable = tableToMarkdown(name="Updated User Data", t=updated_user.get("data", {}),
@@ -1058,7 +1369,11 @@ def update_user_with_details(client: Client):
         InputArgument(name="User ID", description="user ID of user from safebreach to search.",
                       required=False, is_array=False),
         InputArgument(name="Email", description="Email of the user to Search for updating user details.", required=True,
-                      is_array=False)
+                      is_array=False),
+        InputArgument(name="Should Include Details", description="If Details of user are to be included while \
+            querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
+        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+                      default="true", options=["true", "false"], required=True, is_array=False)
     ],
     outputs_prefix="deleted_user_data",
     outputs_list=[
@@ -1082,7 +1397,15 @@ def update_user_with_details(client: Client):
     ],
     description="This command deletes a user with given data.")
 def delete_user_with_details(client: Client):
+    """This function deletes user with given details, The inputs are being received in function which this function calls.
+    It returns deleted user details
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict: This is details of user that has been deleted
+    """
     deleted_user = client.delete_user()
 
     human_readable = tableToMarkdown(name="Deleted User Data", t=deleted_user.get("data", {}),
@@ -1121,7 +1444,14 @@ def delete_user_with_details(client: Client):
     ],
     description="This command creates a deployment with given data.")
 def create_deployment(client: Client):
+    """This function is executed on command "safebreach-create-deployment"
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict: Created deployment data as a table and a dictionary
+    """
     created_deployment = client.create_deployment_data()
 
     human_readable = tableToMarkdown(name="Created Deployment", t=created_deployment.get("data", {}),
@@ -1166,7 +1496,14 @@ def create_deployment(client: Client):
     ],
     description="This command updates a deployment with given data.")
 def update_deployment(client: Client):
+    """This function is executed on command "safebreach-update-deployment"
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict: updated deployment data as a table and a dictionary
+    """
     updated_deployment = client.update_deployment()
 
     human_readable = tableToMarkdown(name="Updated Deployment", t=updated_deployment.get("data", {}),
@@ -1204,7 +1541,14 @@ def update_deployment(client: Client):
     ],
     description="This command deletes a deployment with given data.")
 def delete_deployment(client: Client):
+    """This function is executed on command "safebreach-delete-deployment"
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict: deleted deployment data as a table and a dictionary
+    """
     deleted_deployment = client.delete_deployment()
 
     human_readable = tableToMarkdown(name="Deleted Deployment", t=deleted_deployment.get("data", {}),
@@ -1243,7 +1587,14 @@ def delete_deployment(client: Client):
     ],
     description="This command creates a API Key with given data.")
 def create_api_key(client: Client):
+    """This function generates API key and returns API key, Executed for command 'safebreach-generate-api-key'
 
+    Args:
+        client (Client): Client class for API call
+
+    Returns:
+        CommandResults,dict: Command results for generated API key details table and dict containing data
+    """
     generated_api_key = client.generate_api_key()
 
     human_readable = tableToMarkdown(
@@ -1278,7 +1629,14 @@ def create_api_key(client: Client):
     ],
     description="This command deletes a API key with given name.")
 def delete_api_key(client: Client):
+    """This function deletes API key and returns API key, Executed for command 'safebreach-delete-api-key'
 
+    Args:
+        client (Client): Client class for API call
+
+    Returns:
+        CommandResults,dict: Command results for deleted API key details table and dict containing data
+    """
     deleted_api_key = client.delete_api_key()
 
     human_readable = tableToMarkdown(
@@ -1312,9 +1670,17 @@ def delete_api_key(client: Client):
     ],
     description="This command gives all connector related errors.")
 def get_all_error_logs(client: Client):
+    """This function retrieves all error logs and shows them in form of table
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,Dict: This function returns all errors along with connector details in a table and we get data as json
+    """
     formatted_error_logs = []
     error_logs = client.get_all_error_logs()
+
     if error_logs.get("result"):
         formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
         human_readable = tableToMarkdown(
@@ -1346,8 +1712,16 @@ def get_all_error_logs(client: Client):
     ],
     description="This command deleted connector related errors.")
 def delete_integration_error_logs(client: Client):
+    """This function deletes integration errors of a given connector
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,Dict: This returns a table of data showing deleted details and dict showing same in outputs
+    """
     error_logs = client.delete_integration_error_logs()
+
     human_readable = tableToMarkdown(
         name="Integration Connector errors Status",
         t=error_logs,
@@ -1387,7 +1761,14 @@ def delete_integration_error_logs(client: Client):
     ],
     description="This command gives all details related to account, we are using this to find assigned simulator quota.")
 def get_simulator_quota_with_table(client: Client):
+    """This will be used to show account simulator quota and details in table
 
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict: this shows a table with account details and a dict with account details
+    """
     simulator_details = client.get_simulator_quota()
 
     human_readable = tableToMarkdown(
@@ -1414,6 +1795,14 @@ def get_simulator_quota_with_table(client: Client):
     outputs_list=simulators_output_fields,
     description="We are using this command to get all available simulators.")
 def get_all_simulator_details(client: Client):
+    """This function returns simulator details of all simulators
+
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        List(dict): This is list of all simulators data
+    """
     return get_simulators_and_display_in_table(client=client, just_name=False)
 
 
@@ -1422,11 +1811,23 @@ def get_all_simulator_details(client: Client):
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
                       required=False, is_array=False),
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
     ],
     outputs_prefix="simulator_details",
     outputs_list=simulators_output_fields,
     description="This command gives simulator with given name")
 def get_simulator_with_name(client: Client):
+    """this function returns simulator with given name as  table and dict
+
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,data: This is data of simulator with given name
+    """
     return get_simulators_and_display_in_table(client=client, just_name=True)
 
 
@@ -1437,12 +1838,23 @@ def get_simulator_with_name(client: Client):
                       required=True, is_array=False),
         InputArgument(name="Should Force Delete", description="Should we force delete the simulator.",
                       default="false", options=["true", "false"], required=True, is_array=False),
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
     ],
     outputs_prefix="deleted_simulator_details",
     outputs_list=simulators_output_fields,
     description="This command deletes simulator with given name.")
 def delete_simulator_with_given_name(client: Client):
+    """This function deletes simulator with given name
 
+    Args:
+        client (Client): This is client class for API calls
+
+    Returns:
+        CommandResults,Dict: this is for table showing deleted simulator data and dict with data
+    """
     deleted_node = client.delete_simulator_with_given_name()
 
     flattened_nodes, keys = client.flatten_node_details([deleted_node.get("data", {})])
@@ -1466,12 +1878,23 @@ def delete_simulator_with_given_name(client: Client):
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=False, is_array=False),
     ] + simulator_details_for_update_fields,
     outputs_prefix="updated_simulator_details",
     outputs_list=simulators_output_fields,
     description="This command updates simulator with given name with given details.")
 def update_simulator_with_given_name(client: Client):
+    """This function updates simulator with given data having name as given input
 
+    Args:
+        client (Client): This is client class for API calls
+
+    Returns:
+        CommandResults,Dict: This will return table and dict containing updated simulator data
+    """
     updated_node = client.update_simulator_with_given_name()
 
     flattened_nodes, keys = client.flatten_node_details([updated_node.get("data", {})])
@@ -1491,10 +1914,19 @@ def update_simulator_with_given_name(client: Client):
 @metadata_collector.command(
     command_name="safebreach-rotate-verification-token",
     inputs_list=None,
-    outputs_prefix="new_token",
-    outputs_list=simulators_output_fields,
+    outputs_list=[
+        OutputArgument(name="new_token", description="new Token.", output_type=str),
+    ],
     description="This command rotates generated verification token.")
 def return_rotated_verification_token(client: Client):
+    """This function is called when rotate-verification-token command is called and will
+    help with calling API of rotate verification token
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,Dict: This returns a table showing new token and a dict as output stating same 
+    """
     new_token = client.rotate_verification_token()
     human_readable = tableToMarkdown(
         name=" new Token Details",
@@ -1502,7 +1934,7 @@ def return_rotated_verification_token(client: Client):
         headers=["secret"])
     outputs = new_token.get("data", {}).get("secret", "")
     result = CommandResults(
-        outputs_prefix="new_token",
+        outputs_prefix="secret",
         outputs=outputs,
         readable_output=human_readable
     )
@@ -1524,9 +1956,17 @@ def return_rotated_verification_token(client: Client):
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
-    outputs_list=simulation_output_fields,
+    outputs_list=tests_output_fields,
     description="This command gets tests with given modifiers.")
 def get_all_tests_summary(client: Client):
+    """This function gets all tests summary and shows in a table
+
+    Args:
+        client (Client): Client class object for API calls
+
+    Returns:
+        CommandResults,Dict: This returns all tests related summary as a table and gives a dictionary as outputs for the same
+    """
     return get_tests_summary(client=client)
 
 
@@ -1545,9 +1985,18 @@ def get_all_tests_summary(client: Client):
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
-    outputs_list=simulation_output_fields,
+    outputs_list=tests_output_fields,
     description="This command gets tests with given plan ID.")
 def get_all_tests_summary_with_plan_id(client: Client):
+    """This function takes  a plan run ID and returns test summaries with that plan run ID
+
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,List(dict): This will return  a table with all details and
+        a list of dictionaries with details related to tests with given plan ID
+    """
     return get_tests_summary(client=client)
 
 
@@ -1560,10 +2009,19 @@ def get_all_tests_summary_with_plan_id(client: Client):
                       options=["true", "false"], default="true", required=False, is_array=False),
     ],
     outputs_prefix="deleted_test_results",
-    outputs_list=simulation_output_fields,
+    outputs_list=tests_output_fields,
     description="This command deletes tests with given plan ID.")
 def delete_test_result_of_test(client: Client):
+    """This function deletes test with given Test ID
+
+    Args:
+        client (Client): Client class for API call
+
+    Returns:
+        CommandResults,Dict: A table showing deletion results and a dict of outputs showing the same
+    """
     test_summaries = client.delete_test_result_of_test()
+
     human_readable = tableToMarkdown(
         name="Deleted Test",
         t=test_summaries.get("data", {}),
@@ -1579,10 +2037,8 @@ def delete_test_result_of_test(client: Client):
 
 
 def main() -> None:
-    """main function, parses params and runs command functions
-
-    :return:
-    :rtype:
+    """
+    Execution starts here
     """
     client = Client(
         api_key=demisto.params().get("api_key"),
@@ -1681,12 +2137,9 @@ def main() -> None:
             result = delete_test_result_of_test(client=client)
             return_results(result)
 
-    # except SbException as sb_error:
-    #     return_error(sb_error)
-
-    except Exception as e:
+    except Exception as error:
         demisto.error(f"Error generated while executing {demisto.command}, \n {traceback.format_exc()}")
-        return_error(f'Failed to execute {demisto.command()} command .\nError:\n{str(e)}')
+        return_error(f'Failed to execute {demisto.command()} command .\nError:\n{str(error)}')
 
 
 if __name__ in ('__main__', '__builtin__', 'builtins'):

@@ -202,6 +202,8 @@ This command deletes simulator with given name.
 | --- | --- | --- |
 | Simulator/Node Name | Name of simulator/node to search with. | Required | 
 | Should Force Delete | Should we force delete the simulator. Possible values are: true, false. Default is false. | Required | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Optional | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Optional | 
 
 #### Context Output
 
@@ -209,7 +211,7 @@ This command deletes simulator with given name.
 | --- | --- | --- |
 | deleted_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | deleted_simulator_details.simulator_id | String | The Id of given simulator. | 
-| deleted_simulator_details.simulator_name | String | name for given simulator. | 
+| deleted_simulator_details.name | String | name for given simulator. | 
 | deleted_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | deleted_simulator_details.is_critical | String | Whether the simulator is critical. | 
 | deleted_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
@@ -298,6 +300,8 @@ This command deletes a user with given data.
 | --- | --- | --- |
 | User ID | user ID of user from safebreach to search. | Optional | 
 | Email | Email of the user to Search for updating user details. | Required | 
+| Should Include Details | If Details of user are to be included while             querying all users. Possible values are: true, false. Default is true. | Optional | 
+| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -350,30 +354,30 @@ We are using this command to get all available simulators.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| details | if details are to be included for search. Possible values are: true, false. Default is false. | Optional | 
-| deleted | if deleted are to be included for search. Possible values are: true, false. Default is false. | Optional | 
-| secret | if secrets are to be included for search. Possible values are: true, false. Default is false. | Optional | 
-| shouldIncludeProxies | if proxies are to be included for search. Possible values are: true, false. Default is false. | Optional | 
-| hostname | if hostname to be included for search. Possible values are: true, false. Default is false. | Optional | 
-| connectionType | if connectionType to be included for search. Possible values are: true, false. Default is false. | Optional | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
+| secret | if secrets are to be included for search. Possible values are: true, false. | Optional | 
+| shouldIncludeProxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
+| hostname | if hostname to be included for search. Possible values are: true, false. | Optional | 
+| connectionType | if connectionType to be included for search. Possible values are: true, false. | Optional | 
 | externalIp | if external IP details to be included for search. | Optional | 
 | internalIp | if Internal IP are to be included for search. | Optional | 
-| os | if Operating system details to be included for search. Possible values are: true, false. Default is false. | Optional | 
+| os | if Operating system details to be included for search. Possible values are: true, false. | Optional | 
 | sortDirection | direction in which secrets are to be sorted. Possible values are: asc, desc. Default is asc. | Optional | 
 | startRow | if there are too many entries then where should we start looking from. | Optional | 
 | pageSize | number of entries to search. | Optional | 
-| isEnabled | if to search only enabled ones. Possible values are: true, false. Default is false. | Optional | 
-| isConnected | status of connection of nodes to search. Possible values are: true, false. Default is false. | Optional | 
-| isCritical | whether to search only for critical nodes or not. Possible values are: true, false. Default is false. | Optional | 
+| isEnabled | if to search only enabled ones. Possible values are: true, false. | Optional | 
+| isConnected | status of connection of nodes to search. Possible values are: true, false. | Optional | 
+| isCritical | whether to search only for critical nodes or not. Possible values are: true, false. | Optional | 
 | assets | Whether search only for assets and which assets. | Optional | 
-| additionalDetails | Whether to show additional details or not. Possible values are: true, false. Default is false. | Optional | 
-| impersonatedUsers | should search only for impersonated user targets or not. Possible values are: true, false. Default is false. | Optional | 
-| isAzureAttacker | Whether to search only for azure attackers. Possible values are: true, false. Default is false. | Optional | 
-| isAwsAttacker | Whether to search only for aws attacker. Possible values are: true, false. Default is false. | Optional | 
-| isPreExecutor | should search only for pre-executors or not. Possible values are: true, false. Default is false. | Optional | 
-| isInfiltrationTarget | Whether to search only for infiltration targets. Possible values are: true, false. Default is false. | Optional | 
-| isMailTarget | Whether to search only for Mail targets. Possible values are: true, false. Default is false. | Optional | 
-| isExfiltrationTarget | should search only for exfiltration targets or not. Possible values are: true, false. Default is false. | Optional | 
+| additionalDetails | Whether to show additional details or not. Possible values are: true, false. | Optional | 
+| impersonatedUsers | should search only for impersonated user targets or not. Possible values are: true, false. | Optional | 
+| isAzureAttacker | Whether to search only for azure attackers. Possible values are: true, false. | Optional | 
+| isAwsAttacker | Whether to search only for aws attacker. Possible values are: true, false. | Optional | 
+| isPreExecutor | should search only for pre-executors or not. Possible values are: true, false. | Optional | 
+| isInfiltrationTarget | Whether to search only for infiltration targets. Possible values are: true, false. | Optional | 
+| isMailTarget | Whether to search only for Mail targets. Possible values are: true, false. | Optional | 
+| isExfiltrationTarget | should search only for exfiltration targets or not. Possible values are: true, false. | Optional | 
 | deployments | deployments list which the search should look. | Optional | 
 | advancedActions | advanced actions to search. | Optional | 
 | roles | roles to search. | Optional | 
@@ -389,7 +393,7 @@ We are using this command to get all available simulators.
 | --- | --- | --- |
 | simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | simulator_details.simulator_id | String | The Id of given simulator. | 
-| simulator_details.simulator_name | String | name for given simulator. | 
+| simulator_details.name | String | name for given simulator. | 
 | simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | simulator_details.is_critical | String | Whether the simulator is critical. | 
 | simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
@@ -526,6 +530,8 @@ This command gives all users depending on inputs given.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
+| Should Include Details | If Details of user are to be included while querying all             users. Possible values are: true, false. Default is true. | Optional | 
+| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -577,6 +583,8 @@ This command gives simulator with given name
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | Simulator/Node Name | Name of simulator/node to search with. | Optional | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -584,7 +592,7 @@ This command gives simulator with given name
 | --- | --- | --- |
 | simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | simulator_details.simulator_id | String | The Id of given simulator. | 
-| simulator_details.simulator_name | String | name for given simulator. | 
+| simulator_details.name | String | name for given simulator. | 
 | simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | simulator_details.is_critical | String | Whether the simulator is critical. | 
 | simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
@@ -631,6 +639,8 @@ This command gives all users depending on inputs given.
 | --- | --- | --- |
 | name | Name of the user to lookup. | Optional | 
 | email | Email of the user to lookup. | Required | 
+| Should Include Details | If Details of user are to be included while             querying all users. Possible values are: true, false. Default is true. | Optional | 
+| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -658,39 +668,7 @@ This command rotates generated verification token.
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| new_token.is_enabled | String | Whether the node is enabled or not. | 
-| new_token.simulator_id | String | The Id of given simulator. | 
-| new_token.simulator_name | String | name for given simulator. | 
-| new_token.account_id | String | Account Id of account Hosting given simulator. | 
-| new_token.is_critical | String | Whether the simulator is critical. | 
-| new_token.is_exfiltration | Number | If Simulator is exfiltration target. | 
-| new_token.is_infiltration | Number | If simulator is infiltration target. | 
-| new_token.is_mail_target | Number | If simulator is mail target. | 
-| new_token.is_mail_attacker | Number | If simulator is mail attacker. | 
-| new_token.is_pre_executor | Number | Whether the node is pre executor. | 
-| new_token.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| new_token.is_azure_attacker | String | If the given simulator is azure attacker. | 
-| new_token.external_ip | String | external ip of given simulator. | 
-| new_token.internal_ip | String | internal ip of given simulator. | 
-| new_token.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
-| new_token.preferred_interface | Number | Preferred simulator interface. | 
-| new_token.preferred_ip | Number | Preferred Ip of simulator. | 
-| new_token.hostname | String | Hostname of given simulator. | 
-| new_token.connection_type | String | connection_type of given simulator. | 
-| new_token.simulator_status | String | status of the simulator. | 
-| new_token.connection_status | Number | connection status of node/simulator. | 
-| new_token.simulator_framework_version | Number | Framework version of simulator. | 
-| new_token.operating_system_type | String | operating system type of given simulator. | 
-| new_token.operating_system | String | Operating system of given simulator. | 
-| new_token.execution_hostname | String | Execution Hostname of the given node. | 
-| new_token.deployments | Number | deployments simulator is part of. | 
-| new_token.created_at | Number | Creation datetime of simulator. | 
-| new_token.updated_at | String | Update datetime of given simulator. | 
-| new_token.deleted_at | String | deletion datetime of given simulator. | 
-| new_token.assets | String | Assets of given simulator. | 
-| new_token.simulation_users | Number | simulator users list. | 
-| new_token.proxies | Number | Proxies of simulator. | 
-| new_token.advanced_actions | Number | Advanced simulator details. | 
+| Safebreach Content Management.new_token | String | new Token. | 
 
 ### safebreach-update-deployment
 
@@ -736,6 +714,8 @@ This command updates simulator with given name with given details.
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | Simulator/Node Name | Name of simulator/node to search with. | Required | 
+| details | if details are to be included for search. Possible values are: true, false. Default is true. | Optional | 
+| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Optional | 
 | isEnabled | set true to enable the node. Possible values are: false, true. | Optional | 
 | isProxySupported | set true to enable the proxy support. Possible values are: false, true. | Optional | 
 | isCritical | set true to make node as critical node. Possible values are: false, true. | Optional | 
@@ -761,7 +741,7 @@ This command updates simulator with given name with given details.
 | --- | --- | --- |
 | updated_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
 | updated_simulator_details.simulator_id | String | The Id of given simulator. | 
-| updated_simulator_details.simulator_name | String | name for given simulator. | 
+| updated_simulator_details.name | String | name for given simulator. | 
 | updated_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | updated_simulator_details.is_critical | String | Whether the simulator is critical. | 
 | updated_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
@@ -814,6 +794,8 @@ This command updates a user with given data.
 | Password | Password of user to be updated with. | Optional | 
 | User role | Role of the user to be changed to. Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
 | Deployments | Comma separated ID of all deployments the user should be part of. | Optional | 
+| Should Include Details | If Details of user are to be included while            querying all users. Possible values are: true, false. Default is true. | Optional | 
+| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
