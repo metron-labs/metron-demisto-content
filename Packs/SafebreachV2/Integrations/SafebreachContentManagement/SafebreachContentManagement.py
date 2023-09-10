@@ -656,7 +656,7 @@ class Client(BaseClient):
                     flattened_logs_list.append(log)
         return flattened_logs_list
 
-    def get_all_error_logs(self):
+    def get_all_integration_error_logs(self):
         """This function retrieves all error logs of a given account
 
         Returns:
@@ -1682,7 +1682,7 @@ def delete_api_key(client: Client):
                        prefix="integration_errors", output_type=str),
     ],
     description="This command gives all connector related errors.")
-def get_all_error_logs(client: Client):
+def get_all_integration_error_logs(client: Client):
     """This function retrieves all error logs and shows them in form of table
 
     Args:
@@ -1692,22 +1692,20 @@ def get_all_error_logs(client: Client):
         CommandResults,Dict: This function returns all errors along with connector details in a table and we get data as json
     """
     formatted_error_logs = []
-    error_logs = client.get_all_error_logs()
+    error_logs = client.get_all_integration_error_logs()
 
-    if error_logs.get("result"):
-        formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
-        human_readable = tableToMarkdown(
-            name="Integration Connector errors",
-            t=formatted_error_logs,
-            headers=["action", "success", "error", "timestamp", "connector"])
-        outputs = error_logs.get("result")
-        result = CommandResults(
-            outputs_prefix="Integration Error Data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-        return result
-    return formatted_error_logs
+    formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
+    human_readable = tableToMarkdown(
+        name="Integration Connector errors",
+        t=formatted_error_logs,
+        headers=["action", "success", "error", "timestamp", "connector"])
+    outputs = error_logs.get("result")
+    result = CommandResults(
+        outputs_prefix="Integration Error Data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result
 
 
 @metadata_collector.command(
@@ -2107,7 +2105,7 @@ def main() -> None:
             return_results(result)
 
         elif demisto.command() == "safebreach-get-integration-errors":
-            result = get_all_error_logs(client=client)
+            result = get_all_integration_error_logs(client=client)
             return_results(result)
 
         elif demisto.command() == "safebreach-delete-integration-errors":

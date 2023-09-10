@@ -91,11 +91,11 @@ This command creates a user with given data.
 | --- | --- | --- |
 | Name | Name of the user to create. | Optional | 
 | Email | Email of the user to Create. | Required | 
-| Is Active | Whether the user is active upon creation. Possible values are: True, False. Default is False. | Optional | 
-| Email Post Creation | Should Email be sent to user on creation. Possible values are: True, False. Default is False. | Optional | 
+| Is Active | Whether the user is active upon creation. Possible values are: true, false. Default is false. | Optional | 
+| Email Post Creation | Should Email be sent to user on creation. Possible values are: true, false. Default is false. | Optional | 
 | Password | Password of user being created. | Required | 
 | Admin Name | Name of the Admin creating user. | Optional | 
-| Change Password on create | Should user change password on creation. Possible values are: True, False. Default is False. | Optional | 
+| Change Password on create | Should user change password on creation. Possible values are: true, false. Default is false. | Optional | 
 | User role | Role of the user being Created. Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
 | Deployments | Comma separated ID of all deployments the user should be part of. | Optional | 
 
@@ -639,7 +639,7 @@ This command gives all users depending on inputs given.
 | --- | --- | --- |
 | name | Name of the user to lookup. | Optional | 
 | email | Email of the user to lookup. | Required | 
-| Should Include Details | If Details of user are to be included while             querying all users. Possible values are: true, false. Default is true. | Optional | 
+| Should Include Details | If Details of user are to be included while             querying all users. Possible values are: true. Default is true. | Required | 
 | Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
@@ -790,7 +790,7 @@ This command updates a user with given data.
 | Email | Email of the user to Search for updating user details. | Required | 
 | Name | Update the user name to given string. | Optional | 
 | User Description | Update the user Description to given string. | Optional | 
-| Is Active | Update the user Status. Possible values are: True, False, . | Optional | 
+| Is Active | Update the user Status. Possible values are: true, false, . | Optional | 
 | Password | Password of user to be updated with. | Optional | 
 | User role | Role of the user to be changed to. Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
 | Deployments | Comma separated ID of all deployments the user should be part of. | Optional | 

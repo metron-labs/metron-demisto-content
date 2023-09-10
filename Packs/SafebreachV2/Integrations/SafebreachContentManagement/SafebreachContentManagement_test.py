@@ -485,3 +485,46 @@ def test_delete_test_result_of_test(mocker: Callable[..., Generator[MockerFixtur
             name="Deleted Test", t=command_results.outputs,
             headers=["id"])
         assert command_results.outputs == [test_output["outputs"][key].get("data", {}).get("id")]
+
+
+def test_get_all_integration_error_logs(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_integration_logs_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_integration_logs_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert test_output["outputs"][key].get("error") is not None
+        assert command_results.outputs_prefix == "Integration Error Data"
+        assert len(test_output["outputs"][key].keys()) == 2
+
+
+def test_delete_integration_error_logs(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_delete_integration_connector_logs_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_delete_integration_connector_logs_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        if key == "fail":
+            assert test_output["outputs"][key].get("errorCode") is not None
+            assert test_input[key]["args"]["Connector ID"] in test_output["outputs"][key].get("errorMessage")
+            continue
+        else:
+            assert test_output["outputs"][key].get("error") is not None
+        assert command_results.outputs_prefix == "errors_cleared"
+        assert command_results.readable_output == tableToMarkdown(
+            name="Integration Connector errors Status", t=command_results.outputs,
+            headers=["error", "result"])
