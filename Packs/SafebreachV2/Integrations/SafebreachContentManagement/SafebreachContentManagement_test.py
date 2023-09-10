@@ -1,4 +1,6 @@
+from collections.abc import Callable, Generator
 import pytest
+from pytest_mock import MockerFixture
 from CommonServerPython import *
 from SafebreachContentManagement import Client, NotFoundError
 import json
@@ -9,6 +11,8 @@ safebreach_content_management = import_module("SafebreachContentManagement")
 main = safebreach_content_management.main
 safebreach_client = safebreach_content_management.Client
 SERVER_URL = 'https://metron01.safebreach.com'
+mock_sb_client = safebreach_client(api_key='api_key', account_id=1234567,
+                                   base_url=SERVER_URL, verify=True)
 
 
 def util_load_json(path):
@@ -23,7 +27,7 @@ def client():
 
 
 @pytest.fixture()
-def demisto_mocker_sb(mocker):
+def demisto_mocker_sb(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     mocker.patch.object(demisto, 'params', return_value={
         'base_url': SERVER_URL,
         'api_key': 'api_key',
@@ -45,7 +49,7 @@ def modify_mocker_with_common_data(mocker, test_input_data, test_output_data):
     return mocker
 
 
-def test_get_all_users(mocker):
+def test_get_all_users(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_get_all_users_inputs.json")
     test_output = util_load_json(
@@ -81,7 +85,7 @@ def test_get_all_users(mocker):
             assert key_err.type is KeyError
 
 
-def test_get_user_id_by_name_or_email(mocker):
+def test_get_user_id_by_name_or_email(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_get_named_user_inputs.json")
     test_output = util_load_json(
@@ -107,10 +111,10 @@ def test_get_user_id_by_name_or_email(mocker):
             assert test_output["outputs"][key].get("data")[0]["deletedAt"] is not None
             assert type(test_output["outputs"][key].get("data")[0]["deletedAt"]) == str
         else:
-            assert isinstance(test_output["outputs"][key].get("data"), return_error)
+            assert isinstance(test_output["outputs"][key].get("data"), types.FunctionType)
 
 
-def test_create_user(mocker):
+def test_create_user(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_create_user_inputs.json")
     test_output = util_load_json(
@@ -145,7 +149,7 @@ def test_create_user(mocker):
             assert callable(test_output["outputs"][key]["data"]) is False
 
 
-def test_update_user_with_details(mocker):
+def test_update_user_with_details(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_update_user_inputs.json")
     test_output = util_load_json(
@@ -159,11 +163,7 @@ def test_update_user_with_details(mocker):
                             return_value=[test_output["outputs"][key]["data"]])
         if key in ["failed_update", "weak_password"]:
             try:
-                safebreach_content_management.update_user_with_details(safebreach_client(**{
-                    'base_url': SERVER_URL,
-                    'api_key': 'api_key',
-                    'account_id': 1234567,
-                    'verify': True}))
+                safebreach_content_management.update_user_with_details(mock_sb_client)
             except NotFoundError as error:
                 assert f"User with {test_input[key]['args']['User ID']} or {test_input[key]['args']['Email']} not found" == str(
                     error)
@@ -189,7 +189,7 @@ def test_update_user_with_details(mocker):
             test_input[key]["args"]["User Description"]
 
 
-def test_delete_user_with_details(mocker):
+def test_delete_user_with_details(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_delete_user_inputs.json")
     test_output = util_load_json(
@@ -202,11 +202,7 @@ def test_delete_user_with_details(mocker):
                             return_value=[test_output["outputs"][key]["data"]])
         if key == "failed_delete":
             try:
-                safebreach_content_management.delete_user_with_details(safebreach_client(**{
-                    'base_url': SERVER_URL,
-                    'api_key': 'api_key',
-                    'account_id': 1234567,
-                    'verify': True}))
+                safebreach_content_management.delete_user_with_details(mock_sb_client)
             except NotFoundError as error:
                 assert f"User with {test_input[key]['args']['User ID']} or {test_input[key]['args']['Email']} not found" == str(
                     error)
@@ -231,7 +227,7 @@ def test_delete_user_with_details(mocker):
             test_input[key]["args"]["User Description"]
 
 
-def test_create_deployment(mocker):
+def test_create_deployment(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_create_deployment_inputs.json")
     test_output = util_load_json(
@@ -263,7 +259,7 @@ def test_create_deployment(mocker):
             assert isinstance(test_output["outputs"][key]["error"], dict)
 
 
-def test_update_deployment(mocker):
+def test_update_deployment(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_update_deployment_inputs.json")
     test_output = util_load_json(
@@ -298,7 +294,7 @@ def test_update_deployment(mocker):
             assert test_output["outputs"][key].get("data").get("Updated Deployment Name") is None
 
 
-def test_delete_deployment(mocker):
+def test_delete_deployment(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_delete_deployment_inputs.json")
     test_output = util_load_json(
@@ -330,7 +326,7 @@ def test_delete_deployment(mocker):
             assert test_output["outputs"][key].get("data").get("deletedAt") is None
 
 
-def test_create_api_key(mocker):
+def test_create_api_key(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_create_api_key_inputs.json")
     test_output = util_load_json(
@@ -363,7 +359,7 @@ def test_create_api_key(mocker):
             assert test_output["outputs"][key]["error"].get("errors") is not None
 
 
-def test_delete_api_key(mocker):
+def test_delete_api_key(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_delete_api_key_inputs.json")
     test_output = util_load_json(
@@ -379,12 +375,8 @@ def test_delete_api_key(mocker):
             main()
         else:
             try:
-                safebreach_content_management.delete_api_key(safebreach_client(**{
-                    'base_url': SERVER_URL,
-                    'api_key': 'api_key',
-                    'account_id': 1234567,
-                    'verify': True}))
-            except Exception as err:
+                safebreach_content_management.delete_api_key(mock_sb_client)
+            except NotFoundError as err:
                 assert f"couldn't find APi key with given name: {test_input[key]['args']['Key Name']}" == str(err)
             continue
         call = safebreach_content_management.return_results.call_args_list
@@ -400,3 +392,96 @@ def test_delete_api_key(mocker):
         assert test_output["outputs"][key].get("data")["name"] == \
             test_input[key]["args"]["Key Name"]
         assert test_output["outputs"][key].get("data")["deletedAt"] is not None
+
+
+def test_return_rotated_verification_token(mocker: Callable[..., Generator[MockerFixture, None, None]]):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_rotate_token_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_rotate_token_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+
+        assert command_results.outputs_prefix == "secret"
+        assert command_results.readable_output == tableToMarkdown(
+            name="new Token Details", t=command_results.outputs,
+            headers=["secret"])
+
+        assert command_results.outputs == test_output["outputs"][key].get("data").get("secret")
+        assert test_output["outputs"][key].get("data") is not None
+
+
+def test_get_tests_summary(mocker: Callable[..., Generator[MockerFixture, None, None]]):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_all_tests_summary_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_all_tests_summary_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+
+        assert command_results.outputs_prefix == "tests_data"
+        assert command_results.outputs == {"tests_data": test_output["outputs"][key]}
+        for test in test_output["outputs"][key]:
+            assert test["status"] == test_input[key]["args"]["Status"]
+        assert len(test_output["outputs"][key]) <= test_input[key]["args"]["Entries per Page"]
+
+
+def test_get_all_tests_summary_with_plan_id(mocker: Callable[..., Generator[MockerFixture, None, None]]):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_all_tests_summary_with_plan_id_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_all_tests_summary_with_plan_id_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        if key == "success":
+            assert bool(test_input[key]["args"]["Plan ID"]) is True
+        else:
+            assert bool(test_input[key]["args"]["Plan ID"]) is False
+        assert command_results.outputs_prefix == "tests_data"
+        assert command_results.outputs == {"tests_data": test_output["outputs"][key]}
+        for test in test_output["outputs"][key]:
+            assert test["status"] == test_input[key]["args"]["Status"]
+        assert len(test_output["outputs"][key]) <= test_input[key]["args"]["Entries per Page"]
+
+
+def test_delete_test_result_of_test(mocker: Callable[..., Generator[MockerFixture, None, None]]):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_delete_test_results_of_test_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_delete_test_results_of_test_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        if key == "success":
+            assert bool(test_input[key]["args"]["Test ID"]) is True
+        else:
+            assert bool(test_input[key]["args"]["Test ID"]) is False
+            continue
+        assert command_results.outputs_prefix == "deleted_test_results"
+        assert command_results.readable_output == tableToMarkdown(
+            name="Deleted Test", t=command_results.outputs,
+            headers=["id"])
+        assert command_results.outputs == [test_output["outputs"][key].get("data", {}).get("id")]

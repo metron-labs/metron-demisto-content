@@ -303,6 +303,11 @@ class NotFoundError(Exception):
         super().__init__(*args)
 
 
+class SBError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
 class Client(BaseClient):
     """Client class to interact with the service API
 
@@ -357,7 +362,7 @@ class Client(BaseClient):
             Exception: all errors will be formatted and then thrown as exception string which will show as error_results in XSOAR
         """
         exception_string = format_sb_code_error(response.get("error"))
-        raise Exception(exception_string)
+        raise SBError(exception_string)
 
     def get_all_users_for_test(self):
         """This function is being used for testing connection with safebreach 
@@ -510,7 +515,7 @@ class Client(BaseClient):
             if needed_deployment:
                 deployment_id = needed_deployment['name']
         if not deployment_id:
-            raise Exception(f"Could not find Deployment with details Name:\
+            raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
 
         name = demisto.args().get("Updated Deployment Name")
@@ -547,7 +552,7 @@ class Client(BaseClient):
             if needed_deployment:
                 deployment_id = needed_deployment['name']
         if not deployment_id:
-            raise Exception(f"Could not find Deployment with details Name:\
+            raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
@@ -610,8 +615,9 @@ class Client(BaseClient):
                         "baseline": test_summary[key].get('baseline', 0)
                     }
                     test_summary.update(data_dict)
-                if key in ["endTime", "startTime"]:
-                    test_summary[key] = datetime.utcfromtimestamp(test_summary[key] / 1000).strftime(DATE_FORMAT)
+                if key in ["endTime", "startTime"] and isinstance(test_summary[key], int):
+                    test_summary[key] = datetime.utcfromtimestamp((test_summary[key]) / 1000).strftime(DATE_FORMAT)
+        return test_summaries
 
     def delete_test_result_of_test(self):
         """This function deletes test results of a given test ID by calling related endpoint
@@ -729,7 +735,7 @@ class Client(BaseClient):
         active_keys = self.get_all_active_api_keys_with_details()
         required_key_object = list(filter(lambda key_obj: key_obj["name"] == key_name, active_keys.get("data")))
         if not required_key_object:
-            raise Exception(f"couldn't find APi key with given name: {key_name}")
+            raise NotFoundError(f"couldn't find APi key with given name: {key_name}")
         return required_key_object[0]["id"]
 
     def delete_api_key(self):
@@ -779,7 +785,7 @@ class Client(BaseClient):
 
         simulators_details = self.get_response(method=method, url=url, request_params=request_params)
         if not simulators_details.get("data", {}).get("count"):
-            raise Exception(f"No Matching simulators found with details not found details are {request_params}")
+            raise NotFoundError(f"No Matching simulators found with details not found details are {request_params}")
         return simulators_details
 
     def create_simulator_params(self):
@@ -885,7 +891,7 @@ class Client(BaseClient):
             simulator_id = result.get("data", {}).get("rows", {})[0].get("id")
             return simulator_id
         except IndexError:
-            raise Exception("Simulator with given details could not be found")
+            raise NotFoundError("Simulator with given details could not be found")
 
     def delete_node_with_given_id(self, node_id, force: str):
         """This function calls delete simulator on simulator with given ID
@@ -1936,7 +1942,7 @@ def return_rotated_verification_token(client: Client):
     """
     new_token = client.rotate_verification_token()
     human_readable = tableToMarkdown(
-        name=" new Token Details",
+        name="new Token Details",
         t=new_token.get("data"),
         headers=["secret"])
     outputs = new_token.get("data", {}).get("secret", "")
