@@ -1297,7 +1297,7 @@ class Client(BaseClient):
                     return_obj["edges_count"] = len(scenario[key])
                 return_obj[key] = scenario[key]
             # this part of code is for modifying test data that can be used for rerun test command
-            if not demisto.args().get("simulation data"):
+            if demisto.command() != "safebreach-rerun-scenario":
                 custom_data_obj = deepcopy(return_obj)
                 custom_data_obj.pop("createdAt")
                 custom_data_obj.pop("updatedAt")

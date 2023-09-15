@@ -686,3 +686,83 @@ def test_get_custom_scenarios(mocker):
                 assert all(item.get("createdAt") is not None for item in test_output["outputs"][key].get("data"))
         else:
             assert bool(test_output["outputs"][key]) is False
+
+
+def test_get_services_status(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_services_status_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_services_status_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "services_status"
+        assert command_results.outputs == test_output["outputs"][key]
+        assert bool(test_output["outputs"][key]) is True
+        if key == "success":
+            assert all(item.get("isUp") is True for item in test_output["outputs"][key])
+        else:
+            assert any(item.get("isUp") is False for item in test_output["outputs"][key])
+
+
+def test_get_verification_token(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_verification_token_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_verification_token_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "verification_token"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key != "fail":
+            assert test_output["outputs"][key].get("data", {}).get("secret") is not None
+
+
+def test_rerun_scenario(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_rerun_scenario_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_rerun_scenario_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "changed_data"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key != "fail":
+            assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
+
+
+def test_rerun_test(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_rerun_test_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_rerun_test_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "changed_data"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key != "fail":
+            assert isinstance(test_output["outputs"][key]["data"]["planRunId"], str)
+            assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
