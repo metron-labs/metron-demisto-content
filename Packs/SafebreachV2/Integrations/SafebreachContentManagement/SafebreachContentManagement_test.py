@@ -528,3 +528,161 @@ def test_delete_integration_error_logs(mocker):
         assert command_results.readable_output == tableToMarkdown(
             name="Integration Connector errors Status", t=command_results.outputs,
             headers=["error", "result"])
+
+
+def test_get_all_running_tests_summary(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_all_running_tests_summary_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_all_running_tests_summary_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        if key == "success":
+            assert command_results.outputs_prefix == "tests_data"
+            assert command_results.outputs == test_output["outputs"][key]
+        else:
+            assert bool(test_output["outputs"][key]) is False
+
+
+def test_get_all_running_simulations_summary(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_all_running_simulations_summary_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_all_running_simulations_summary_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "active_simulations"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key == "success_with_data":
+            assert test_output["outputs"][key].get("data").get("RUNNING") is not None
+        elif key == "success_without_data":
+            assert bool(test_output["outputs"][key].get("data").get("RUNNING")) is False
+        else:
+            assert bool(test_output["outputs"][key]) is False
+
+
+def test_pause_resume_tests_and_simulations(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_pause_resume_tests_and_simulations_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_pause_resume_tests_and_simulations_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "simulations_tests_status"
+        assert command_results.outputs == test_output["outputs"][key].get("data")
+        if key != "fail":
+            assert test_output["outputs"][key].get("data").get("status") == "OK"
+        else:
+            assert bool(test_output["outputs"][key]) is False
+
+
+def test_get_schedules(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_schedules_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_schedules_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "schedules"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key != "fail":
+            assert test_output["outputs"][key].get("data") is not None
+            if key in ("success_no_deleted_no_details", "success_deleted_no_details"):
+                assert isinstance(test_output["outputs"][key].get("data")[0], dict) is True
+                assert len(test_output["outputs"][key].get("data")[0]) == 2
+            elif key in ("success_deleted_details", "success_no_deleted_details"):
+                assert isinstance(test_output["outputs"][key].get("data")[0], dict) is True
+                assert len(test_output["outputs"][key].get("data")[0]) > 2
+        else:
+            assert bool(test_output["outputs"][key]) is False
+
+
+def test_delete_schedules(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_delete_schedules_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_delete_schedules_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        if key != "fail":
+            assert test_output["outputs"][key].get("data") is not None
+            main()
+            call = safebreach_content_management.return_results.call_args_list
+            command_results = call[0].args[0]
+            assert command_results.outputs_prefix == "deleted_Schedule"
+            assert command_results.outputs == test_output["outputs"][key]
+        else:
+            main()
+
+
+def test_get_prebuilt_scenarios(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_prebuilt_scenarios_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_prebuilt_scenarios_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "prebuilt_scenarios"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key != "fail":
+            assert bool(test_output["outputs"][key]) is True
+            assert all(item["createdBy"] == "SafeBreach" for item in test_output["outputs"][key])
+        else:
+            assert bool(test_output["outputs"][key]) is False
+
+
+def test_get_custom_scenarios(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_custom_scenarios_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_custom_scenarios_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "custom_scenarios"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key != "fail":
+            assert bool(test_output["outputs"][key].get("data")) is True
+            assert all(item.get("createdBy") is None for item in test_output["outputs"][key].get("data"))
+            if key == "success_with_details":
+                assert all(item.get("createdAt") is not None for item in test_output["outputs"][key].get("data"))
+        else:
+            assert bool(test_output["outputs"][key]) is False

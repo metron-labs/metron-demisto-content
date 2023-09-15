@@ -7,7 +7,9 @@ DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSO
 
 bool_map = {
     "true": True,
-    "false": False
+    "false": False,
+    "True": True,
+    "False": False
 }
 
 simulator_details_inputs = [
@@ -339,9 +341,7 @@ def format_sb_code_error(errors_data):
     }
     try:
         errors = errors_data.get("errors")
-        if isinstance(errors, list):
-            return "; ".join(errors)
-        elif errors_data.get("statusCode") == 400:
+        if errors_data.get("statusCode") == 400:
             return json.dumps({"issue": errors_data.get("message"), "details": errors_data.get("additionalData")})
     except AttributeError:
         return errors_data
@@ -1240,7 +1240,8 @@ class Client(BaseClient):
         method = "GET"
         url = f"/config/v1/accounts/{account_id}/schedules"
         request_params = {
-            "details": demisto.args().get("schedule details")
+            "details": demisto.args().get("details"),
+            "deleted": demisto.args().get("deleted")
         }
         schedule_data = self.get_response(url=url, method=method, request_params=request_params)
         return schedule_data
@@ -2447,7 +2448,7 @@ def get_all_running_simulations_summary(client: Client):
 
     outputs = running_simulations
     result = CommandResults(
-        outputs_prefix="simulations_data",
+        outputs_prefix="active_simulations",
         outputs=outputs,
         readable_output=human_readable
     )
@@ -2494,8 +2495,10 @@ def pause_resume_tests_and_simulations(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-schedules",
     inputs_list=[
-        InputArgument(name="schedule ID", description="schedule ID",
-                      required=True, is_array=False)
+        InputArgument(name="deleted", description="should deleted be retrieved.",
+                      options=["true", "false"], default="true", required=False, is_array=False),
+        InputArgument(name="details", description="Should details tests be included in result.",
+                      options=["true", "false"], default="true", required=False, is_array=False),
     ],
     outputs_prefix="schedules",
     outputs_list=[
@@ -2722,7 +2725,10 @@ def get_custom_scenarios(client: Client):
         CommandResults,Dict: This returns all tests related summary as a table and gives a dictionary as outputs for the same
     """
     custom_scenarios = client.get_custom_scenarios()
-    flattened_simulations_data_for_table = client.extract_custom_scenario_fields(custom_scenarios.get("data", {}))
+    if demisto.args().get("schedule details") == "true":
+        flattened_simulations_data_for_table = client.extract_custom_scenario_fields(custom_scenarios.get("data", {}))
+    else:
+        flattened_simulations_data_for_table = custom_scenarios.get("data", {})
     human_readable = tableToMarkdown(
         name="Scenarios",
         t=flattened_simulations_data_for_table,
