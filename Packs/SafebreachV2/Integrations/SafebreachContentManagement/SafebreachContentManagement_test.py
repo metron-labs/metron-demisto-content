@@ -766,3 +766,75 @@ def test_rerun_test(mocker):
         if key != "fail":
             assert isinstance(test_output["outputs"][key]["data"]["planRunId"], str)
             assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
+
+
+def test_get_all_simulator_details(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_all_simulator_details_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_all_simulator_details_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "simulator_details"
+        assert command_results.outputs == test_output["outputs"][key].get("data").get("rows")
+        assert len(test_output["outputs"][key].get("data").get("rows")) == test_output["outputs"][key].get("data").get("count")
+
+
+def test_get_simulator_with_name(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_simulator_with_name_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_simulator_with_name_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        mocker.patch.object(safebreach_client, "get_simulators_details", returns=test_output["outputs"][key])
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "simulator_details"
+        # assert command_results.outputs == test_output["outputs"][key]
+
+
+def test_delete_simulator_with_given_name(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_delete_simulator_with_given_name_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_delete_simulator_with_given_name_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        mocker.patch.object(safebreach_client, "get_simulators_details", returns=test_output["outputs"][key])
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "deleted_simulator_details"
+        # assert command_results.outputs == test_output["outputs"][key]
+
+
+def test_update_simulator_with_given_name(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_update_simulator_with_given_name_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_update_simulator_with_given_name_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        mocker.patch.object(safebreach_client, "get_simulators_details", returns=test_output["outputs"][key])
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "deleted_simulator_details"
+        # assert command_results.outputs == test_output["outputs"][key]

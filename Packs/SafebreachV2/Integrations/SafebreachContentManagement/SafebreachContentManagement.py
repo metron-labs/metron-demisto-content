@@ -33,8 +33,6 @@ simulator_details_inputs = [
                   required=False, is_array=False),
     InputArgument(name="sortDirection", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
                   default="asc", required=False, is_array=False),
-    InputArgument(name="startRow", description="if there are too many entries then where should we start looking from.",
-                  required=False, is_array=False),
     InputArgument(name="pageSize", description="number of entries to search.", required=False, is_array=False),
     InputArgument(name="isEnabled", description="if to search only enabled ones.", options=["true", "false"],
                   required=False, is_array=False),
@@ -42,49 +40,11 @@ simulator_details_inputs = [
                   required=False, is_array=False),
     InputArgument(name="isCritical", description="whether to search only for critical nodes or not.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="assets", description="Whether search only for assets and which assets.", required=False, is_array=False),
     InputArgument(name="additionalDetails", description="Whether to show additional details or not.",
                   options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="impersonatedUsers", description="should search only for impersonated user targets or not.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isAzureAttacker", description="Whether to search only for azure attackers.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isAwsAttacker", description="Whether to search only for aws attacker.", options=["true", "false"],
-                  required=False, is_array=False),
-    InputArgument(name="isPreExecutor", description="should search only for pre-executors or not.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isInfiltrationTarget", description="Whether to search only for infiltration targets.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isMailTarget", description="Whether to search only for Mail targets.", options=["true", "false"],
-                  required=False, is_array=False),
-    InputArgument(name="isExfiltrationTarget", description="should search only for exfiltration targets or not.",
-                  options=["true", "false"], required=False, is_array=False),
-
-    # These fields need to be '|' separated  arrays
-    InputArgument(name="deployments", description="deployments list which the search should look.",
-                  required=False, is_array=True),
-    InputArgument(name="advancedActions", description="advanced actions to search.",
-                  required=False, is_array=True),
-    InputArgument(name="roles", description="roles to search.",
-                  required=False, is_array=True),
-    InputArgument(name="userids", description="userids to search.",
-                  required=False, is_array=True),
-    InputArgument(name="versions", description="versions to filter by.",
-                  required=False, is_array=True),
-    # '|' separated arrays end
-
-    # normal arrays start
-    InputArgument(name="proxyIds", description="proxy ids to search.",
-                  required=False, is_array=True),
-    InputArgument(name="assetIds", description="asset ids to search.",
-                  required=False, is_array=True),
-    # normal arrays end
-
-    # enums start
     InputArgument(name="status", description="if simulator status are to be included for search.",
                   options=["APPROVED", "PENDING", "ALL"],
                   default="ALL", required=False, is_array=False),
-    # enums end
 ]
 
 simulators_output_fields = [
@@ -157,30 +117,6 @@ simulators_output_fields = [
 ]
 
 simulator_details_for_update_fields = [
-    InputArgument(name="isEnabled", description="set true to enable the node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isProxySupported", description="set true to enable the proxy support.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isCritical", description="set true to make node as critical node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isExfiltration", description="set true to make the node as exfiltration node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isInfiltration", description="set true to make the node as infiltration node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isMailTarget", description="set true to make node as mail target.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isMailAttacker", description="set true to make node as MailAttacker node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isPreExecutor", description="set true to enable the node as PreExecutor node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isAWSAttacker", description="set true to make node as AWS attacker target.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isAzureAttacker", description="set true to make node as Azure attacker node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isWebApplicationAttacker", description="set true to enable the node as web application attacker node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="useSystemUser", description="set true to enable the node get system user access.",
-                  options=["false", "true"], required=False, is_array=False),
     InputArgument(name="connectionUrl", description="the given value will be set as connection string.",
                   required=False, is_array=False),
     InputArgument(name="cloudProxyUrl", description="the given value will be set as cloud proxy url.",
@@ -577,7 +513,7 @@ class Client(BaseClient):
 
         name = demisto.args().get("Updated Deployment Name")
         nodes = demisto.args().get("Updated Nodes for Deployment", None)
-        description = demisto.args().get("Updated deployment description")
+        description = demisto.args().get("Updated deployment description.")
         deployment_payload = {}
         if name:
             deployment_payload["name"] = name
@@ -917,10 +853,7 @@ class Client(BaseClient):
         """
         possible_inputs = [
             "details", "deleted", "secret", "shouldIncludeProxies", "hostname", "connectionType", "externalIp", "internalIp",
-            "os", "status", "sortDirection", "startRow", "pageSize", "isEnabled", "isConnected", "isCritical",
-            "isExfiltrationTarget", "isInfiltrationTarget", "isMailTarget", "isMailAttacker", "isPreExecutor",
-            "isAwsAttacker", "isAzureAttacker", "impersonatedUsers", "assets", "advancedActions", "deployments",
-            "additionalDetails"]
+            "os", "status", "sortDirection", "pageSize", "isEnabled", "isConnected", "isCritical", "additionalDetails"]
         request_params = {}
         for parameter in possible_inputs:
             if demisto.args().get(parameter):
@@ -1058,20 +991,8 @@ class Client(BaseClient):
             dict: Update Node payload
         """
         data_dict = {
-            "isEnabled": bool_map.get(demisto.args().get("isEnabled", "").lower(), ""),
-            "isProxySupported": bool_map.get(demisto.args().get("isProxySupported", "").lower(), ""),
-            "isCritical": bool_map.get(demisto.args().get("isCritical", "").lower(), ""),
-            "isExfiltration": bool_map.get(demisto.args().get("isExfiltration", "").lower(), ""),
-            "isInfiltration": bool_map.get(demisto.args().get("isInfiltration", "").lower(), ""),
-            "isMailTarget": bool_map.get(demisto.args().get("isMailTarget", "").lower(), ""),
-            "isMailAttacker": bool_map.get(demisto.args().get("isMailAttacker", "").lower(), ""),
-            "isPreExecutor": bool_map.get(demisto.args().get("isPreExecutor", "").lower(), ""),
-            "isAWSAttacker": bool_map.get(demisto.args().get("isAWSAttacker", "").lower(), ""),
-            "isAzureAttacker": bool_map.get(demisto.args().get("isAzureAttacker", "").lower(), ""),
-            "isWebApplicationAttacker": bool_map.get(demisto.args().get("isWebApplicationAttacker", "").lower(), ""),
             "connectionUrl": demisto.args().get("connectionUrl", "").lower(),
             "cloudProxyUrl": demisto.args().get("cloudProxyUrl", ""),
-            "useSystemUser": demisto.args().get("useSystemUser", ""),
             "name": demisto.args().get("name", ""),
             "tunnel": demisto.args().get("tunnel", ""),
             "preferredInterface": demisto.args().get("preferredInterface", ""),
