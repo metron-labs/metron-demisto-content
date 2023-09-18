@@ -3,9 +3,14 @@ from CommonServerPython import *  # noqa: F401
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSOAR
 
-# these are output fields related to test data that we are showing,
-# TODO: need inputs related to fields of interest
-tests_output_fields = [
+bool_map = {
+    "true": True,
+    "false": False,
+    "True": True,
+    "False": False
+}
+
+test_summaries_output_fields = [
     OutputArgument(name="planId", description="Plan ID of the simulation.", output_type=str),
     OutputArgument(name="planName", description="Plan Name of the simulation.", output_type=str),
     OutputArgument(name="securityActionPerControl", description="Security Actions of the simulation.", output_type=str),
@@ -40,7 +45,7 @@ metadata_collector = YMLMetadataCollector(
         4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.72123",
+    docker_image="demisto/python3:3.10.13.73190",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -108,7 +113,13 @@ def format_sb_code_error(errors_data):
         720: "passwords dont match",
         721: "gateway timeout"
     }
-    errors = errors_data.get("errors")
+    try:
+        errors = errors_data.get("errors")
+        if errors_data.get("statusCode") == 400:
+            return json.dumps({"issue": errors_data.get("message"), "details": errors_data.get("additionalData")})
+    except AttributeError:
+        return errors_data
+
     final_error_string = ""
     # here we are formatting errors and then we are making them as a string
     for error in errors:
@@ -116,6 +127,16 @@ def format_sb_code_error(errors_data):
         error_code = error.get("sbcode")
         final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
     return final_error_string
+
+
+class NotFoundError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class SBError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 class Client(BaseClient):
@@ -158,11 +179,13 @@ class Client(BaseClient):
 
         response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
                                       params=request_params, ok_codes=[200, 201, 204, 400])
+
         return response if not ((type(response) == dict) and (response.get("error") and not response.get("errorCode")))\
             else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
-        """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
+        """
+            This function handles errors related to SBcodes if the endpoint gives sbcode in errors
 
         Args:
             response (dict): all errors given by 400 response code will be accepted as dictionary and are formatted based on 
@@ -172,21 +195,34 @@ class Client(BaseClient):
             Exception: all errors will be formatted and then thrown as exception string which will show as error_results in XSOAR
         """
         exception_string = format_sb_code_error(response.get("error"))
-        raise Exception(exception_string)
+        raise SBError(exception_string)
 
     def get_all_users_for_test(self):
-        """This function is being used for testing connection with safebreach 
+        """
+        This function is being used for testing connection with safebreach 
         after API credentials re taken from user when creating instance
 
         Returns:
             str: This is just status string, if "ok" then it will show test as success else it throws error
         """
-        account_id = demisto.params().get("account_id", 0)
-        url = f"/config/v1/accounts/{account_id}/users"
-        response = self.get_response(url=url)
-        if response:
-            return "ok"
-        return "Could not verify the connection"
+        try:
+            account_id = demisto.params().get("account_id", 0)
+            url = f"/config/v1/accounts/{account_id}/users"
+            response = self.get_response(url=url)
+            if response and response.get("data"):
+                return "ok"
+            elif response.get("data") == []:
+                return "please check the user details and try again"
+            return "Could not verify the connection"
+        except Exception as exc:
+            if "Error in API call [404] - Not Found" in str(exc):
+                return "Please check the URL configured and try again"
+            elif "Error in API call [401] - Unauthorized" in str(exc):
+                return "Please check the API used and try again"
+            elif "SSL Certificate Verification Failed" in str(exc):
+                return "Error with SSL certificate verification. Please check the URL used and try again"
+            else:
+                raise Exception(exc)
 
     def get_tests_with_args(self):
         """This function calls GET of testsummaries endpoint and returns data related to test
@@ -244,8 +280,9 @@ class Client(BaseClient):
                         "baseline": test_summary[key].get('baseline', 0)
                     }
                     test_summary.update(data_dict)
-                if key in ["endTime", "startTime"]:
-                    test_summary[key] = datetime.utcfromtimestamp(test_summary[key] / 1000).strftime(DATE_FORMAT)
+                if key in ["endTime", "startTime"] and isinstance(test_summary[key], int):
+                    test_summary[key] = datetime.utcfromtimestamp((test_summary[key]) / 1000).strftime(DATE_FORMAT)
+        return test_summaries
 
     def delete_test_result_of_test(self):
         """This function deletes test results of a given test ID by calling related endpoint
@@ -284,7 +321,7 @@ class Client(BaseClient):
                     flattened_logs_list.append(log)
         return flattened_logs_list
 
-    def get_all_error_logs(self):
+    def get_all_integration_error_logs(self):
         """This function retrieves all error logs of a given account
 
         Returns:
@@ -374,7 +411,7 @@ def get_tests_summary(client: Client):
                        prefix="integration_errors", output_type=str),
     ],
     description="This command gives all connector related errors.")
-def get_all_error_logs(client: Client):
+def get_all_integration_error_logs(client: Client):
     """This function retrieves all error logs and shows them in form of table
 
     Args:
@@ -384,22 +421,20 @@ def get_all_error_logs(client: Client):
         CommandResults,Dict: This function returns all errors along with connector details in a table and we get data as json
     """
     formatted_error_logs = []
-    error_logs = client.get_all_error_logs()
+    error_logs = client.get_all_integration_error_logs()
 
-    if error_logs.get("result"):
-        formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
-        human_readable = tableToMarkdown(
-            name="Integration Connector errors",
-            t=formatted_error_logs,
-            headers=["action", "success", "error", "timestamp", "connector"])
-        outputs = error_logs.get("result")
-        result = CommandResults(
-            outputs_prefix="Integration Error Data",
-            outputs=outputs,
-            readable_output=human_readable
-        )
-        return result
-    return formatted_error_logs
+    formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
+    human_readable = tableToMarkdown(
+        name="Integration Connector errors",
+        t=formatted_error_logs,
+        headers=["action", "success", "error", "timestamp", "connector"])
+    outputs = error_logs.get("result")
+    result = CommandResults(
+        outputs_prefix="Integration Error Data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result
 
 
 @metadata_collector.command(
@@ -458,7 +493,7 @@ def return_rotated_verification_token(client: Client):
     """
     new_token = client.rotate_verification_token()
     human_readable = tableToMarkdown(
-        name=" new Token Details",
+        name="new Token Details",
         t=new_token.get("data"),
         headers=["secret"])
     outputs = new_token.get("data", {}).get("secret", "")
@@ -485,7 +520,7 @@ def return_rotated_verification_token(client: Client):
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
-    outputs_list=tests_output_fields,
+    outputs_list=test_summaries_output_fields,
     description="This command gets tests with given modifiers.")
 def get_all_tests_summary(client: Client):
     """This function gets all tests summary and shows in a table
@@ -514,7 +549,7 @@ def get_all_tests_summary(client: Client):
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
-    outputs_list=tests_output_fields,
+    outputs_list=test_summaries_output_fields,
     description="This command gets tests with given plan ID.")
 def get_all_tests_summary_with_plan_id(client: Client):
     """This function takes  a plan run ID and returns test summaries with that plan run ID
@@ -538,7 +573,7 @@ def get_all_tests_summary_with_plan_id(client: Client):
                       options=["true", "false"], default="true", required=False, is_array=False),
     ],
     outputs_prefix="deleted_test_results",
-    outputs_list=tests_output_fields,
+    outputs_list=test_summaries_output_fields,
     description="This command deletes tests with given plan ID.")
 def delete_test_result_of_test(client: Client):
     """This function deletes test with given Test ID
@@ -583,7 +618,7 @@ def main() -> None:
             return_results(result)
 
         elif demisto.command() == "safebreach-get-integration-errors":
-            result = get_all_error_logs(client=client)
+            result = get_all_integration_error_logs(client=client)
             return_results(result)
 
         elif demisto.command() == "safebreach-delete-integration-errors":
