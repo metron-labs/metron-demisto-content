@@ -3,6 +3,13 @@ from CommonServerPython import *  # noqa: F401
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSOAR
 
+bool_map = {
+    "true": True,
+    "false": False,
+    "True": True,
+    "False": False
+}
+
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
     description="This Integration aims to provide easy access to safebreach from XSOAR.\
@@ -13,7 +20,7 @@ metadata_collector = YMLMetadataCollector(
         4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.72123",
+    docker_image="demisto/python3:3.10.13.73190",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -81,7 +88,13 @@ def format_sb_code_error(errors_data):
         720: "passwords dont match",
         721: "gateway timeout"
     }
-    errors = errors_data.get("errors")
+    try:
+        errors = errors_data.get("errors")
+        if errors_data.get("statusCode") == 400:
+            return json.dumps({"issue": errors_data.get("message"), "details": errors_data.get("additionalData")})
+    except AttributeError:
+        return errors_data
+
     final_error_string = ""
     # here we are formatting errors and then we are making them as a string
     for error in errors:
@@ -89,6 +102,16 @@ def format_sb_code_error(errors_data):
         error_code = error.get("sbcode")
         final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
     return final_error_string
+
+
+class NotFoundError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class SBError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 class Client(BaseClient):
@@ -131,7 +154,9 @@ class Client(BaseClient):
 
         response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
                                       params=request_params, ok_codes=[200, 201, 204, 400])
-        return response if not response.get("error") else self.handle_sbcodes(response)
+
+        return response if not ((type(response) == dict) and (response.get("error") and not response.get("errorCode")))\
+            else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
         """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
@@ -147,18 +172,31 @@ class Client(BaseClient):
         raise Exception(exception_string)
 
     def get_all_users_for_test(self):
-        """This function is being used for testing connection with safebreach 
+        """
+        This function is being used for testing connection with safebreach 
         after API credentials re taken from user when creating instance
 
         Returns:
             str: This is just status string, if "ok" then it will show test as success else it throws error
         """
-        account_id = demisto.params().get("account_id", 0)
-        url = f"/config/v1/accounts/{account_id}/users"
-        response = self.get_response(url=url)
-        if response:
-            return "ok"
-        return "Could not verify the connection"
+        try:
+            account_id = demisto.params().get("account_id", 0)
+            url = f"/config/v1/accounts/{account_id}/users"
+            response = self.get_response(url=url)
+            if response and response.get("data"):
+                return "ok"
+            elif response.get("data") == []:
+                return "please check the user details and try again"
+            return "Could not verify the connection"
+        except Exception as exc:
+            if "Error in API call [404] - Not Found" in str(exc):
+                return "Please check the URL configured and try again"
+            elif "Error in API call [401] - Unauthorized" in str(exc):
+                return "Please check the API used and try again"
+            elif "SSL Certificate Verification Failed" in str(exc):
+                return "Error with SSL certificate verification. Please check the URL used and try again"
+            else:
+                raise Exception(exc)
 
     def list_deployments(self):
         """This function lists all deployments we extracted from safebreach
@@ -186,10 +224,12 @@ class Client(BaseClient):
             dict: deployment related details found while we find deployment with given name
         """
         available_deployments = self.list_deployments()
+        if not available_deployments:
+            raise NotFoundError("deployments not found as you dont have any deployments")
         needed_deployments = list(filter(lambda deployment: deployment["name"] == deployment_name, available_deployments))
-        if needed_deployments:
-            return needed_deployments[0]
-        raise Exception("related deployment with given name couldn't be found")
+        if not needed_deployments:
+            raise NotFoundError("related deployment with given name couldn't be found")
+        return needed_deployments[0]
 
     def create_deployment_data(self):
         """This function creates a deployment based on data given by user, this will be called by an external function
@@ -232,12 +272,12 @@ class Client(BaseClient):
             if needed_deployment:
                 deployment_id = needed_deployment['name']
         if not deployment_id:
-            raise Exception(f"Could not find Deployment with details Name:\
+            raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
 
         name = demisto.args().get("Updated Deployment Name")
         nodes = demisto.args().get("Updated Nodes for Deployment", None)
-        description = demisto.args().get("Updated deployment description")
+        description = demisto.args().get("Updated deployment description.")
         deployment_payload = {}
         if name:
             deployment_payload["name"] = name
@@ -269,7 +309,7 @@ class Client(BaseClient):
             if needed_deployment:
                 deployment_id = needed_deployment['name']
         if not deployment_id:
-            raise Exception(f"Could not find Deployment with details Name:\
+            raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
@@ -327,7 +367,7 @@ class Client(BaseClient):
         active_keys = self.get_all_active_api_keys_with_details()
         required_key_object = list(filter(lambda key_obj: key_obj["name"] == key_name, active_keys.get("data")))
         if not required_key_object:
-            raise Exception(f"couldn't find APi key with given name: {key_name}")
+            raise NotFoundError(f"couldn't find APi key with given name: {key_name}")
         return required_key_object[0]["id"]
 
     def delete_api_key(self):
