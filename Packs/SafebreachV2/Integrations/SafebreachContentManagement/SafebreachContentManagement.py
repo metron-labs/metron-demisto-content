@@ -1,8 +1,14 @@
 import demistomock as demisto  # noqa: F401
 from CommonServerPython import *  # noqa: F401
-from ast import literal_eval
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSOAR
+
+bool_map = {
+    "true": True,
+    "false": False,
+    "True": True,
+    "False": False
+}
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
@@ -14,7 +20,7 @@ metadata_collector = YMLMetadataCollector(
         4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.72123",
+    docker_image="demisto/python3:3.10.13.73190",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -82,7 +88,13 @@ def format_sb_code_error(errors_data):
         720: "passwords dont match",
         721: "gateway timeout"
     }
-    errors = errors_data.get("errors")
+    try:
+        errors = errors_data.get("errors")
+        if errors_data.get("statusCode") == 400:
+            return json.dumps({"issue": errors_data.get("message"), "details": errors_data.get("additionalData")})
+    except AttributeError:
+        return errors_data
+
     final_error_string = ""
     # here we are formatting errors and then we are making them as a string
     for error in errors:
@@ -90,6 +102,16 @@ def format_sb_code_error(errors_data):
         error_code = error.get("sbcode")
         final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
     return final_error_string
+
+
+class NotFoundError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class SBError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 class Client(BaseClient):
@@ -132,7 +154,9 @@ class Client(BaseClient):
 
         response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
                                       params=request_params, ok_codes=[200, 201, 204, 400])
-        return response if not response.get("error") else self.handle_sbcodes(response)
+
+        return response if not ((type(response) == dict) and (response.get("error") and not response.get("errorCode")))\
+            else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
         """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
@@ -148,18 +172,31 @@ class Client(BaseClient):
         raise Exception(exception_string)
 
     def get_all_users_for_test(self):
-        """This function is being used for testing connection with safebreach 
+        """
+        This function is being used for testing connection with safebreach 
         after API credentials re taken from user when creating instance
 
         Returns:
             str: This is just status string, if "ok" then it will show test as success else it throws error
         """
-        account_id = demisto.params().get("account_id", 0)
-        url = f"/config/v1/accounts/{account_id}/users"
-        response = self.get_response(url=url)
-        if response:
-            return "ok"
-        return "Could not verify the connection"
+        try:
+            account_id = demisto.params().get("account_id", 0)
+            url = f"/config/v1/accounts/{account_id}/users"
+            response = self.get_response(url=url)
+            if response and response.get("data"):
+                return "ok"
+            elif response.get("data") == []:
+                return "please check the user details and try again"
+            return "Could not verify the connection"
+        except Exception as exc:
+            if "Error in API call [404] - Not Found" in str(exc):
+                return "Please check the URL configured and try again"
+            elif "Error in API call [401] - Unauthorized" in str(exc):
+                return "Please check the API used and try again"
+            elif "SSL Certificate Verification Failed" in str(exc):
+                return "Error with SSL certificate verification. Please check the URL used and try again"
+            else:
+                raise Exception(exc)
 
     def get_users_list(self):
         """This function returns all users present based on modifiers
@@ -231,20 +268,19 @@ class Client(BaseClient):
         Returns:
             dict: created user data
         """
-        account_id = literal_eval(demisto.params().get("account_id", 0))
+        account_id = demisto.params().get("account_id", 0)
         name = demisto.args().get("Name")
         email = demisto.args().get("Email")
-        is_active = literal_eval(demisto.args().get("Is Active", False))
-        send_email_post_creation = literal_eval(demisto.args().get("Email Post Creation", False))
+        is_active = bool_map.get(demisto.args().get("Is Active"), "false")
+        send_email_post_creation = bool_map.get(demisto.args().get("Email Post Creation"), "false")
         password = demisto.args().get("Password")
         admin_name = demisto.args().get("Admin Name", "")
-        change_password = literal_eval(demisto.args().get("Change Password on create", False))
+        change_password = bool_map.get(demisto.args().get("Change Password on create"), "false")
         role = demisto.args().get("User role", "")
         deployment_list = demisto.args().get("Deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
 
         user_payload = {
-            "accountId": account_id,
             "name": name,
             "password": password,
             "email": email,
@@ -273,16 +309,16 @@ class Client(BaseClient):
         user_email = demisto.args().get("Email")
 
         name = demisto.args().get("Name")
-        is_active = literal_eval(demisto.args().get("Is Active", False))
+        is_active = bool_map[demisto.args().get("Is Active", False)]
         description = demisto.args().get("User Description", "")
         role = demisto.args().get("User role")
         password = demisto.args().get("Password")
         deployment_list = demisto.args().get("Deployments", [])
-        deployment_list = list(literal_eval(deployment_list)) if deployment_list else []
+        deployment_list = list(deployment_list) if deployment_list else []
         # formatting the update user payload, we remove false values after passing to function which calls endpoint
         details = {
             "name": name,
-            "is_active": is_active,
+            "isActive": is_active,
             "deployments": deployment_list,
             "description": description,
             "role": role,
@@ -292,10 +328,11 @@ class Client(BaseClient):
         if user_email and not user_id:
             user_list = self.get_users_list()
             demisto.info("retrieved user list which contains all available users in safebreach")
-            user = list(filter(lambda user_data: user_data["email"] == user_email, user_list))
-            if user:
-                user_id = user[0]["id"]
-                demisto.info("user has been found and details are being given for updating user")
+            user = list(filter(lambda user_data: user_data.get("email") == user_email, user_list))
+            if not user:
+                raise NotFoundError(f"User with {user_id} or {user_email} not found")
+            user_id = user[0]["id"]
+            demisto.info("user has been found and details are being given for updating user")
         user = self.update_user_with_details(user_id, details)
         return user
 
@@ -347,7 +384,7 @@ def get_all_users(client: Client):
         InputArgument(name="name", description="Name of the user to lookup.", required=False, is_array=False),
         InputArgument(name="email", description="Email of the user to lookup.", required=True, is_array=False),
         InputArgument(name="Should Include Details", description="If Details of user are to be included while \
-            querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
+            querying all users.", default="true", options=["true"], required=True, is_array=False),
         InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
                       default="true", options=["true", "false"], required=True, is_array=False),
     ],
@@ -376,11 +413,11 @@ def get_user_id_by_name_or_email(client: Client):
         else we raise an exception which is shown as error_result in XSOAR saying user is not found
     """
 
-    name = demisto.args().get("name")
+    name = demisto.args().get("name", "a random non existent name which shouldn't be searchable")
     email = demisto.args().get("email")
     user_list = client.get_users_list()
     filtered_user_list = list(
-        filter(lambda user_data: ((name in user_data['name']) or (email in user_data['email'])), user_list))
+        filter(lambda user_data: ((name in user_data['name'] if name else False) or (email in user_data['email'])), user_list))
     if filtered_user_list:
 
         human_readable = tableToMarkdown(name="user data", t=filtered_user_list, headers=['id', 'name', 'email'])
@@ -393,7 +430,7 @@ def get_user_id_by_name_or_email(client: Client):
         )
 
         return result
-    raise Exception(f"user with name {name} or email {email} was not found")
+    raise NotFoundError(f"user with name {name} or email {email} was not found")
 
 
 @metadata_collector.command(
@@ -403,15 +440,15 @@ def get_user_id_by_name_or_email(client: Client):
         InputArgument(name="Email", description="Email of the user to Create.", required=True,
                       is_array=False),
         InputArgument(name="Is Active", description="Whether the user is active upon creation.",
-                      required=False, is_array=False, options=["True", "False"], default="False"),
+                      required=False, is_array=False, options=["true", "false"], default="false"),
         InputArgument(name="Email Post Creation", description="Should Email be sent to user on creation.",
-                      required=False, is_array=False, options=["True", "False"], default="False"),
+                      required=False, is_array=False, options=["true", "false"], default="false"),
         InputArgument(name="Password", description="Password of user being created.", required=True,
                       is_array=False),
         InputArgument(name="Admin Name", description="Name of the Admin creating user.", required=False,
                       is_array=False),
         InputArgument(name="Change Password on create", description="Should user change password on creation.",
-                      required=False, is_array=False, options=["True", "False"], default="False"),
+                      required=False, is_array=False, options=["true", "false"], default="false"),
         InputArgument(name="User role", description="Role of the user being Created.", required=False,
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
@@ -478,7 +515,7 @@ def create_user(client: Client):
         InputArgument(name="User Description", description="Update the user Description to given string.",
                       required=False, is_array=False),
         InputArgument(name="Is Active", description="Update the user Status.",
-                      required=False, is_array=False, options=["True", "False", ""], default=""),
+                      required=False, is_array=False, options=["true", "false", ""], default=""),
         InputArgument(name="Password", description="Password of user to be updated with.", required=False,
                       is_array=False),
         InputArgument(name="User role", description="Role of the user to be changed to.", required=False,
