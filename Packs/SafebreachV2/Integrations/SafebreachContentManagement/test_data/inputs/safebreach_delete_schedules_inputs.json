@@ -1,0 +1,15 @@
+{
+    "success":{
+        "args":{
+            "schedule ID":1
+        },
+        "command":"safebreach-delete-schedule"
+    },
+    "fail":{
+        "args":{
+            "schedule ID":111
+        },
+        "command":"safebreach-delete-schedule"
+    }
+    
+}

@@ -3,6 +3,13 @@ from CommonServerPython import *  # noqa: F401
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S UTC'  # ISO8601 format with UTC, default in XSOAR
 
+bool_map = {
+    "true": True,
+    "false": False,
+    "True": True,
+    "False": False
+}
+
 simulator_details_inputs = [
     InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
                   default="true", required=True, is_array=False),
@@ -24,8 +31,6 @@ simulator_details_inputs = [
                   required=False, is_array=False),
     InputArgument(name="sortDirection", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
                   default="asc", required=False, is_array=False),
-    InputArgument(name="startRow", description="if there are too many entries then where should we start looking from.",
-                  required=False, is_array=False),
     InputArgument(name="pageSize", description="number of entries to search.", required=False, is_array=False),
     InputArgument(name="isEnabled", description="if to search only enabled ones.", options=["true", "false"],
                   required=False, is_array=False),
@@ -33,49 +38,11 @@ simulator_details_inputs = [
                   required=False, is_array=False),
     InputArgument(name="isCritical", description="whether to search only for critical nodes or not.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="assets", description="Whether search only for assets and which assets.", required=False, is_array=False),
     InputArgument(name="additionalDetails", description="Whether to show additional details or not.",
                   options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="impersonatedUsers", description="should search only for impersonated user targets or not.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isAzureAttacker", description="Whether to search only for azure attackers.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isAwsAttacker", description="Whether to search only for aws attacker.", options=["true", "false"],
-                  required=False, is_array=False),
-    InputArgument(name="isPreExecutor", description="should search only for pre-executors or not.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isInfiltrationTarget", description="Whether to search only for infiltration targets.",
-                  options=["true", "false"], required=False, is_array=False),
-    InputArgument(name="isMailTarget", description="Whether to search only for Mail targets.", options=["true", "false"],
-                  required=False, is_array=False),
-    InputArgument(name="isExfiltrationTarget", description="should search only for exfiltration targets or not.",
-                  options=["true", "false"], required=False, is_array=False),
-
-    # These fields need to be '|' separated  arrays
-    InputArgument(name="deployments", description="deployments list which the search should look.",
-                  required=False, is_array=True),
-    InputArgument(name="advancedActions", description="advanced actions to search.",
-                  required=False, is_array=True),
-    InputArgument(name="roles", description="roles to search.",
-                  required=False, is_array=True),
-    InputArgument(name="userids", description="userids to search.",
-                  required=False, is_array=True),
-    InputArgument(name="versions", description="versions to filter by.",
-                  required=False, is_array=True),
-    # '|' separated arrays end
-
-    # normal arrays start
-    InputArgument(name="proxyIds", description="proxy ids to search.",
-                  required=False, is_array=True),
-    InputArgument(name="assetIds", description="asset ids to search.",
-                  required=False, is_array=True),
-    # normal arrays end
-
-    # enums start
     InputArgument(name="status", description="if simulator status are to be included for search.",
                   options=["APPROVED", "PENDING", "ALL"],
                   default="ALL", required=False, is_array=False),
-    # enums end
 ]
 
 simulators_output_fields = [
@@ -148,30 +115,6 @@ simulators_output_fields = [
 ]
 
 simulator_details_for_update_fields = [
-    InputArgument(name="isEnabled", description="set true to enable the node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isProxySupported", description="set true to enable the proxy support.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isCritical", description="set true to make node as critical node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isExfiltration", description="set true to make the node as exfiltration node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isInfiltration", description="set true to make the node as infiltration node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isMailTarget", description="set true to make node as mail target.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isMailAttacker", description="set true to make node as MailAttacker node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isPreExecutor", description="set true to enable the node as PreExecutor node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isAWSAttacker", description="set true to make node as AWS attacker target.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isAzureAttacker", description="set true to make node as Azure attacker node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="isWebApplicationAttacker", description="set true to enable the node as web application attacker node.",
-                  options=["false", "true"], required=False, is_array=False),
-    InputArgument(name="useSystemUser", description="set true to enable the node get system user access.",
-                  options=["false", "true"], required=False, is_array=False),
     InputArgument(name="connectionUrl", description="the given value will be set as connection string.",
                   required=False, is_array=False),
     InputArgument(name="cloudProxyUrl", description="the given value will be set as cloud proxy url.",
@@ -186,7 +129,7 @@ simulator_details_for_update_fields = [
                   required=False, is_array=False),
 ]
 
-simulation_output_fields = [
+test_summaries_output_fields = [
     OutputArgument(name="planId", description="Plan ID of the simulation.", output_type=str),
     OutputArgument(name="planName", description="Plan Name of the simulation.", output_type=str),
     OutputArgument(name="securityActionPerControl", description="Security Actions of the simulation.", output_type=str),
@@ -220,7 +163,7 @@ metadata_collector = YMLMetadataCollector(
         4. Nodes get, update, delete. ",
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.72123",
+    docker_image="demisto/python3:3.10.13.73190",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -288,7 +231,13 @@ def format_sb_code_error(errors_data):
         720: "passwords dont match",
         721: "gateway timeout"
     }
-    errors = errors_data.get("errors")
+    try:
+        errors = errors_data.get("errors")
+        if errors_data.get("statusCode") == 400:
+            return json.dumps({"issue": errors_data.get("message"), "details": errors_data.get("additionalData")})
+    except AttributeError:
+        return errors_data
+
     final_error_string = ""
     # here we are formatting errors and then we are making them as a string
     for error in errors:
@@ -296,6 +245,16 @@ def format_sb_code_error(errors_data):
         error_code = error.get("sbcode")
         final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
     return final_error_string
+
+
+class NotFoundError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class SBError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 
 class Client(BaseClient):
@@ -338,7 +297,9 @@ class Client(BaseClient):
 
         response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
                                       params=request_params, ok_codes=[200, 201, 204, 400])
-        return response if not response.get("error") else self.handle_sbcodes(response)
+
+        return response if not ((type(response) == dict) and (response.get("error") and not response.get("errorCode")))\
+            else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
         """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
@@ -354,18 +315,31 @@ class Client(BaseClient):
         raise Exception(exception_string)
 
     def get_all_users_for_test(self):
-        """This function is being used for testing connection with safebreach 
+        """
+        This function is being used for testing connection with safebreach 
         after API credentials re taken from user when creating instance
 
         Returns:
             str: This is just status string, if "ok" then it will show test as success else it throws error
         """
-        account_id = demisto.params().get("account_id", 0)
-        url = f"/config/v1/accounts/{account_id}/users"
-        response = self.get_response(url=url)
-        if response:
-            return "ok"
-        return "Could not verify the connection"
+        try:
+            account_id = demisto.params().get("account_id", 0)
+            url = f"/config/v1/accounts/{account_id}/users"
+            response = self.get_response(url=url)
+            if response and response.get("data"):
+                return "ok"
+            elif response.get("data") == []:
+                return "please check the user details and try again"
+            return "Could not verify the connection"
+        except Exception as exc:
+            if "Error in API call [404] - Not Found" in str(exc):
+                return "Please check the URL configured and try again"
+            elif "Error in API call [401] - Unauthorized" in str(exc):
+                return "Please check the API used and try again"
+            elif "SSL Certificate Verification Failed" in str(exc):
+                return "Error with SSL certificate verification. Please check the URL used and try again"
+            else:
+                raise Exception(exc)
 
     def get_simulator_quota(self):
         """This function calls Account details end point which will return account details
@@ -400,7 +374,7 @@ class Client(BaseClient):
 
         simulators_details = self.get_response(method=method, url=url, request_params=request_params)
         if not simulators_details.get("data", {}).get("count"):
-            raise Exception(f"No Matching simulators found with details not found details are {request_params}")
+            raise NotFoundError(f"No Matching simulators found with details not found details are {request_params}")
         return simulators_details
 
     def create_simulator_params(self):
@@ -411,14 +385,13 @@ class Client(BaseClient):
         """
         possible_inputs = [
             "details", "deleted", "secret", "shouldIncludeProxies", "hostname", "connectionType", "externalIp", "internalIp",
-            "os", "status", "sortDirection", "startRow", "pageSize", "isEnabled", "isConnected", "isCritical",
-            "isExfiltrationTarget", "isInfiltrationTarget", "isMailTarget", "isMailAttacker", "isPreExecutor",
-            "isAwsAttacker", "isAzureAttacker", "impersonatedUsers", "assets", "advancedActions", "deployments",
-            "additionalDetails"]
+            "os", "status", "sortDirection", "pageSize", "isEnabled", "isConnected", "isCritical", "additionalDetails"]
         request_params = {}
         for parameter in possible_inputs:
             if demisto.args().get(parameter):
-                request_params[parameter] = demisto.args().get(parameter)
+                request_params[parameter] = demisto.args().get(parameter) \
+                    if demisto.args().get(parameter) not in ["true", "false"] \
+                    else bool_map[demisto.args().get(parameter)]
         return request_params
 
     def flatten_node_details(self, nodes):
@@ -506,7 +479,7 @@ class Client(BaseClient):
             simulator_id = result.get("data", {}).get("rows", {})[0].get("id")
             return simulator_id
         except IndexError:
-            raise Exception("Simulator with given details could not be found")
+            raise NotFoundError("Simulator with given details could not be found")
 
     def delete_node_with_given_id(self, node_id, force: str):
         """This function calls delete simulator on simulator with given ID
@@ -550,20 +523,8 @@ class Client(BaseClient):
             dict: Update Node payload
         """
         data_dict = {
-            "isEnabled": demisto.args().get("isEnabled", "").lower(),
-            "isProxySupported": demisto.args().get("isProxySupported", "").lower(),
-            "isCritical": demisto.args().get("isCritical", "").lower(),
-            "isExfiltration": demisto.args().get("isExfiltration", "").lower(),
-            "isInfiltration": demisto.args().get("isInfiltration", "").lower(),
-            "isMailTarget": demisto.args().get("isMailTarget", "").lower(),
-            "isMailAttacker": demisto.args().get("isMailAttacker", "").lower(),
-            "isPreExecutor": demisto.args().get("isPreExecutor", "").lower(),
-            "isAWSAttacker": demisto.args().get("isAWSAttacker", "").lower(),
-            "isAzureAttacker": demisto.args().get("isAzureAttacker", "").lower(),
-            "isWebApplicationAttacker": demisto.args().get("isWebApplicationAttacker", "").lower(),
             "connectionUrl": demisto.args().get("connectionUrl", "").lower(),
             "cloudProxyUrl": demisto.args().get("cloudProxyUrl", ""),
-            "useSystemUser": demisto.args().get("useSystemUser", ""),
             "name": demisto.args().get("name", ""),
             "tunnel": demisto.args().get("tunnel", ""),
             "preferredInterface": demisto.args().get("preferredInterface", ""),
@@ -761,9 +722,7 @@ def delete_simulator_with_given_name(client: Client):
         name="Deleted Simulators Details",
         t=flattened_nodes,
         headers=keys)
-    outputs = [{
-        'Deleted simulators Details': deleted_node.get("data", {}),
-    }]
+    outputs = deleted_node.get("data", {})
     result = CommandResults(
         outputs_prefix="deleted_simulator_details",
         outputs=outputs,
