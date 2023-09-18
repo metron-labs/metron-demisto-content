@@ -201,12 +201,15 @@ test_outputs_headers_list = [
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
-    description="This Integration aims to provide easy access to safebreach from XSOAR.\
-        Following are the things that user can get access through XSOAR command integration: \
-        1. User get, create, update and delete. \
-        2. Deployment create, update and delete. \
-        3. Tests get and delete. \
-        4. Nodes get, update, delete. ",
+    description="""
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
     docker_image="demisto/python3:3.10.13.73190",
