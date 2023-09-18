@@ -302,13 +302,14 @@ class SBError(Exception):
 
 
 class Client(BaseClient):
-    """Client class to interact with the service API
+    """
+        Client class to interact with the service API
 
-    This Client implements API calls, and does not contain any XSOAR logic.
-    Should only do requests and return data.
-    It inherits from BaseClient defined in CommonServer Python.
-    Most calls use _http_request() that handles proxy, SSL verification, etc.
-    For this  implementation, no special attributes defined
+        This Client implements API calls, and does not contain any XSOAR logic.
+        Should only do requests and return data.
+        It inherits from BaseClient defined in CommonServer Python.
+        Most calls use _http_request() that handles proxy, SSL verification, etc.
+        For this  implementation, no special attributes defined
     """
 
     def __init__(self, api_key: str, account_id: int, base_url: str, verify: bool):
@@ -318,7 +319,8 @@ class Client(BaseClient):
         self.account_id = account_id
 
     def get_response(self, url: str = "", method: str = "GET", request_params: dict = {}, body: dict = None):
-        """_summary_
+        """
+            This function handles actual API call throughout the integration
 
         Args:
             url (str, optional): endpoint url which follows base URL will be this input . Defaults to "".
@@ -361,8 +363,8 @@ class Client(BaseClient):
 
     def get_all_users_for_test(self):
         """
-        This function is being used for testing connection with safebreach 
-        after API credentials re taken from user when creating instance
+            This function is being used for testing connection with safebreach 
+            after API credentials re taken from user when creating instance
 
         Returns:
             str: This is just status string, if "ok" then it will show test as success else it throws error
@@ -387,7 +389,8 @@ class Client(BaseClient):
                 raise Exception(exc)
 
     def get_users_list(self):
-        """This function returns all users present based on modifiers
+        """
+        This function returns all users present based on modifiers
 
         Returns:
             list: this is list of users queried based on modifiers specified
