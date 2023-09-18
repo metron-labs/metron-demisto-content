@@ -341,11 +341,13 @@ class Client(BaseClient):
 
         response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
                                       params=request_params, ok_codes=[200, 201, 204, 400])
+
         return response if not ((type(response) == dict) and (response.get("error") and not response.get("errorCode")))\
             else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
-        """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
+        """
+            This function handles errors related to SBcodes if the endpoint gives sbcode in errors
 
         Args:
             response (dict): all errors given by 400 response code will be accepted as dictionary and are formatted based on 
@@ -2109,9 +2111,7 @@ def delete_simulator_with_given_name(client: Client):
         name="Deleted Simulators Details",
         t=flattened_nodes,
         headers=keys)
-    outputs = [{
-        'Deleted simulators Details': deleted_node.get("data", {}),
-    }]
+    outputs = deleted_node.get("data", {})
     result = CommandResults(
         outputs_prefix="deleted_simulator_details",
         outputs=outputs,

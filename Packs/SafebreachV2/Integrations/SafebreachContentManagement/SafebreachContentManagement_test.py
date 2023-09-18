@@ -819,7 +819,7 @@ def test_delete_simulator_with_given_name(mocker):
         call = safebreach_content_management.return_results.call_args_list
         command_results = call[0].args[0]
         assert command_results.outputs_prefix == "deleted_simulator_details"
-        # assert command_results.outputs == test_output["outputs"][key]
+        assert command_results.outputs == test_output["outputs"][key].get("data")
 
 
 def test_update_simulator_with_given_name(mocker):
@@ -837,4 +837,4 @@ def test_update_simulator_with_given_name(mocker):
         call = safebreach_content_management.return_results.call_args_list
         command_results = call[0].args[0]
         assert command_results.outputs_prefix == "deleted_simulator_details"
-        # assert command_results.outputs == test_output["outputs"][key]
+        assert command_results.outputs == test_output["outputs"][key].get("data")
