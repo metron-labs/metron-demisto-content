@@ -9,7 +9,9 @@ bool_map = {
     "true": True,
     "false": False,
     "True": True,
-    "False": False
+    "False": False,
+    True: True,
+    False: False
 }
 
 simulator_details_inputs = [
@@ -59,15 +61,15 @@ simulators_output_fields = [
     OutputArgument(name="is_critical", description="Whether the simulator is critical.",
                    output_type=str),
     OutputArgument(name="is_exfiltration", description="If Simulator is exfiltration target.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_infiltration", description="If simulator is infiltration target.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_mail_target", description="If simulator is mail target.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_mail_attacker", description="If simulator is mail attacker.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_pre_executor", description="Whether the node is pre executor.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_aws_attacker", description="if the given simulator is aws attacker.",
                    output_type=str),
     OutputArgument(name="is_azure_attacker", description="If the given simulator is azure attacker.",
@@ -79,9 +81,9 @@ simulators_output_fields = [
     OutputArgument(name="is_web_application_attacker", description="Whether the simulator is Web application attacker.",
                    output_type=str),
     OutputArgument(name="preferred_interface", description="Preferred simulator interface.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="preferred_ip", description="Preferred Ip of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="hostname", description="Hostname of given simulator.",
                    output_type=str),
     OutputArgument(name="connection_type", description="connection_type of given simulator.",
@@ -89,9 +91,9 @@ simulators_output_fields = [
     OutputArgument(name="simulator_status", description="status of the simulator.",
                    output_type=str),
     OutputArgument(name="connection_status", description="connection status of node/simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="simulator_framework_version", description="Framework version of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="operating_system_type", description="operating system type of given simulator.",
                    output_type=str),
     OutputArgument(name="operating_system", description="Operating system of given simulator.",
@@ -99,9 +101,9 @@ simulators_output_fields = [
     OutputArgument(name="execution_hostname", description="Execution Hostname of the given node.",
                    output_type=str),
     OutputArgument(name="deployments", description="deployments simulator is part of.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="created_at", description="Creation datetime of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="updated_at", description="Update datetime of given simulator.",
                    output_type=str),
     OutputArgument(name="deleted_at", description="deletion datetime of given simulator.",
@@ -109,11 +111,11 @@ simulators_output_fields = [
     OutputArgument(name="assets", description="Assets of given simulator.",
                    output_type=str),
     OutputArgument(name="simulation_users", description="simulator users list.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="proxies", description="Proxies of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="advanced_actions", description="Advanced simulator details.",
-                   output_type=int)
+                   output_type=str)
 ]
 
 simulator_details_for_update_fields = [
@@ -329,11 +331,11 @@ class Client(BaseClient):
         Returns:
             (dict,list,Exception): a dictionary or list with data based on API call OR Throws an error based on status code
         """
-        base_url = demisto.params().get("base_url", "")
+        base_url = demisto.params().get("base_url", "").strip()
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
         request_url = f"{base_url}/api/{url}"
-        api_key = demisto.params().get("api_key")
+        api_key = demisto.params().get("api_key", "").strip()
         headers = {
             'Accept': 'application/json',
             'x-apitoken': api_key
@@ -409,7 +411,7 @@ class Client(BaseClient):
             dict: user data related to the user who has been deleted
         """
         user_id = demisto.args().get("User ID")
-        user_email = demisto.args().get("Email")
+        user_email = demisto.args().get("Email", "").strip()
         # we are prioritizing email or ID when both are given by user
         if user_email and not user_id:
             # retrieve all users and filter with given details
@@ -490,8 +492,8 @@ class Client(BaseClient):
             dict: the data of deployment created
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name")
-        description = demisto.args().get("Description")
+        name = demisto.args().get("Name", "").strip()
+        description = demisto.args().get("Description", "").strip()
         nodes = demisto.args().get("Nodes", "").replace('"', "").split(",")
         deployment_payload = {
             "nodes": nodes,
@@ -516,7 +518,7 @@ class Client(BaseClient):
 
         account_id = demisto.params().get("account_id", 0)
         deployment_id = demisto.args().get("Deployment ID", None)
-        deployment_name = demisto.args().get("Deployment Name")
+        deployment_name = demisto.args().get("Deployment Name", "").strip()
 
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
@@ -526,9 +528,9 @@ class Client(BaseClient):
             raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
 
-        name = demisto.args().get("Updated Deployment Name")
+        name = demisto.args().get("Updated Deployment Name", "").strip()
         nodes = demisto.args().get("Updated Nodes for Deployment", None)
-        description = demisto.args().get("Updated deployment description.")
+        description = demisto.args().get("Updated deployment description.", "").strip()
         deployment_payload = {}
         if name:
             deployment_payload["name"] = name
@@ -553,7 +555,7 @@ class Client(BaseClient):
         """
         account_id = demisto.params().get("account_id", 0)
         deployment_id = demisto.args().get("Deployment ID", None)
-        deployment_name = demisto.args().get("Deployment Name")
+        deployment_name = demisto.args().get("Deployment Name", "").strip()
 
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
@@ -748,7 +750,7 @@ class Client(BaseClient):
             dict: status stating whether its success and how many errors are remaining incase of failure to delete some
         """
         account_id = demisto.params().get("account_id", 0)
-        connector_id = demisto.args().get("Connector ID")
+        connector_id = demisto.args().get("Connector ID", "").strip()
 
         method = "DELETE"
         url = f"/siem/v1/accounts/{account_id}/config/providers/status/delete/{connector_id}"
@@ -764,8 +766,8 @@ class Client(BaseClient):
                 API key and name along with additional details
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name")
-        description = demisto.args().get("Description")
+        name = demisto.args().get("Name", "").strip()
+        description = demisto.args().get("Description", "").strip()
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/apikeys"
         data = {}
@@ -816,7 +818,7 @@ class Client(BaseClient):
         Returns:
             dict: Deleted API key data
         """
-        key_name = demisto.args().get("Key Name")
+        key_name = demisto.args().get("Key Name", "").strip()
         key_id = self.filter_api_key_with_key_name(key_name=key_name)
         account_id = demisto.params().get("account_id", 0)
         method = "DELETE"
@@ -939,7 +941,7 @@ class Client(BaseClient):
         Returns:
             dict: dict of request parameters
         """
-        name = demisto.args().get("Simulator/Node Name")
+        name = demisto.args().get("Simulator/Node Name", "").strip()
         request_params = {
             "name": name,
             "deleted": demisto.args().get("deleted", "false"),
@@ -1006,12 +1008,12 @@ class Client(BaseClient):
             dict: Update Node payload
         """
         data_dict = {
-            "connectionUrl": demisto.args().get("connectionUrl", "").lower(),
-            "cloudProxyUrl": demisto.args().get("cloudProxyUrl", ""),
-            "name": demisto.args().get("name", ""),
-            "tunnel": demisto.args().get("tunnel", ""),
-            "preferredInterface": demisto.args().get("preferredInterface", ""),
-            "preferredIp": demisto.args().get("preferredIp", ""),
+            "connectionUrl": demisto.args().get("connectionUrl", "").lower().strip(),
+            "cloudProxyUrl": demisto.args().get("cloudProxyUrl", "").strip(),
+            "name": demisto.args().get("name", "").strip(),
+            "tunnel": demisto.args().get("tunnel", "").strip(),
+            "preferredInterface": demisto.args().get("preferredInterface", "").strip(),
+            "preferredIp": demisto.args().get("preferredIp", "").strip(),
         }
 
         for (key, value) in tuple(data_dict.items()):
@@ -1068,14 +1070,14 @@ class Client(BaseClient):
             dict: created user data
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name")
-        email = demisto.args().get("Email")
+        name = demisto.args().get("Name", "").strip()
+        email = demisto.args().get("Email", "").strip()
         is_active = bool_map.get(demisto.args().get("Is Active"), "false")
         send_email_post_creation = bool_map.get(demisto.args().get("Email Post Creation"), "false")
         password = demisto.args().get("Password")
-        admin_name = demisto.args().get("Admin Name", "")
+        admin_name = demisto.args().get("Admin Name", "").strip()
         change_password = bool_map.get(demisto.args().get("Change Password on create"), "false")
-        role = demisto.args().get("User role", "")
+        role = demisto.args().get("User role", "").strip()
         deployment_list = demisto.args().get("Deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
 
@@ -1105,12 +1107,12 @@ class Client(BaseClient):
         """
 
         user_id = demisto.args().get("User ID")
-        user_email = demisto.args().get("Email")
+        user_email = demisto.args().get("Email", "").strip()
 
-        name = demisto.args().get("Name")
-        is_active = bool_map[demisto.args().get("Is Active", False)]
-        description = demisto.args().get("User Description", "")
-        role = demisto.args().get("User role")
+        name = demisto.args().get("Name", "").strip()
+        is_active = bool_map[demisto.args().get("Is Active", "False")]
+        description = demisto.args().get("User Description", "").strip()
+        role = demisto.args().get("User role", "").strip()
         password = demisto.args().get("Password")
         deployment_list = demisto.args().get("Deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
@@ -1165,7 +1167,7 @@ class Client(BaseClient):
         method = "PUT"
         url = f"orch/v3/accounts/{account_id}/queue/state"
         data = {
-            "status": demisto.args().get("Simulation/Test State")
+            "status": demisto.args().get("Simulation/Test State", "").strip()
         }
         simulations_details = self.get_response(url=url, method=method, body=data)
         return simulations_details
@@ -1274,7 +1276,7 @@ class Client(BaseClient):
         method = "GET"
         url = f"/config/v2/accounts/{account_id}/plans"
         request_params = {
-            "details": demisto.args().get("schedule details")
+            "details": demisto.args().get("schedule details", "").strip()
         }
         scenarios = self.get_response(url=url, method=method, request_params=request_params)
         return scenarios
@@ -1467,7 +1469,7 @@ def get_user_id_by_name_or_email(client: Client):
     """
 
     name = demisto.args().get("name", "a random non existent name which shouldn't be searchable")
-    email = demisto.args().get("email")
+    email = demisto.args().get("email", "").strip()
     user_list = client.get_users_list()
     filtered_user_list = list(
         filter(lambda user_data: ((name in user_data['name'] if name else False) or (email in user_data['email'])), user_list))
@@ -2017,9 +2019,9 @@ def delete_integration_error_logs(client: Client):
         OutputArgument(name="registrationDate", description="The registration date of given account.",
                        prefix="account_details", output_type=int),
         OutputArgument(name="activationDate", description="The Activation date of given account.",
-                       prefix="account_details", output_type=int),
+                       prefix="account_details", output_type=str),
         OutputArgument(name="expirationDate", description="Account expiration date.",
-                       prefix="account_details", output_type=int),
+                       prefix="account_details", output_type=str),
     ],
     description="This command gives all details related to account, we are using this to find assigned simulator quota.")
 def get_simulator_quota_with_table(client: Client):

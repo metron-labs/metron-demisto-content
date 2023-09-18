@@ -417,7 +417,7 @@ def test_return_rotated_verification_token(mocker: Callable[..., Generator[Mocke
         assert test_output["outputs"][key].get("data") is not None
 
 
-def test_get_tests_summary(mocker: Callable[..., Generator[MockerFixture, None, None]]):
+def test_get_all_tests_summary(mocker: Callable[..., Generator[MockerFixture, None, None]]):
     test_input = util_load_json(
         path="test_data/inputs/safebreach_get_all_tests_summary_inputs.json")
     test_output = util_load_json(
@@ -766,6 +766,25 @@ def test_rerun_test(mocker):
         if key != "fail":
             assert isinstance(test_output["outputs"][key]["data"]["planRunId"], str)
             assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
+
+
+def test_get_simulator_quota_with_table(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_get_simulator_quota_with_table_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_get_simulator_quota_with_table_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        if key == "success":
+            main()
+            call = safebreach_content_management.return_results.call_args_list
+            command_results = call[0].args[0]
+            assert command_results.outputs_prefix == "account_details"
+            assert command_results.outputs.get("account_details") == test_output["outputs"][key].get("data")
+            assert command_results.outputs.get("simulator_quota") == test_output["outputs"][key].get("data").get("nodesQuota")
 
 
 def test_get_all_simulator_details(mocker):
