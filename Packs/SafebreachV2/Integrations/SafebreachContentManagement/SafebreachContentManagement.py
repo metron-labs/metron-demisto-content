@@ -360,18 +360,31 @@ class Client(BaseClient):
         raise SBError(exception_string)
 
     def get_all_users_for_test(self):
-        """This function is being used for testing connection with safebreach 
+        """
+        This function is being used for testing connection with safebreach 
         after API credentials re taken from user when creating instance
 
         Returns:
             str: This is just status string, if "ok" then it will show test as success else it throws error
         """
-        account_id = demisto.params().get("account_id", 0)
-        url = f"/config/v1/accounts/{account_id}/users"
-        response = self.get_response(url=url)
-        if response:
-            return "ok"
-        return "Could not verify the connection"
+        try:
+            account_id = demisto.params().get("account_id", 0)
+            url = f"/config/v1/accounts/{account_id}/users"
+            response = self.get_response(url=url)
+            if response and response.get("data"):
+                return "ok"
+            elif response.get("data") == []:
+                return "please check the user details and try again"
+            return "Could not verify the connection"
+        except Exception as exc:
+            if "Error in API call [404] - Not Found" in str(exc):
+                return "Please check the URL configured and try again"
+            elif "Error in API call [401] - Unauthorized" in str(exc):
+                return "Please check the API used and try again"
+            elif "SSL Certificate Verification Failed" in str(exc):
+                return "Error with SSL certificate verification. Please check the URL used and try again"
+            else:
+                raise Exception(exc)
 
     def get_users_list(self):
         """This function returns all users present based on modifiers
