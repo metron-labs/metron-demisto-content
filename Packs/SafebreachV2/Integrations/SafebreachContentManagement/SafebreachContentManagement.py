@@ -15,17 +15,13 @@ bool_map = {
 }
 
 simulator_details_inputs = [
-    InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                  default="true", required=True, is_array=False),
-    InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
-                  default="true", required=True, is_array=False),
     InputArgument(name="secret", description="if secrets are to be included for search.", options=["true", "false"],
                   required=False, is_array=False),
     InputArgument(name="shouldIncludeProxies", description="if proxies are to be included for search.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="hostname", description="if hostname to be included for search.", options=["true", "false"],
+    InputArgument(name="hostname", description="if hostname to be included for search.",
                   required=False, is_array=False),
-    InputArgument(name="connectionType", description="if connectionType to be included for search.", options=["true", "false"],
+    InputArgument(name="connectionType", description="if connectionType to be included for search.",
                   required=False, is_array=False),
     InputArgument(name="externalIp", description="if external IP details to be included for search.",
                   required=False, is_array=False),
@@ -212,7 +208,7 @@ metadata_collector = YMLMetadataCollector(
     """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.73190",
+    docker_image="demisto/python3:3.10.13.74666",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -255,7 +251,6 @@ def format_sb_code_error(errors_data):
     Returns:
         (str,optional): returns error codes which are formatted as string
     """
-
     error_data = ""
     sbcode_error_dict = {
         700: f"{error_data} value is below permitted minimum",
@@ -526,7 +521,7 @@ class Client(BaseClient):
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
             if needed_deployment:
-                deployment_id = needed_deployment['name']
+                deployment_id = needed_deployment['id']
         if not deployment_id:
             raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
@@ -563,7 +558,7 @@ class Client(BaseClient):
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
             if needed_deployment:
-                deployment_id = needed_deployment['name']
+                deployment_id = needed_deployment['id']
         if not deployment_id:
             raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
@@ -877,9 +872,9 @@ class Client(BaseClient):
         request_params = {}
         for parameter in possible_inputs:
             if demisto.args().get(parameter):
-                request_params[parameter] = demisto.args().get(parameter) \
-                    if demisto.args().get(parameter) not in ["true", "false"] \
-                    else bool_map[demisto.args().get(parameter)]
+                request_params[parameter] = bool_map[demisto.args().get(parameter)] \
+                    if (demisto.args().get(parameter) not in ["true", "false"] and parameter in ["details", "deleted",
+                        "isEnabled", "isConnected", "isCritical", "additionalDetails"]) else demisto.args().get(parameter)
         return request_params
 
     def flatten_node_details(self, nodes):
@@ -947,8 +942,8 @@ class Client(BaseClient):
         name = demisto.args().get("Simulator/Node Name", "").strip()
         request_params = {
             "name": name,
-            "deleted": demisto.args().get("deleted", "false"),
-            "details": demisto.args().get("details", "false")
+            "deleted": demisto.args().get("deleted", "true"),
+            "details": demisto.args().get("details", "true")
         }
         return request_params
 
@@ -1227,8 +1222,10 @@ class Client(BaseClient):
                 if key == "actions" and scenario[key]:
                     actions_involved = ""
                     return_obj["actions_list"] = reduce(
-                        lambda actions_involved, action: f"""{actions_involved}, {action.get('type')}\
-                            with identity:{action.get('data',{}).get('uuid','') or action.get('data',{}).get('id','')}""",
+                        lambda actions_involved, action: f"""
+                            {actions_involved}, {action.get('type')} with identity:{
+                                action.get('data',{}).get('uuid','') or action.get('data',{}).get('id','')
+                                }""",
                         scenario[key], actions_involved)
                 elif key == "steps" and scenario[key]:
                     steps_involved = ""
@@ -1240,18 +1237,19 @@ class Client(BaseClient):
             # this part of code is for modifying test data that can be used for rerun test command
             if demisto.command() != "safebreach-rerun-scenario":
                 custom_data_obj = deepcopy(return_obj)
+                custom_data_obj.pop("actions_list")
+                custom_data_obj.pop("steps_order")
+                custom_data_obj.pop("edges_count")
                 custom_data_obj.pop("createdAt")
                 custom_data_obj.pop("updatedAt")
                 custom_data_obj.pop("description")
-                custom_data_obj["successCriteria"] = \
-                    custom_data_obj["successCriteria"] if not custom_data_obj["successCriteria"] else {}
-                return_obj["custom_data_for_rerun_test"] = custom_data_obj
+                custom_data_obj["successCriteria"] = custom_data_obj["successCriteria"] or {}
+                return_obj["custom_data_for_rerun_test"] = json.dumps(custom_data_obj)
             # this part of code is for modifying test data that can be used for rerun simulation command
-            custom_data_object_for_rerun_scenario = deepcopy(return_obj)
-            for key in list(custom_data_object_for_rerun_scenario.keys()):
-                if key not in ["name", "steps"]:
-                    custom_data_object_for_rerun_scenario.pop(key)
-            return_obj["custom_data_object_for_rerun_scenario"] = custom_data_object_for_rerun_scenario
+            return_obj["custom_data_object_for_rerun_scenario"] = json.dumps({
+                "name": return_obj.get("name"),
+                "steps": return_obj.get("steps")
+            })
             return_list.append(return_obj)
 
         return return_list
@@ -1356,8 +1354,10 @@ def get_simulators_and_display_in_table(client: Client, just_name=False):
         headers=keys)
     outputs = result.get("data", {}).get("rows")
     outputs = outputs[0] if just_name else outputs
+    outputs_prefix = "simulator_details_with_name" if demisto.command() == "safebreach-get-simulator-with-name" \
+        else "simulator_details"
     result = CommandResults(
-        outputs_prefix="simulator_details",
+        outputs_prefix=outputs_prefix,
         outputs=outputs,
         readable_output=human_readable
     )
@@ -1588,20 +1588,20 @@ def create_user(client: Client):
     ],
     outputs_prefix="updated_user_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of User created.", prefix="updated_user_data", output_type=int),
-        OutputArgument(name="name", description="The name of User created.", prefix="updated_user_data",
+        OutputArgument(name="id", description="The ID of User updated.", prefix="updated_user_data", output_type=int),
+        OutputArgument(name="name", description="The name of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="email", description="The email of User created.", prefix="updated_user_data",
+        OutputArgument(name="email", description="The email of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of User created.", prefix="updated_user_data",
+        OutputArgument(name="createdAt", description="The creation time of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="deletedAt", description="The Deletion time of User created.", prefix="updated_user_data",
+        OutputArgument(name="deletedAt", description="The Deletion time of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="roles", description="The roles of User created.", prefix="updated_user_data",
+        OutputArgument(name="roles", description="The roles of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="description", description="The description of User created.", prefix="updated_user_data",
+        OutputArgument(name="description", description="The description of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="role", description="The role of User created.", prefix="updated_user_data",
+        OutputArgument(name="role", description="The role of User updated.", prefix="updated_user_data",
                        output_type=str),
         OutputArgument(name="deployments", description="The deployments user is part of.", prefix="updated_user_data",
                        output_type=str),
@@ -1692,7 +1692,7 @@ def delete_user_with_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-create-deployment",
     inputs_list=[
-        InputArgument(name="Name", description="Name of the deployment to create.", required=False, is_array=False),
+        InputArgument(name="Name", description="Name of the deployment to create.", required=True, is_array=False),
         InputArgument(name="Description", description="Description of the deployment to create.", required=False, is_array=False),
         InputArgument(name="Nodes", description="Comma separated ID of all nodes the deployment should be part of.",
                       required=False, is_array=True)
@@ -1739,9 +1739,9 @@ def create_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-deployment",
     inputs_list=[
-        InputArgument(name="Deployment ID", description="Name of the deployment to update.", required=False, is_array=False),
-        InputArgument(name="Deployment Name", description="Description of the deployment to update.",
-                      required=False, is_array=False),
+        InputArgument(name="Deployment ID", description="ID of the deployment to update.", required=False, is_array=False),
+        InputArgument(name="Deployment Name", description="Name of the deployment to update.",
+                      required=True, is_array=False),
         InputArgument(name="Updated Nodes for Deployment", required=False, is_array=False,
                       description="Comma separated ID of all nodes the deployment should be part of."),
         InputArgument(name="Updated Deployment Name", description="Name of the deployment to update to.",
@@ -1751,15 +1751,16 @@ def create_deployment(client: Client):
     ],
     outputs_prefix="updated_deployment_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of deployment created.", prefix="updated_deployment_data", output_type=int),
-        OutputArgument(name="accountId", description="The account of deployment created.", prefix="updated_deployment_data",
+        OutputArgument(name="id", description="The ID of deployment to update.",
+                       prefix="updated_deployment_data", output_type=int),
+        OutputArgument(name="accountId", description="The account of deployment to update.", prefix="updated_deployment_data",
                        output_type=str),
-        OutputArgument(name="name", description="The name of deployment created.", prefix="updated_deployment_data",
+        OutputArgument(name="name", description="The name of deployment to update.", prefix="updated_deployment_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="updated_deployment_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of deployment created.", prefix="updated_deployment_data",
-                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of deployment to update.",
+                       prefix="updated_deployment_data", output_type=str),
+        OutputArgument(name="description", description="The description of deployment to update.",
+                       prefix="updated_deployment_data", output_type=str),
         OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="updated_deployment_data",
                        output_type=str),
     ],
@@ -1790,21 +1791,22 @@ def update_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-deployment",
     inputs_list=[
-        InputArgument(name="Deployment ID", description="Name of the deployment to update.", required=False, is_array=False),
-        InputArgument(name="Deployment Name", description="Description of the deployment to update.",
-                      required=False, is_array=False),
+        InputArgument(name="Deployment ID", description="ID of the deployment to delete.", required=False, is_array=False),
+        InputArgument(name="Deployment Name", description="Name of the deployment to delete.",
+                      required=True, is_array=False),
     ],
     outputs_prefix="deleted_deployment_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of deployment created.", prefix="deleted_deployment_data", output_type=int),
-        OutputArgument(name="accountId", description="The account of deployment created.", prefix="deleted_deployment_data",
+        OutputArgument(name="id", description="The ID of deployment to be deleted.", prefix="deleted_deployment_data",
+                       output_type=int),
+        OutputArgument(name="accountId", description="The account of deployment to be deleted.", prefix="deleted_deployment_data",
                        output_type=str),
-        OutputArgument(name="name", description="The name of deployment created.", prefix="deleted_deployment_data",
+        OutputArgument(name="name", description="The name of deployment to be deleted.", prefix="deleted_deployment_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="deleted_deployment_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of deployment created.", prefix="deleted_deployment_data",
-                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of deployment to be deleted.",
+                       prefix="deleted_deployment_data", output_type=str),
+        OutputArgument(name="description", description="The description of deployment to be deleted.",
+                       prefix="deleted_deployment_data", output_type=str),
         OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="deleted_deployment_data",
                        output_type=str),
     ],
@@ -2057,7 +2059,12 @@ def get_simulator_quota_with_table(client: Client):
 
 @metadata_collector.command(
     command_name="safebreach-get-available-simulator-details",
-    inputs_list=simulator_details_inputs,
+    inputs_list=[
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
+    ] + simulator_details_inputs,
     outputs_prefix="simulator_details",
     outputs_list=simulators_output_fields,
     description="We are using this command to get all available simulators.")
@@ -2077,13 +2084,13 @@ def get_all_simulator_details(client: Client):
     command_name="safebreach-get-simulator-with-name",
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
-                      required=False, is_array=False),
+                      required=True, is_array=False),
         InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
                       default="true", required=True, is_array=False),
         InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
                       default="true", required=True, is_array=False),
     ],
-    outputs_prefix="simulator_details",
+    outputs_prefix="simulator_details_with_name",
     outputs_list=simulators_output_fields,
     description="This command gives simulator with given name")
 def get_simulator_with_name(client: Client):
@@ -2489,7 +2496,7 @@ def get_schedules(client: Client):
         t=schedules_data.get("data"),
         headers=headers)
 
-    outputs = schedules_data
+    outputs = schedules_data.get("data")
     result = CommandResults(
         outputs_prefix="schedules",
         outputs=outputs,
@@ -2502,7 +2509,7 @@ def get_schedules(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-schedule",
     inputs_list=[
-        InputArgument(name="schedule ID", description="schedule ID",
+        InputArgument(name="schedule ID", description="schedule ID of schedule to delete",
                       required=True, is_array=False)
     ],
     outputs_prefix="deleted_Schedule",
@@ -2627,8 +2634,8 @@ def get_prebuilt_scenarios(client: Client):
     command_name="safebreach-get-custom-scenarios",
     inputs_list=[
         InputArgument(name="schedule details", description="Whether to get details of custom scenarios,\
-                set this to true every time unless you explicitly dont need details",
-                      default="true", options=["false", "true"], required=False, is_array=False),
+            set this to true every time unless you explicitly dont need details", default="true", options=["false", "true"],
+                      required=False, is_array=False),
     ],
     outputs_prefix="custom_scenarios",
     outputs_list=[
@@ -2652,6 +2659,10 @@ def get_prebuilt_scenarios(client: Client):
                        prefix="custom_scenarios", output_type=str),
         OutputArgument(name="updatedAt", description="the last updated time the scenario.",
                        prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="custom_data_object_for_rerun_scenario", description="the data which can be used for \
+            rerun-simulation command.", prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="custom_data_for_rerun_test", description="the data which can be used for rerun-test command.",
+                       prefix="custom_scenarios", output_type=str),
     ],
     description="This command gets simulations which are in running or queued state.")
 def get_custom_scenarios(client: Client):
@@ -2672,7 +2683,8 @@ def get_custom_scenarios(client: Client):
         name="Scenarios",
         t=flattened_simulations_data_for_table,
         headers=["id", "name", "description", "successCriteria", "originalScenarioId",
-                 "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt"])
+                 "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt",
+                 "custom_data_object_for_rerun_scenario", "custom_data_for_rerun_test"])
 
     outputs = custom_scenarios
     result = CommandResults(
@@ -2905,6 +2917,10 @@ def main() -> None:
             result = client.get_all_users_for_test()
             return_results(result)
 
+        elif demisto.command() == "safebreach-get-services-status":
+            result = get_services_status(client=client)
+            return_results(result)
+
         elif demisto.command() == "safebreach-get-all-users":
             users = get_all_users(client=client)
             return_results(users)
@@ -2973,6 +2989,10 @@ def main() -> None:
             result = update_simulator_with_given_name(client=client)
             return_results(result)
 
+        elif demisto.command() == "safebreach-get-verification-token":
+            result = get_verification_token(client=client)
+            return_results(result)
+
         elif demisto.command() == "safebreach-rotate-verification-token":
             result = return_rotated_verification_token(client=client)
             return_results(result)
@@ -3015,14 +3035,6 @@ def main() -> None:
 
         elif demisto.command() == "safebreach-get-custom-scenarios":
             result = get_custom_scenarios(client=client)
-            return_results(result)
-
-        elif demisto.command() == "safebreach-get-services-status":
-            result = get_services_status(client=client)
-            return_results(result)
-
-        elif demisto.command() == "safebreach-get-verification-token":
-            result = get_verification_token(client=client)
             return_results(result)
 
         elif demisto.command() == "safebreach-rerun-test":

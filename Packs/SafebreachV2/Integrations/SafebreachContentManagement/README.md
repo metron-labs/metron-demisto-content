@@ -70,7 +70,7 @@ This command creates a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Name | Name of the deployment to create. | Optional | 
+| Name | Name of the deployment to create. | Required | 
 | Description | Description of the deployment to create. | Optional | 
 | Nodes | Comma separated ID of all nodes the deployment should be part of. | Optional | 
 
@@ -160,18 +160,18 @@ This command deletes a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Deployment ID | Name of the deployment to update. | Optional | 
-| Deployment Name | Description of the deployment to update. | Optional | 
+| Deployment ID | ID of the deployment to delete. | Optional | 
+| Deployment Name | Name of the deployment to delete. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| deleted_deployment_data.id | Number | The ID of deployment created. | 
-| deleted_deployment_data.accountId | String | The account of deployment created. | 
-| deleted_deployment_data.name | String | The name of deployment created. | 
-| deleted_deployment_data.createdAt | String | The creation time of deployment created. | 
-| deleted_deployment_data.description | String | The description of deployment created. | 
+| deleted_deployment_data.id | Number | The ID of deployment to be deleted. | 
+| deleted_deployment_data.accountId | String | The account of deployment to be deleted. | 
+| deleted_deployment_data.name | String | The name of deployment to be deleted. | 
+| deleted_deployment_data.createdAt | String | The creation time of deployment to be deleted. | 
+| deleted_deployment_data.description | String | The description of deployment to be deleted. | 
 | deleted_deployment_data.nodes | String | The nodes that are part of deployment. | 
 
 ### safebreach-delete-integration-errors
@@ -481,8 +481,8 @@ We are using this command to get all available simulators.
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | secret | if secrets are to be included for search. Possible values are: true, false. | Optional | 
 | shouldIncludeProxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
-| hostname | if hostname to be included for search. Possible values are: true, false. | Optional | 
-| connectionType | if connectionType to be included for search. Possible values are: true, false. | Optional | 
+| hostname | if hostname to be included for search. | Optional | 
+| connectionType | if connectionType to be included for search. | Optional | 
 | externalIp | if external IP details to be included for search. | Optional | 
 | internalIp | if Internal IP are to be included for search. | Optional | 
 | os | if Operating system details to be included for search. Possible values are: true, false. | Optional | 
@@ -677,6 +677,8 @@ This command gets simulations which are in running or queued state.
 | custom_scenarios.steps_order | String | the order of steps of the scenario. | 
 | custom_scenarios.createdAt | String | the creation datetime of the scenario. | 
 | custom_scenarios.updatedAt | String | the last updated time the scenario. | 
+| custom_scenarios.custom_data_object_for_rerun_scenario | String | the data which can be used for             rerun-simulation command. | 
+| custom_scenarios.custom_data_for_rerun_test | String | the data which can be used for rerun-test command. | 
 
 ### safebreach-get-prebuilt-scenarios
 
@@ -806,7 +808,7 @@ This command gives simulator with given name
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Simulator/Node Name | Name of simulator/node to search with. | Optional | 
+| Simulator/Node Name | Name of simulator/node to search with. | Required | 
 | details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 
@@ -814,39 +816,39 @@ This command gives simulator with given name
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| simulator_details.is_enabled | String | Whether the node is enabled or not. | 
-| simulator_details.simulator_id | String | The Id of given simulator. | 
-| simulator_details.name | String | name for given simulator. | 
-| simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
-| simulator_details.is_critical | String | Whether the simulator is critical. | 
-| simulator_details.is_exfiltration | String | If Simulator is exfiltration target. | 
-| simulator_details.is_infiltration | String | If simulator is infiltration target. | 
-| simulator_details.is_mail_target | String | If simulator is mail target. | 
-| simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
-| simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
-| simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
-| simulator_details.external_ip | String | external ip of given simulator. | 
-| simulator_details.internal_ip | String | internal ip of given simulator. | 
-| simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
-| simulator_details.preferred_interface | String | Preferred simulator interface. | 
-| simulator_details.preferred_ip | String | Preferred Ip of simulator. | 
-| simulator_details.hostname | String | Hostname of given simulator. | 
-| simulator_details.connection_type | String | connection_type of given simulator. | 
-| simulator_details.simulator_status | String | status of the simulator. | 
-| simulator_details.connection_status | String | connection status of node/simulator. | 
-| simulator_details.simulator_framework_version | String | Framework version of simulator. | 
-| simulator_details.operating_system_type | String | operating system type of given simulator. | 
-| simulator_details.operating_system | String | Operating system of given simulator. | 
-| simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
-| simulator_details.deployments | String | deployments simulator is part of. | 
-| simulator_details.created_at | String | Creation datetime of simulator. | 
-| simulator_details.updated_at | String | Update datetime of given simulator. | 
-| simulator_details.deleted_at | String | deletion datetime of given simulator. | 
-| simulator_details.assets | String | Assets of given simulator. | 
-| simulator_details.simulation_users | String | simulator users list. | 
-| simulator_details.proxies | String | Proxies of simulator. | 
-| simulator_details.advanced_actions | String | Advanced simulator details. | 
+| simulator_details_with_name.is_enabled | String | Whether the node is enabled or not. | 
+| simulator_details_with_name.simulator_id | String | The Id of given simulator. | 
+| simulator_details_with_name.name | String | name for given simulator. | 
+| simulator_details_with_name.account_id | String | Account Id of account Hosting given simulator. | 
+| simulator_details_with_name.is_critical | String | Whether the simulator is critical. | 
+| simulator_details_with_name.is_exfiltration | String | If Simulator is exfiltration target. | 
+| simulator_details_with_name.is_infiltration | String | If simulator is infiltration target. | 
+| simulator_details_with_name.is_mail_target | String | If simulator is mail target. | 
+| simulator_details_with_name.is_mail_attacker | String | If simulator is mail attacker. | 
+| simulator_details_with_name.is_pre_executor | String | Whether the node is pre executor. | 
+| simulator_details_with_name.is_aws_attacker | String | if the given simulator is aws attacker. | 
+| simulator_details_with_name.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| simulator_details_with_name.external_ip | String | external ip of given simulator. | 
+| simulator_details_with_name.internal_ip | String | internal ip of given simulator. | 
+| simulator_details_with_name.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| simulator_details_with_name.preferred_interface | String | Preferred simulator interface. | 
+| simulator_details_with_name.preferred_ip | String | Preferred Ip of simulator. | 
+| simulator_details_with_name.hostname | String | Hostname of given simulator. | 
+| simulator_details_with_name.connection_type | String | connection_type of given simulator. | 
+| simulator_details_with_name.simulator_status | String | status of the simulator. | 
+| simulator_details_with_name.connection_status | String | connection status of node/simulator. | 
+| simulator_details_with_name.simulator_framework_version | String | Framework version of simulator. | 
+| simulator_details_with_name.operating_system_type | String | operating system type of given simulator. | 
+| simulator_details_with_name.operating_system | String | Operating system of given simulator. | 
+| simulator_details_with_name.execution_hostname | String | Execution Hostname of the given node. | 
+| simulator_details_with_name.deployments | String | deployments simulator is part of. | 
+| simulator_details_with_name.created_at | String | Creation datetime of simulator. | 
+| simulator_details_with_name.updated_at | String | Update datetime of given simulator. | 
+| simulator_details_with_name.deleted_at | String | deletion datetime of given simulator. | 
+| simulator_details_with_name.assets | String | Assets of given simulator. | 
+| simulator_details_with_name.simulation_users | String | simulator users list. | 
+| simulator_details_with_name.proxies | String | Proxies of simulator. | 
+| simulator_details_with_name.advanced_actions | String | Advanced simulator details. | 
 
 ### safebreach-get-user-with-matching-name-or-email
 
@@ -1025,8 +1027,8 @@ This command updates a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Deployment ID | Name of the deployment to update. | Optional | 
-| Deployment Name | Description of the deployment to update. | Optional | 
+| Deployment ID | ID of the deployment to update. | Optional | 
+| Deployment Name | Name of the deployment to update. | Required | 
 | Updated Nodes for Deployment | Comma separated ID of all nodes the deployment should be part of. | Optional | 
 | Updated Deployment Name | Name of the deployment to update to. | Optional | 
 | Updated deployment description. | name of the deployment to update to. | Optional | 
@@ -1035,11 +1037,11 @@ This command updates a deployment with given data.
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| updated_deployment_data.id | Number | The ID of deployment created. | 
-| updated_deployment_data.accountId | String | The account of deployment created. | 
-| updated_deployment_data.name | String | The name of deployment created. | 
-| updated_deployment_data.createdAt | String | The creation time of deployment created. | 
-| updated_deployment_data.description | String | The description of deployment created. | 
+| updated_deployment_data.id | Number | The ID of deployment to update. | 
+| updated_deployment_data.accountId | String | The account of deployment to update. | 
+| updated_deployment_data.name | String | The name of deployment to update. | 
+| updated_deployment_data.createdAt | String | The creation time of deployment to update. | 
+| updated_deployment_data.description | String | The description of deployment to update. | 
 | updated_deployment_data.nodes | String | The nodes that are part of deployment. | 
 
 ### safebreach-update-simulator-with-given-name
@@ -1131,12 +1133,12 @@ This command updates a user with given data.
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| updated_user_data.id | Number | The ID of User created. | 
-| updated_user_data.name | String | The name of User created. | 
-| updated_user_data.email | String | The email of User created. | 
-| updated_user_data.createdAt | String | The creation time of User created. | 
-| updated_user_data.deletedAt | String | The Deletion time of User created. | 
-| updated_user_data.roles | String | The roles of User created. | 
-| updated_user_data.description | String | The description of User created. | 
-| updated_user_data.role | String | The role of User created. | 
+| updated_user_data.id | Number | The ID of User updated. | 
+| updated_user_data.name | String | The name of User updated. | 
+| updated_user_data.email | String | The email of User updated. | 
+| updated_user_data.createdAt | String | The creation time of User updated. | 
+| updated_user_data.deletedAt | String | The Deletion time of User updated. | 
+| updated_user_data.roles | String | The roles of User updated. | 
+| updated_user_data.description | String | The description of User updated. | 
+| updated_user_data.role | String | The role of User updated. | 
 | updated_user_data.deployments | String | The deployments user is part of. | 

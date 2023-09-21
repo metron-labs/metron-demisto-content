@@ -73,7 +73,7 @@ script:
     - name: Name
       isArray: false
       description: Name of the deployment to create.
-      required: false
+      required: true
       secret: false
       default: false
     - name: Description
@@ -247,31 +247,31 @@ script:
     arguments:
     - name: Deployment ID
       isArray: false
-      description: Name of the deployment to update.
+      description: ID of the deployment to delete.
       required: false
       secret: false
       default: false
     - name: Deployment Name
       isArray: false
-      description: Description of the deployment to update.
-      required: false
+      description: Name of the deployment to delete.
+      required: true
       secret: false
       default: false
     outputs:
     - contextPath: deleted_deployment_data.id
-      description: The ID of deployment created.
+      description: The ID of deployment to be deleted.
       type: Number
     - contextPath: deleted_deployment_data.accountId
-      description: The account of deployment created.
+      description: The account of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.name
-      description: The name of deployment created.
+      description: The name of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.createdAt
-      description: The creation time of deployment created.
+      description: The creation time of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.description
-      description: The description of deployment created.
+      description: The description of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.nodes
       description: The nodes that are part of deployment.
@@ -299,7 +299,7 @@ script:
     arguments:
     - name: schedule ID
       isArray: false
-      description: schedule ID
+      description: schedule ID of schedule to delete.
       required: true
       secret: false
       default: false
@@ -716,10 +716,10 @@ script:
       description: Plan Run ID of the simulation.
       type: String
     - contextPath: active_tests.originalScenarioId
-      description: Original scenario ID of the running test
+      description: Original scenario ID of the running test.
       type: String
     - contextPath: active_tests.actions count
-      description: number of actions
+      description: number of actions.
       type: String
     - contextPath: active_tests.edges count
       description: number of edges.
@@ -728,7 +728,7 @@ script:
       description: details related to when test is created.
       type: String
     - contextPath: active_tests.updatedAt
-      description: details related to when test is last updated/changed
+      description: details related to when test is last updated/changed.
       type: String
     - contextPath: active_tests.steps count
       description: number of steps in simulator.
@@ -755,10 +755,10 @@ script:
       description: priority of tests.
       type: String
     - contextPath: active_tests.retrySimulations
-      description: Should simulations be retried
+      description: Should simulations be retried.
       type: String
     - contextPath: active_tests.flowControl
-      description: Flow control of tests
+      description: Flow control of tests.
       type: String
     - contextPath: active_tests.slot position
       description: position in queue.
@@ -767,34 +767,34 @@ script:
       description: is the test paused.
       type: Boolean
     - contextPath: active_tests.pauseDuration
-      description: is the test paused and if so till when
+      description: is the test paused and if so till when.
       type: String
     - contextPath: active_tests.totalJobs
-      description: Total number of jobs for this test
+      description: Total number of jobs for this test.
       type: String
     - contextPath: active_tests.pausedDate
-      description: when the test is paused
+      description: when the test is paused.
       type: String
     - contextPath: active_tests.expectedSimulationsAmount
-      description: number of simulations expected
+      description: number of simulations expected.
       type: String
     - contextPath: active_tests.dispatchedSimulationsAmount
-      description: the number of simulations dispatched
+      description: the number of simulations dispatched.
       type: String
     - contextPath: active_tests.blockedSimulationsAmount
-      description: The number of simulations blocked
+      description: The number of simulations blocked.
       type: String
     - contextPath: active_tests.unblockedSimulationsAmount
-      description: The number of simulations unblocked
+      description: The number of simulations unblocked.
       type: String
     - contextPath: active_tests.skippedSimulationsAmount
-      description: The number of simulations skipped
+      description: The number of simulations skipped.
       type: String
     - contextPath: active_tests.failedSimulationsAmount
-      description: The number of simulations failed
+      description: The number of simulations failed.
       type: String
     - contextPath: active_tests.isPrepared
-      description: Total number of simulations that have been prepared
+      description: Total number of simulations that have been prepared.
       type: String
   - deprecated: false
     description: We are using this command to get all available simulators.
@@ -848,20 +848,12 @@ script:
       required: false
       secret: false
       default: false
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: connectionType
       isArray: false
       description: if connectionType to be included for search.
       required: false
       secret: false
       default: false
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: externalIp
       isArray: false
       description: if external IP details to be included for search.
@@ -1336,7 +1328,7 @@ script:
     arguments:
     - name: schedule details
       isArray: false
-      description: Whether to get details of custom scenarios,                set this to true every time unless you explicitly dont need details
+      description: Whether to get details of custom scenarios,            set this to true every time unless you explicitly dont need details.
       required: false
       secret: false
       default: false
@@ -1375,6 +1367,12 @@ script:
       type: String
     - contextPath: custom_scenarios.updatedAt
       description: the last updated time the scenario.
+      type: String
+    - contextPath: custom_scenarios.custom_data_object_for_rerun_scenario
+      description: the data which can be used for             rerun-simulation command.
+      type: String
+    - contextPath: custom_scenarios.custom_data_for_rerun_test
+      description: the data which can be used for rerun-test command.
       type: String
   - deprecated: false
     description: This command gets simulations which are in running or queued state.
@@ -1415,7 +1413,7 @@ script:
       description: the order of the scenario.
       type: String
     - contextPath: prebuilt_scenarios.minApiVer
-      description: the minimum version of API required for scenario to be executed
+      description: the minimum version of API required for scenario to be executed.
       type: String
   - deprecated: false
     description: This command gets simulations which are in running or queued state.
@@ -1530,13 +1528,13 @@ script:
       description: Account expiration date.
       type: String
   - deprecated: false
-    description: This command gives simulator with given name
+    description: This command gives simulator with given name.
     name: safebreach-get-simulator-with-name
     arguments:
     - name: Simulator/Node Name
       isArray: false
       description: Name of simulator/node to search with.
-      required: false
+      required: true
       secret: false
       default: false
     - name: details
@@ -1562,103 +1560,103 @@ script:
       - 'false'
       auto: PREDEFINED
     outputs:
-    - contextPath: simulator_details.is_enabled
+    - contextPath: simulator_details_with_name.is_enabled
       description: Whether the node is enabled or not.
       type: String
-    - contextPath: simulator_details.simulator_id
+    - contextPath: simulator_details_with_name.simulator_id
       description: The Id of given simulator.
       type: String
-    - contextPath: simulator_details.name
+    - contextPath: simulator_details_with_name.name
       description: name for given simulator.
       type: String
-    - contextPath: simulator_details.account_id
+    - contextPath: simulator_details_with_name.account_id
       description: Account Id of account Hosting given simulator.
       type: String
-    - contextPath: simulator_details.is_critical
+    - contextPath: simulator_details_with_name.is_critical
       description: Whether the simulator is critical.
       type: String
-    - contextPath: simulator_details.is_exfiltration
+    - contextPath: simulator_details_with_name.is_exfiltration
       description: If Simulator is exfiltration target.
       type: String
-    - contextPath: simulator_details.is_infiltration
+    - contextPath: simulator_details_with_name.is_infiltration
       description: If simulator is infiltration target.
       type: String
-    - contextPath: simulator_details.is_mail_target
+    - contextPath: simulator_details_with_name.is_mail_target
       description: If simulator is mail target.
       type: String
-    - contextPath: simulator_details.is_mail_attacker
+    - contextPath: simulator_details_with_name.is_mail_attacker
       description: If simulator is mail attacker.
       type: String
-    - contextPath: simulator_details.is_pre_executor
+    - contextPath: simulator_details_with_name.is_pre_executor
       description: Whether the node is pre executor.
       type: String
-    - contextPath: simulator_details.is_aws_attacker
+    - contextPath: simulator_details_with_name.is_aws_attacker
       description: if the given simulator is aws attacker.
       type: String
-    - contextPath: simulator_details.is_azure_attacker
+    - contextPath: simulator_details_with_name.is_azure_attacker
       description: If the given simulator is azure attacker.
       type: String
-    - contextPath: simulator_details.external_ip
+    - contextPath: simulator_details_with_name.external_ip
       description: external ip of given simulator.
       type: String
-    - contextPath: simulator_details.internal_ip
+    - contextPath: simulator_details_with_name.internal_ip
       description: internal ip of given simulator.
       type: String
-    - contextPath: simulator_details.is_web_application_attacker
+    - contextPath: simulator_details_with_name.is_web_application_attacker
       description: Whether the simulator is Web application attacker.
       type: String
-    - contextPath: simulator_details.preferred_interface
+    - contextPath: simulator_details_with_name.preferred_interface
       description: Preferred simulator interface.
       type: String
-    - contextPath: simulator_details.preferred_ip
+    - contextPath: simulator_details_with_name.preferred_ip
       description: Preferred Ip of simulator.
       type: String
-    - contextPath: simulator_details.hostname
+    - contextPath: simulator_details_with_name.hostname
       description: Hostname of given simulator.
       type: String
-    - contextPath: simulator_details.connection_type
+    - contextPath: simulator_details_with_name.connection_type
       description: connection_type of given simulator.
       type: String
-    - contextPath: simulator_details.simulator_status
+    - contextPath: simulator_details_with_name.simulator_status
       description: status of the simulator.
       type: String
-    - contextPath: simulator_details.connection_status
+    - contextPath: simulator_details_with_name.connection_status
       description: connection status of node/simulator.
       type: String
-    - contextPath: simulator_details.simulator_framework_version
+    - contextPath: simulator_details_with_name.simulator_framework_version
       description: Framework version of simulator.
       type: String
-    - contextPath: simulator_details.operating_system_type
+    - contextPath: simulator_details_with_name.operating_system_type
       description: operating system type of given simulator.
       type: String
-    - contextPath: simulator_details.operating_system
+    - contextPath: simulator_details_with_name.operating_system
       description: Operating system of given simulator.
       type: String
-    - contextPath: simulator_details.execution_hostname
+    - contextPath: simulator_details_with_name.execution_hostname
       description: Execution Hostname of the given node.
       type: String
-    - contextPath: simulator_details.deployments
+    - contextPath: simulator_details_with_name.deployments
       description: deployments simulator is part of.
       type: String
-    - contextPath: simulator_details.created_at
+    - contextPath: simulator_details_with_name.created_at
       description: Creation datetime of simulator.
       type: String
-    - contextPath: simulator_details.updated_at
+    - contextPath: simulator_details_with_name.updated_at
       description: Update datetime of given simulator.
       type: String
-    - contextPath: simulator_details.deleted_at
+    - contextPath: simulator_details_with_name.deleted_at
       description: deletion datetime of given simulator.
       type: String
-    - contextPath: simulator_details.assets
+    - contextPath: simulator_details_with_name.assets
       description: Assets of given simulator.
       type: String
-    - contextPath: simulator_details.simulation_users
+    - contextPath: simulator_details_with_name.simulation_users
       description: simulator users list.
       type: String
-    - contextPath: simulator_details.proxies
+    - contextPath: simulator_details_with_name.proxies
       description: Proxies of simulator.
       type: String
-    - contextPath: simulator_details.advanced_actions
+    - contextPath: simulator_details_with_name.advanced_actions
       description: Advanced simulator details.
       type: String
   - deprecated: false
@@ -1722,7 +1720,7 @@ script:
     arguments:
     - name: Simulation/Test State
       isArray: false
-      description: State of tests/simulators to set to
+      description: State of tests/simulators to set to.
       required: true
       secret: false
       default: false
@@ -1735,7 +1733,7 @@ script:
       description: the status of the simulations/tests.
       type: String
   - deprecated: false
-    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table "
+    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table."
     name: safebreach-rerun-scenario
     arguments:
     - name: position
@@ -1746,7 +1744,7 @@ script:
       default: false
     - name: enable feedback loop
       isArray: false
-      description: this argument is used to enable/disable feedback loop
+      description: this argument is used to enable/disable feedback loop.
       required: false
       secret: false
       default: false
@@ -1757,7 +1755,7 @@ script:
       auto: PREDEFINED
     - name: retry simulation
       isArray: false
-      description: this argument is used to retry according to retry policy                 mention in retry policy field
+      description: this argument is used to retry according to retry policy                 mention in retry policy field.
       required: false
       secret: false
       default: false
@@ -1768,7 +1766,7 @@ script:
       auto: PREDEFINED
     - name: wait for retry
       isArray: false
-      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed
+      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
       required: false
       secret: false
       default: false
@@ -1779,7 +1777,7 @@ script:
       auto: PREDEFINED
     - name: priority
       isArray: false
-      description: the priority of this simulation action
+      description: the priority of this simulation action.
       required: false
       secret: false
       default: false
@@ -1790,7 +1788,7 @@ script:
       auto: PREDEFINED
     - name: simulation data
       isArray: false
-      description: simulation data for the given simulation
+      description: simulation data for the given simulation.
       required: true
       secret: false
       default: false
@@ -1826,7 +1824,7 @@ script:
       description: the last updated time the scenario.
       type: String
   - deprecated: false
-    description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table "
+    description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table."
     name: safebreach-rerun-test
     arguments:
     - name: position
@@ -1837,7 +1835,7 @@ script:
       default: false
     - name: enable feedback loop
       isArray: false
-      description: this argument is used to enable/disable feedback loop
+      description: this argument is used to enable/disable feedback loop.
       required: false
       secret: false
       default: false
@@ -1848,7 +1846,7 @@ script:
       auto: PREDEFINED
     - name: retry simulation
       isArray: false
-      description: this argument is used to retry according to retry policy                 mention in retry policy field
+      description: this argument is used to retry according to retry policy                 mention in retry policy field.
       required: false
       secret: false
       default: false
@@ -1859,7 +1857,7 @@ script:
       auto: PREDEFINED
     - name: wait for retry
       isArray: false
-      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed
+      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
       required: false
       secret: false
       default: false
@@ -1870,7 +1868,7 @@ script:
       auto: PREDEFINED
     - name: priority
       isArray: false
-      description: the priority of this test action
+      description: the priority of this test action.
       required: false
       secret: false
       default: false
@@ -1881,7 +1879,7 @@ script:
       auto: PREDEFINED
     - name: test data
       isArray: false
-      description: test data for the given test
+      description: test data for the given test.
       required: true
       secret: false
       default: false
@@ -1951,14 +1949,14 @@ script:
     arguments:
     - name: Deployment ID
       isArray: false
-      description: Name of the deployment to update.
+      description: ID of the deployment to update.
       required: false
       secret: false
       default: false
     - name: Deployment Name
       isArray: false
-      description: Description of the deployment to update.
-      required: false
+      description: Name of the deployment to update.
+      required: true
       secret: false
       default: false
     - name: Updated Nodes for Deployment
@@ -1981,19 +1979,19 @@ script:
       default: false
     outputs:
     - contextPath: updated_deployment_data.id
-      description: The ID of deployment created.
+      description: The ID of deployment to update.
       type: Number
     - contextPath: updated_deployment_data.accountId
-      description: The account of deployment created.
+      description: The account of deployment to update.
       type: String
     - contextPath: updated_deployment_data.name
-      description: The name of deployment created.
+      description: The name of deployment to update.
       type: String
     - contextPath: updated_deployment_data.createdAt
-      description: The creation time of deployment created.
+      description: The creation time of deployment to update.
       type: String
     - contextPath: updated_deployment_data.description
-      description: The description of deployment created.
+      description: The description of deployment to update.
       type: String
     - contextPath: updated_deployment_data.nodes
       description: The nodes that are part of deployment.
@@ -2254,28 +2252,28 @@ script:
       auto: PREDEFINED
     outputs:
     - contextPath: updated_user_data.id
-      description: The ID of User created.
+      description: The ID of User updated.
       type: Number
     - contextPath: updated_user_data.name
-      description: The name of User created.
+      description: The name of User updated.
       type: String
     - contextPath: updated_user_data.email
-      description: The email of User created.
+      description: The email of User updated.
       type: String
     - contextPath: updated_user_data.createdAt
-      description: The creation time of User created.
+      description: The creation time of User updated.
       type: String
     - contextPath: updated_user_data.deletedAt
-      description: The Deletion time of User created.
+      description: The Deletion time of User updated.
       type: String
     - contextPath: updated_user_data.roles
-      description: The roles of User created.
+      description: The roles of User updated.
       type: String
     - contextPath: updated_user_data.description
-      description: The description of User created.
+      description: The description of User updated.
       type: String
     - contextPath: updated_user_data.role
-      description: The role of User created.
+      description: The role of User updated.
       type: String
     - contextPath: updated_user_data.deployments
       description: The deployments user is part of.
@@ -2283,12 +2281,12 @@ script:
   script: '-'
   type: python
   subtype: python3
-  dockerimage: demisto/python3:3.10.13.73190
+  dockerimage: demisto/python3:3.10.13.74666
   feed: false
   isfetch: false
   runonce: false
   longRunning: false
   longRunningPort: false
-fromversion: 6.2.0
+fromversion: 6.9.0
 tests:
 - No tests

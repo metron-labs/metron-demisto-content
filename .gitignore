@@ -97,3 +97,12 @@ demisto_sdk_debug.log.*
 
 # Ignore Modeling Rules test conf
 Packs/**/ModelingRules/**/**/*_testdata.json
+.circleci/config.yml
+.gitlab/ci/.gitlab-ci.bucket-upload.yml
+.gitlab/ci/.gitlab-ci.security-scans.yml
+.gitignore
+.gitlab/ci/.gitlab-ci.bucket-upload.yml
+.gitlab/ci/.gitlab-ci.global.yml
+.gitlab/ci/.gitlab-ci.on-push.yml
+.circleci/config.yml
+.gitignore
