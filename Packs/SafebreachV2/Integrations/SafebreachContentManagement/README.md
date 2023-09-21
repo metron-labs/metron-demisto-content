@@ -7,7 +7,7 @@
     4. Nodes get, update, delete.
     5. Get current tests/simulation status and/or queue them.
     
-This integration was integrated and tested with version 0.0.1 of Safebreach Content Management.
+This integration was integrated and tested with version xx of Safebreach Content Management.
 
 ## Configure Safebreach Content Management on Cortex XSOAR
 
@@ -209,7 +209,7 @@ This command gets simulations which are in running or queued state.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| schedule ID | schedule ID. | Required | 
+| schedule ID | schedule ID of schedule to delete. | Required | 
 
 #### Context Output
 
@@ -661,7 +661,7 @@ This command gets simulations which are in running or queued state.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| schedule details | Whether to get details of custom scenarios,                set this to true every time unless you explicitly dont need details. Possible values are: false, true. Default is true. | Optional | 
+| schedule details | Whether to get details of custom scenarios,            set this to true every time unless you explicitly dont need details. Possible values are: false, true. Default is true. | Optional | 
 
 #### Context Output
 
