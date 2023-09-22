@@ -9,7 +9,9 @@ bool_map = {
     "true": True,
     "false": False,
     "True": True,
-    "False": False
+    "False": False,
+    True: True,
+    False: False
 }
 
 tests_outputs = [
@@ -56,15 +58,18 @@ test_outputs_headers_list = [
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
-    description="This Integration aims to provide easy access to safebreach from XSOAR.\
-        Following are the things that user can get access through XSOAR command integration: \
-        1. User get, create, update and delete. \
-        2. Deployment create, update and delete. \
-        3. Tests get and delete. \
-        4. Nodes get, update, delete. ",
+    description="""
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.73190",
+    docker_image="demisto/python3:3.10.13.74666",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -188,11 +193,11 @@ class Client(BaseClient):
         Returns:
             (dict,list,Exception): a dictionary or list with data based on API call OR Throws an error based on status code
         """
-        base_url = demisto.params().get("base_url", "")
+        base_url = demisto.params().get("base_url", "").strip()
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
         request_url = f"{base_url}/api/{url}"
-        api_key = demisto.params().get("api_key")
+        api_key = demisto.params().get("api_key", "").strip()
         headers = {
             'Accept': 'application/json',
             'x-apitoken': api_key
@@ -339,7 +344,7 @@ class Client(BaseClient):
         method = "PUT"
         url = f"orch/v3/accounts/{account_id}/queue/state"
         data = {
-            "status": demisto.args().get("Simulation/Test State")
+            "status": demisto.args().get("Simulation/Test State", "").strip()
         }
         simulations_details = self.get_response(url=url, method=method, body=data)
         return simulations_details
@@ -396,8 +401,10 @@ class Client(BaseClient):
                 if key == "actions" and scenario[key]:
                     actions_involved = ""
                     return_obj["actions_list"] = reduce(
-                        lambda actions_involved, action: f"""{actions_involved}, {action.get('type')}\
-                            with identity:{action.get('data',{}).get('uuid','') or action.get('data',{}).get('id','')}""",
+                        lambda actions_involved, action: f"""
+                            {actions_involved}, {action.get('type')} with identity:{
+                                action.get('data',{}).get('uuid','') or action.get('data',{}).get('id','')
+                                }""",
                         scenario[key], actions_involved)
                 elif key == "steps" and scenario[key]:
                     steps_involved = ""
@@ -409,18 +416,19 @@ class Client(BaseClient):
             # this part of code is for modifying test data that can be used for rerun test command
             if demisto.command() != "safebreach-rerun-scenario":
                 custom_data_obj = deepcopy(return_obj)
+                custom_data_obj.pop("actions_list")
+                custom_data_obj.pop("steps_order")
+                custom_data_obj.pop("edges_count")
                 custom_data_obj.pop("createdAt")
                 custom_data_obj.pop("updatedAt")
                 custom_data_obj.pop("description")
-                custom_data_obj["successCriteria"] = \
-                    custom_data_obj["successCriteria"] if not custom_data_obj["successCriteria"] else {}
-                return_obj["custom_data_for_rerun_test"] = custom_data_obj
+                custom_data_obj["successCriteria"] = custom_data_obj["successCriteria"] or {}
+                return_obj["custom_data_for_rerun_test"] = json.dumps(custom_data_obj)
             # this part of code is for modifying test data that can be used for rerun simulation command
-            custom_data_object_for_rerun_scenario = deepcopy(return_obj)
-            for key in list(custom_data_object_for_rerun_scenario.keys()):
-                if key not in ["name", "steps"]:
-                    custom_data_object_for_rerun_scenario.pop(key)
-            return_obj["custom_data_object_for_rerun_scenario"] = custom_data_object_for_rerun_scenario
+            return_obj["custom_data_object_for_rerun_scenario"] = json.dumps({
+                "name": return_obj.get("name"),
+                "steps": return_obj.get("steps")
+            })
             return_list.append(return_obj)
 
         return return_list
@@ -448,7 +456,7 @@ class Client(BaseClient):
         method = "GET"
         url = f"/config/v2/accounts/{account_id}/plans"
         request_params = {
-            "details": demisto.args().get("schedule details")
+            "details": demisto.args().get("schedule details", "").strip()
         }
         scenarios = self.get_response(url=url, method=method, request_params=request_params)
         return scenarios
@@ -472,6 +480,8 @@ class Client(BaseClient):
 
         account_id = demisto.params().get("account_id", 0)
         test_data = demisto.args().get("test data") if demisto.args().get("test data") else demisto.args().get("simulation data")
+        demisto.info(f"unprocessed test_data given to command is {test_data}")
+
         if isinstance(test_data, dict):
             pass
         elif isinstance(test_data, str):
@@ -496,6 +506,8 @@ class Client(BaseClient):
         for parameter in list(request_params.keys()):
             if not request_params[parameter]:
                 request_params.pop(parameter)
+
+        demisto.info(f"processed request parameters payload is {request_params}")
 
         method = "POST"
         url = f"/orch/v3/accounts/{account_id}/queue"
@@ -686,12 +698,13 @@ def get_schedules(client: Client):
         headers = ["id", "name"]
 
     schedules_data = client.get_schedules()
+    demisto.info(f"the get_schedules function gave response {schedules_data}")
     human_readable = tableToMarkdown(
         name="Schedules",
         t=schedules_data.get("data"),
         headers=headers)
 
-    outputs = schedules_data
+    outputs = schedules_data.get("data")
     result = CommandResults(
         outputs_prefix="schedules",
         outputs=outputs,
@@ -704,7 +717,7 @@ def get_schedules(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-schedule",
     inputs_list=[
-        InputArgument(name="schedule ID", description="schedule ID",
+        InputArgument(name="schedule ID", description="schedule ID of schedule to delete",
                       required=True, is_array=False)
     ],
     outputs_prefix="deleted_Schedule",
@@ -750,6 +763,8 @@ def delete_schedules(client: Client):
                ]
 
     schedules_data = client.delete_schedule()
+    demisto.info(f"the delete_schedules function with id {demisto.args().get('schedule ID')} gave response {schedules_data}")
+
     human_readable = tableToMarkdown(
         name="Deleted Schedule",
         t=schedules_data.get("data"),
@@ -806,6 +821,8 @@ def get_prebuilt_scenarios(client: Client):
         CommandResults,Dict: This returns all tests related summary as a table and gives a dictionary as outputs for the same
     """
     prebuilt_scenarios = client.get_prebuilt_scenarios()
+    demisto.info(f"output of get_prebuilt_scenarios function call is {prebuilt_scenarios}")
+
     flattened_simulations_data_for_table = client.extract_default_scenario_fields(prebuilt_scenarios)
     human_readable = tableToMarkdown(
         name="Scenarios",
@@ -815,6 +832,7 @@ def get_prebuilt_scenarios(client: Client):
             "tags_list", "categories", "steps_order", "order", "minApiVer"
         ])
 
+    demisto.info(f"json output for get_prebuilt_scenarios function is {prebuilt_scenarios}")
     outputs = prebuilt_scenarios
     result = CommandResults(
         outputs_prefix="prebuilt_scenarios",
@@ -829,8 +847,8 @@ def get_prebuilt_scenarios(client: Client):
     command_name="safebreach-get-custom-scenarios",
     inputs_list=[
         InputArgument(name="schedule details", description="Whether to get details of custom scenarios,\
-                set this to true every time unless you explicitly dont need details",
-                      default="true", options=["false", "true"], required=False, is_array=False),
+            set this to true every time unless you explicitly dont need details", default="true", options=["false", "true"],
+                      required=False, is_array=False),
     ],
     outputs_prefix="custom_scenarios",
     outputs_list=[
@@ -854,6 +872,10 @@ def get_prebuilt_scenarios(client: Client):
                        prefix="custom_scenarios", output_type=str),
         OutputArgument(name="updatedAt", description="the last updated time the scenario.",
                        prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="custom_data_object_for_rerun_scenario", description="the data which can be used for \
+            rerun-simulation command.", prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="custom_data_for_rerun_test", description="the data which can be used for rerun-test command.",
+                       prefix="custom_scenarios", output_type=str),
     ],
     description="This command gets simulations which are in running or queued state.")
 def get_custom_scenarios(client: Client):
@@ -866,16 +888,22 @@ def get_custom_scenarios(client: Client):
         CommandResults,Dict: This returns all tests related summary as a table and gives a dictionary as outputs for the same
     """
     custom_scenarios = client.get_custom_scenarios()
+    demisto.info(f"output of get_custom_scenarios function for command {demisto.command()} with details input \
+        {demisto.args().get('schedule details')} is {custom_scenarios}")
+
     if demisto.args().get("schedule details") == "true":
         flattened_simulations_data_for_table = client.extract_custom_scenario_fields(custom_scenarios.get("data", {}))
     else:
         flattened_simulations_data_for_table = custom_scenarios.get("data", {})
+
     human_readable = tableToMarkdown(
         name="Scenarios",
         t=flattened_simulations_data_for_table,
         headers=["id", "name", "description", "successCriteria", "originalScenarioId",
-                 "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt"])
+                 "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt",
+                 "custom_data_object_for_rerun_scenario", "custom_data_for_rerun_test"])
 
+    demisto.info(f"json output of custom scenarios call is {custom_scenarios}")
     outputs = custom_scenarios
     result = CommandResults(
         outputs_prefix="custom_scenarios",
@@ -911,11 +939,14 @@ def get_services_status(client: Client):
         CommandResults,Dict: This returns all tests related summary as a table and gives a dictionary as outputs for the same
     """
     services = client.get_services_status()
+    demisto.info(f"result of services API call is {services}")
+
     modified_services_data = client.format_services_response(services)
     human_readable = tableToMarkdown(
         name="Services",
         t=modified_services_data,
         headers=["name", "version", "connection_status"])
+    demisto.info(f"json output of services API call is {modified_services_data}")
 
     outputs = services
     result = CommandResults(
@@ -923,7 +954,6 @@ def get_services_status(client: Client):
         outputs=outputs,
         readable_output=human_readable
     )
-
     return result
 
 
@@ -938,6 +968,8 @@ def get_services_status(client: Client):
     description="This command gets simulations which are in running or queued state.")
 def get_verification_token(client):
     token_data = client.get_verification_token()
+    demisto.info(f"output of get_verification_token function for command {demisto.command()} is {token_data}")
+
     human_readable = tableToMarkdown(
         name="Verification Token",
         t=token_data.get("data"),
@@ -1011,6 +1043,8 @@ def get_verification_token(client):
 def rerun_test(client):
 
     rerun_results = client.rerun_test_or_simulation()
+    demisto.info(f"output of rerun_test function for command {demisto.command()} is {rerun_results}")
+
     flattened_simulations_data_for_table = client.extract_custom_scenario_fields([rerun_results.get("data", {})])
     human_readable = tableToMarkdown(
         name="Scenarios",
@@ -1018,6 +1052,7 @@ def rerun_test(client):
         headers=["id", "name", "description", "successCriteria", "originalScenarioId",
                  "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt",
                  "planId", "ranBy", "ranFrom", "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
+    demisto.info(f"json output of rerun_scenario is {flattened_simulations_data_for_table}")
 
     outputs = rerun_results
     result = CommandResults(
@@ -1073,13 +1108,14 @@ def rerun_test(client):
 def rerun_scenario(client):
 
     rerun_results = client.rerun_test_or_simulation()
+    demisto.info(f"output of rerun_scenario function for command {demisto.command()} is {rerun_results}")
     flattened_simulations_data_for_table = client.extract_custom_scenario_fields([rerun_results.get("data", {})])
     human_readable = tableToMarkdown(
         name="Scenarios",
         t=flattened_simulations_data_for_table,
         headers=["name", "actions_list", "edges_count", "steps_order", "ranBy", "ranFrom",
                  "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
-
+    demisto.info(f"json output of services rerun_scenario call is {flattened_simulations_data_for_table}")
     outputs = rerun_results
     result = CommandResults(
         outputs_prefix="changed_data",

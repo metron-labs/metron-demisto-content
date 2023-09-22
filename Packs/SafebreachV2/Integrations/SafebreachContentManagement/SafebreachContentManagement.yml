@@ -1,5 +1,5 @@
 category: Deception & Breach Simulation
-description: 'This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete. '
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
 commonfields:
   id: Safebreach Content Management
   version: -1
@@ -34,7 +34,7 @@ script:
     arguments:
     - name: schedule ID
       isArray: false
-      description: schedule ID
+      description: schedule ID of schedule to delete.
       required: true
       secret: false
       default: false
@@ -137,10 +137,10 @@ script:
       description: Plan Run ID of the simulation.
       type: String
     - contextPath: active_tests.originalScenarioId
-      description: Original scenario ID of the running test
+      description: Original scenario ID of the running test.
       type: String
     - contextPath: active_tests.actions count
-      description: number of actions
+      description: number of actions.
       type: String
     - contextPath: active_tests.edges count
       description: number of edges.
@@ -149,7 +149,7 @@ script:
       description: details related to when test is created.
       type: String
     - contextPath: active_tests.updatedAt
-      description: details related to when test is last updated/changed
+      description: details related to when test is last updated/changed.
       type: String
     - contextPath: active_tests.steps count
       description: number of steps in simulator.
@@ -176,10 +176,10 @@ script:
       description: priority of tests.
       type: String
     - contextPath: active_tests.retrySimulations
-      description: Should simulations be retried
+      description: Should simulations be retried.
       type: String
     - contextPath: active_tests.flowControl
-      description: Flow control of tests
+      description: Flow control of tests.
       type: String
     - contextPath: active_tests.slot position
       description: position in queue.
@@ -188,34 +188,34 @@ script:
       description: is the test paused.
       type: Boolean
     - contextPath: active_tests.pauseDuration
-      description: is the test paused and if so till when
+      description: is the test paused and if so till when.
       type: String
     - contextPath: active_tests.totalJobs
-      description: Total number of jobs for this test
+      description: Total number of jobs for this test.
       type: String
     - contextPath: active_tests.pausedDate
-      description: when the test is paused
+      description: when the test is paused.
       type: String
     - contextPath: active_tests.expectedSimulationsAmount
-      description: number of simulations expected
+      description: number of simulations expected.
       type: String
     - contextPath: active_tests.dispatchedSimulationsAmount
-      description: the number of simulations dispatched
+      description: the number of simulations dispatched.
       type: String
     - contextPath: active_tests.blockedSimulationsAmount
-      description: The number of simulations blocked
+      description: The number of simulations blocked.
       type: String
     - contextPath: active_tests.unblockedSimulationsAmount
-      description: The number of simulations unblocked
+      description: The number of simulations unblocked.
       type: String
     - contextPath: active_tests.skippedSimulationsAmount
-      description: The number of simulations skipped
+      description: The number of simulations skipped.
       type: String
     - contextPath: active_tests.failedSimulationsAmount
-      description: The number of simulations failed
+      description: The number of simulations failed.
       type: String
     - contextPath: active_tests.isPrepared
-      description: Total number of simulations that have been prepared
+      description: Total number of simulations that have been prepared.
       type: String
   - deprecated: false
     description: This command gets simulations which are in running or queued state.
@@ -223,7 +223,7 @@ script:
     arguments:
     - name: schedule details
       isArray: false
-      description: Whether to get details of custom scenarios,                set this to true every time unless you explicitly dont need details
+      description: Whether to get details of custom scenarios,            set this to true every time unless you explicitly dont need details.
       required: false
       secret: false
       default: false
@@ -262,6 +262,12 @@ script:
       type: String
     - contextPath: custom_scenarios.updatedAt
       description: the last updated time the scenario.
+      type: String
+    - contextPath: custom_scenarios.custom_data_object_for_rerun_scenario
+      description: the data which can be used for             rerun-simulation command.
+      type: String
+    - contextPath: custom_scenarios.custom_data_for_rerun_test
+      description: the data which can be used for rerun-test command.
       type: String
   - deprecated: false
     description: This command gets simulations which are in running or queued state.
@@ -302,7 +308,7 @@ script:
       description: the order of the scenario.
       type: String
     - contextPath: prebuilt_scenarios.minApiVer
-      description: the minimum version of API required for scenario to be executed
+      description: the minimum version of API required for scenario to be executed.
       type: String
   - deprecated: false
     description: This command gets simulations which are in running or queued state.
@@ -398,7 +404,7 @@ script:
     arguments:
     - name: Simulation/Test State
       isArray: false
-      description: State of tests/simulators to set to
+      description: State of tests/simulators to set to.
       required: true
       secret: false
       default: false
@@ -411,7 +417,7 @@ script:
       description: the status of the simulations/tests.
       type: String
   - deprecated: false
-    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table "
+    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table."
     name: safebreach-rerun-scenario
     arguments:
     - name: position
@@ -422,7 +428,7 @@ script:
       default: false
     - name: enable feedback loop
       isArray: false
-      description: this argument is used to enable/disable feedback loop
+      description: this argument is used to enable/disable feedback loop.
       required: false
       secret: false
       default: false
@@ -433,7 +439,7 @@ script:
       auto: PREDEFINED
     - name: retry simulation
       isArray: false
-      description: this argument is used to retry according to retry policy                 mention in retry policy field
+      description: this argument is used to retry according to retry policy                 mention in retry policy field.
       required: false
       secret: false
       default: false
@@ -444,7 +450,7 @@ script:
       auto: PREDEFINED
     - name: wait for retry
       isArray: false
-      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed
+      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
       required: false
       secret: false
       default: false
@@ -455,7 +461,7 @@ script:
       auto: PREDEFINED
     - name: priority
       isArray: false
-      description: the priority of this simulation action
+      description: the priority of this simulation action.
       required: false
       secret: false
       default: false
@@ -466,7 +472,7 @@ script:
       auto: PREDEFINED
     - name: simulation data
       isArray: false
-      description: simulation data for the given simulation
+      description: simulation data for the given simulation.
       required: true
       secret: false
       default: false
@@ -502,7 +508,7 @@ script:
       description: the last updated time the scenario.
       type: String
   - deprecated: false
-    description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table "
+    description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table."
     name: safebreach-rerun-test
     arguments:
     - name: position
@@ -513,7 +519,7 @@ script:
       default: false
     - name: enable feedback loop
       isArray: false
-      description: this argument is used to enable/disable feedback loop
+      description: this argument is used to enable/disable feedback loop.
       required: false
       secret: false
       default: false
@@ -524,7 +530,7 @@ script:
       auto: PREDEFINED
     - name: retry simulation
       isArray: false
-      description: this argument is used to retry according to retry policy                 mention in retry policy field
+      description: this argument is used to retry according to retry policy                 mention in retry policy field.
       required: false
       secret: false
       default: false
@@ -535,7 +541,7 @@ script:
       auto: PREDEFINED
     - name: wait for retry
       isArray: false
-      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed
+      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
       required: false
       secret: false
       default: false
@@ -546,7 +552,7 @@ script:
       auto: PREDEFINED
     - name: priority
       isArray: false
-      description: the priority of this test action
+      description: the priority of this test action.
       required: false
       secret: false
       default: false
@@ -557,7 +563,7 @@ script:
       auto: PREDEFINED
     - name: test data
       isArray: false
-      description: test data for the given test
+      description: test data for the given test.
       required: true
       secret: false
       default: false
@@ -616,12 +622,12 @@ script:
   script: '-'
   type: python
   subtype: python3
-  dockerimage: demisto/python3:3.10.13.73190
+  dockerimage: demisto/python3:3.10.13.74666
   feed: false
   isfetch: false
   runonce: false
   longRunning: false
   longRunningPort: false
-fromversion: 6.2.0
+fromversion: 6.9.0
 tests:
 - No tests
