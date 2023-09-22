@@ -7,20 +7,25 @@ bool_map = {
     "true": True,
     "false": False,
     "True": True,
-    "False": False
+    "False": False,
+    True: True,
+    False: False
 }
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
-    description="This Integration aims to provide easy access to safebreach from XSOAR.\
-        Following are the things that user can get access through XSOAR command integration: \
-        1. User get, create, update and delete. \
-        2. Deployment create, update and delete. \
-        3. Tests get and delete. \
-        4. Nodes get, update, delete. ",
+    description="""
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.73190",
+    docker_image="demisto/python3:3.10.13.74666",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -142,11 +147,11 @@ class Client(BaseClient):
         Returns:
             (dict,list,Exception): a dictionary or list with data based on API call OR Throws an error based on status code
         """
-        base_url = demisto.params().get("base_url", "")
+        base_url = demisto.params().get("base_url", "").strip()
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
         request_url = f"{base_url}/api/{url}"
-        api_key = demisto.params().get("api_key")
+        api_key = demisto.params().get("api_key", "").strip()
         headers = {
             'Accept': 'application/json',
             'x-apitoken': api_key
@@ -159,7 +164,8 @@ class Client(BaseClient):
             else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
-        """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
+        """
+            This function handles errors related to SBcodes if the endpoint gives sbcode in errors
 
         Args:
             response (dict): all errors given by 400 response code will be accepted as dictionary and are formatted based on 
@@ -168,8 +174,9 @@ class Client(BaseClient):
         Raises:
             Exception: all errors will be formatted and then thrown as exception string which will show as error_results in XSOAR
         """
+        demisto.debug(f"error being sent to format_sb_code_error function is {response.get('error')}")
         exception_string = format_sb_code_error(response.get("error"))
-        raise Exception(exception_string)
+        raise SBError(exception_string)
 
     def get_all_users_for_test(self):
         """
@@ -183,6 +190,8 @@ class Client(BaseClient):
             account_id = demisto.params().get("account_id", 0)
             url = f"/config/v1/accounts/{account_id}/users"
             response = self.get_response(url=url)
+            demisto.info(f"the response of function get_all_users_for_test is {response}")
+
             if response and response.get("data"):
                 return "ok"
             elif response.get("data") == []:
@@ -224,8 +233,10 @@ class Client(BaseClient):
             dict: deployment related details found while we find deployment with given name
         """
         available_deployments = self.list_deployments()
+        demisto.info(f"available deployments are {available_deployments}")
+
         if not available_deployments:
-            raise NotFoundError("deployments not found as you dont have any deployments")
+            raise NotFoundError(f"deployments with name: {deployment_name} not found as you dont have any deployments")
         needed_deployments = list(filter(lambda deployment: deployment["name"] == deployment_name, available_deployments))
         if not needed_deployments:
             raise NotFoundError("related deployment with given name couldn't be found")
@@ -239,14 +250,15 @@ class Client(BaseClient):
             dict: the data of deployment created
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name")
-        description = demisto.args().get("Description")
+        name = demisto.args().get("Name", "").strip()
+        description = demisto.args().get("Description", "").strip()
         nodes = demisto.args().get("Nodes", "").replace('"', "").split(",")
         deployment_payload = {
             "nodes": nodes,
             "name": name,
             "description": description,
         }
+        demisto.info(f"deployment creation payload is {deployment_payload}")
 
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/deployments"
@@ -265,19 +277,21 @@ class Client(BaseClient):
 
         account_id = demisto.params().get("account_id", 0)
         deployment_id = demisto.args().get("Deployment ID", None)
-        deployment_name = demisto.args().get("Deployment Name")
+        deployment_name = demisto.args().get("Deployment Name", "").strip()
 
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
             if needed_deployment:
-                deployment_id = needed_deployment['name']
+                deployment_id = needed_deployment['id']
+                demisto.info(f"deployment id for deployment with name {deployment_name} is {deployment_id}")
+
         if not deployment_id:
             raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
 
-        name = demisto.args().get("Updated Deployment Name")
+        name = demisto.args().get("Updated Deployment Name", "").strip()
         nodes = demisto.args().get("Updated Nodes for Deployment", None)
-        description = demisto.args().get("Updated deployment description.")
+        description = demisto.args().get("Updated deployment description.", "").strip()
         deployment_payload = {}
         if name:
             deployment_payload["name"] = name
@@ -285,6 +299,8 @@ class Client(BaseClient):
             deployment_payload["nodes"] = nodes.replace('"', "").split(",")
         if description:
             deployment_payload["description"] = description
+
+        demisto.info(f"deployment payload is {deployment_payload}")
 
         method = "PUT"
         url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
@@ -302,15 +318,18 @@ class Client(BaseClient):
         """
         account_id = demisto.params().get("account_id", 0)
         deployment_id = demisto.args().get("Deployment ID", None)
-        deployment_name = demisto.args().get("Deployment Name")
+        deployment_name = demisto.args().get("Deployment Name", "").strip()
 
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
             if needed_deployment:
-                deployment_id = needed_deployment['name']
+                deployment_id = needed_deployment['id']
+                demisto.info(f"deployment id for deployment with name {deployment_name} is {deployment_id}")
+
         if not deployment_id:
             raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
+
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/deployments/{deployment_id}"
         deleted_deployment = self.get_response(url=url, method=method)
@@ -324,8 +343,8 @@ class Client(BaseClient):
                 API key and name along with additional details
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name")
-        description = demisto.args().get("Description")
+        name = demisto.args().get("Name", "").strip()
+        description = demisto.args().get("Description", "").strip()
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/apikeys"
         data = {}
@@ -365,6 +384,8 @@ class Client(BaseClient):
             _type_: key ID for API key
         """
         active_keys = self.get_all_active_api_keys_with_details()
+        demisto.info(f"active api keys count is {len(active_keys.get('data'))}")
+
         required_key_object = list(filter(lambda key_obj: key_obj["name"] == key_name, active_keys.get("data")))
         if not required_key_object:
             raise NotFoundError(f"couldn't find APi key with given name: {key_name}")
@@ -376,7 +397,7 @@ class Client(BaseClient):
         Returns:
             dict: Deleted API key data
         """
-        key_name = demisto.args().get("Key Name")
+        key_name = demisto.args().get("Key Name", "").strip()
         key_id = self.filter_api_key_with_key_name(key_name=key_name)
         account_id = demisto.params().get("account_id", 0)
         method = "DELETE"
@@ -388,7 +409,7 @@ class Client(BaseClient):
 @metadata_collector.command(
     command_name="safebreach-create-deployment",
     inputs_list=[
-        InputArgument(name="Name", description="Name of the deployment to create.", required=False, is_array=False),
+        InputArgument(name="Name", description="Name of the deployment to create.", required=True, is_array=False),
         InputArgument(name="Description", description="Description of the deployment to create.", required=False, is_array=False),
         InputArgument(name="Nodes", description="Comma separated ID of all nodes the deployment should be part of.",
                       required=False, is_array=True)
@@ -422,6 +443,7 @@ def create_deployment(client: Client):
     human_readable = tableToMarkdown(name="Created Deployment", t=created_deployment.get("data", {}),
                                      headers=['id', "accountId", 'name', 'createdAt', "description", "nodes"])
     outputs = created_deployment.get("data", {})
+    demisto.info(f"json output for create deployment is {outputs}")
 
     result = CommandResults(
         outputs_prefix="created_deployment_data",
@@ -435,9 +457,9 @@ def create_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-deployment",
     inputs_list=[
-        InputArgument(name="Deployment ID", description="Name of the deployment to update.", required=False, is_array=False),
-        InputArgument(name="Deployment Name", description="Description of the deployment to update.",
-                      required=False, is_array=False),
+        InputArgument(name="Deployment ID", description="ID of the deployment to update.", required=False, is_array=False),
+        InputArgument(name="Deployment Name", description="Name of the deployment to update.",
+                      required=True, is_array=False),
         InputArgument(name="Updated Nodes for Deployment", required=False, is_array=False,
                       description="Comma separated ID of all nodes the deployment should be part of."),
         InputArgument(name="Updated Deployment Name", description="Name of the deployment to update to.",
@@ -447,15 +469,16 @@ def create_deployment(client: Client):
     ],
     outputs_prefix="updated_deployment_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of deployment created.", prefix="updated_deployment_data", output_type=int),
-        OutputArgument(name="accountId", description="The account of deployment created.", prefix="updated_deployment_data",
+        OutputArgument(name="id", description="The ID of deployment to update.",
+                       prefix="updated_deployment_data", output_type=int),
+        OutputArgument(name="accountId", description="The account of deployment to update.", prefix="updated_deployment_data",
                        output_type=str),
-        OutputArgument(name="name", description="The name of deployment created.", prefix="updated_deployment_data",
+        OutputArgument(name="name", description="The name of deployment to update.", prefix="updated_deployment_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="updated_deployment_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of deployment created.", prefix="updated_deployment_data",
-                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of deployment to update.",
+                       prefix="updated_deployment_data", output_type=str),
+        OutputArgument(name="description", description="The description of deployment to update.",
+                       prefix="updated_deployment_data", output_type=str),
         OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="updated_deployment_data",
                        output_type=str),
     ],
@@ -475,6 +498,8 @@ def update_deployment(client: Client):
                                      headers=['id', "accountId", 'name', 'createdAt',
                                               "description", "nodes", "updatedAt"])
     outputs = updated_deployment.get("data", {})
+    demisto.info(f"json output for update deployment is {outputs}")
+
     result = CommandResults(
         outputs_prefix="updated_deployment_data",
         outputs=outputs,
@@ -486,21 +511,22 @@ def update_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-deployment",
     inputs_list=[
-        InputArgument(name="Deployment ID", description="Name of the deployment to update.", required=False, is_array=False),
-        InputArgument(name="Deployment Name", description="Description of the deployment to update.",
-                      required=False, is_array=False),
+        InputArgument(name="Deployment ID", description="ID of the deployment to delete.", required=False, is_array=False),
+        InputArgument(name="Deployment Name", description="Name of the deployment to delete.",
+                      required=True, is_array=False),
     ],
     outputs_prefix="deleted_deployment_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of deployment created.", prefix="deleted_deployment_data", output_type=int),
-        OutputArgument(name="accountId", description="The account of deployment created.", prefix="deleted_deployment_data",
+        OutputArgument(name="id", description="The ID of deployment to be deleted.", prefix="deleted_deployment_data",
+                       output_type=int),
+        OutputArgument(name="accountId", description="The account of deployment to be deleted.", prefix="deleted_deployment_data",
                        output_type=str),
-        OutputArgument(name="name", description="The name of deployment created.", prefix="deleted_deployment_data",
+        OutputArgument(name="name", description="The name of deployment to be deleted.", prefix="deleted_deployment_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="deleted_deployment_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of deployment created.", prefix="deleted_deployment_data",
-                       output_type=str),
+        OutputArgument(name="createdAt", description="The creation time of deployment to be deleted.",
+                       prefix="deleted_deployment_data", output_type=str),
+        OutputArgument(name="description", description="The description of deployment to be deleted.",
+                       prefix="deleted_deployment_data", output_type=str),
         OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="deleted_deployment_data",
                        output_type=str),
     ],
@@ -520,6 +546,8 @@ def delete_deployment(client: Client):
                                      headers=['id', "accountId", 'name', 'createdAt',
                                               "description", "nodes", "updatedAt"])
     outputs = deleted_deployment.get("data", {})
+    demisto.info(f"json output for delete deployment is {outputs}")
+
     result = CommandResults(
         outputs_prefix="deleted_deployment_data",
         outputs=outputs,
@@ -567,6 +595,8 @@ def create_api_key(client: Client):
         t=generated_api_key.get("data"),
         headers=["name", "description", "createdBy", "createdAt", "key", "roles", "role"])
     outputs = generated_api_key.get("data")
+    demisto.info(f"json output for create API key is {outputs}")
+
     result = CommandResults(
         outputs_prefix="generated_api_key",
         outputs=outputs,
@@ -609,6 +639,8 @@ def delete_api_key(client: Client):
         t=deleted_api_key.get("data"),
         headers=["name", "description", "createdBy", "createdAt", "deletedAt"])
     outputs = deleted_api_key.get("data")
+    demisto.info(f"json output for delete api key is {outputs}")
+
     result = CommandResults(
         outputs_prefix="deleted_api_key",
         outputs=outputs,

@@ -1,4 +1,13 @@
-This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete. 
+
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    
+This integration was integrated and tested with version 0.0.1 of Safebreach Content Management.
 
 ## Configure Safebreach Content Management on Cortex XSOAR
 
@@ -61,7 +70,7 @@ This command creates a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Name | Name of the deployment to create. | Optional | 
+| Name | Name of the deployment to create. | Required | 
 | Description | Description of the deployment to create. | Optional | 
 | Nodes | Comma separated ID of all nodes the deployment should be part of. | Optional | 
 
@@ -114,18 +123,18 @@ This command deletes a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Deployment ID | Name of the deployment to update. | Optional | 
-| Deployment Name | Description of the deployment to update. | Optional | 
+| Deployment ID | ID of the deployment to delete. | Optional | 
+| Deployment Name | Name of the deployment to delete. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| deleted_deployment_data.id | Number | The ID of deployment created. | 
-| deleted_deployment_data.accountId | String | The account of deployment created. | 
-| deleted_deployment_data.name | String | The name of deployment created. | 
-| deleted_deployment_data.createdAt | String | The creation time of deployment created. | 
-| deleted_deployment_data.description | String | The description of deployment created. | 
+| deleted_deployment_data.id | Number | The ID of deployment to be deleted. | 
+| deleted_deployment_data.accountId | String | The account of deployment to be deleted. | 
+| deleted_deployment_data.name | String | The name of deployment to be deleted. | 
+| deleted_deployment_data.createdAt | String | The creation time of deployment to be deleted. | 
+| deleted_deployment_data.description | String | The description of deployment to be deleted. | 
 | deleted_deployment_data.nodes | String | The nodes that are part of deployment. | 
 
 ### safebreach-update-deployment
@@ -141,8 +150,8 @@ This command updates a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Deployment ID | Name of the deployment to update. | Optional | 
-| Deployment Name | Description of the deployment to update. | Optional | 
+| Deployment ID | ID of the deployment to update. | Optional | 
+| Deployment Name | Name of the deployment to update. | Required | 
 | Updated Nodes for Deployment | Comma separated ID of all nodes the deployment should be part of. | Optional | 
 | Updated Deployment Name | Name of the deployment to update to. | Optional | 
 | Updated deployment description. | name of the deployment to update to. | Optional | 
@@ -151,9 +160,9 @@ This command updates a deployment with given data.
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| updated_deployment_data.id | Number | The ID of deployment created. | 
-| updated_deployment_data.accountId | String | The account of deployment created. | 
-| updated_deployment_data.name | String | The name of deployment created. | 
-| updated_deployment_data.createdAt | String | The creation time of deployment created. | 
-| updated_deployment_data.description | String | The description of deployment created. | 
+| updated_deployment_data.id | Number | The ID of deployment to update. | 
+| updated_deployment_data.accountId | String | The account of deployment to update. | 
+| updated_deployment_data.name | String | The name of deployment to update. | 
+| updated_deployment_data.createdAt | String | The creation time of deployment to update. | 
+| updated_deployment_data.description | String | The description of deployment to update. | 
 | updated_deployment_data.nodes | String | The nodes that are part of deployment. | 

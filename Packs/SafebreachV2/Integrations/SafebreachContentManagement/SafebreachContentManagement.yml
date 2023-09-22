@@ -1,5 +1,5 @@
 category: Deception & Breach Simulation
-description: 'This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete. '
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
 commonfields:
   id: Safebreach Content Management
   version: -1
@@ -73,7 +73,7 @@ script:
     - name: Name
       isArray: false
       description: Name of the deployment to create.
-      required: false
+      required: true
       secret: false
       default: false
     - name: Description
@@ -139,31 +139,31 @@ script:
     arguments:
     - name: Deployment ID
       isArray: false
-      description: Name of the deployment to update.
+      description: ID of the deployment to delete.
       required: false
       secret: false
       default: false
     - name: Deployment Name
       isArray: false
-      description: Description of the deployment to update.
-      required: false
+      description: Name of the deployment to delete.
+      required: true
       secret: false
       default: false
     outputs:
     - contextPath: deleted_deployment_data.id
-      description: The ID of deployment created.
+      description: The ID of deployment to be deleted.
       type: Number
     - contextPath: deleted_deployment_data.accountId
-      description: The account of deployment created.
+      description: The account of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.name
-      description: The name of deployment created.
+      description: The name of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.createdAt
-      description: The creation time of deployment created.
+      description: The creation time of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.description
-      description: The description of deployment created.
+      description: The description of deployment to be deleted.
       type: String
     - contextPath: deleted_deployment_data.nodes
       description: The nodes that are part of deployment.
@@ -174,14 +174,14 @@ script:
     arguments:
     - name: Deployment ID
       isArray: false
-      description: Name of the deployment to update.
+      description: ID of the deployment to update.
       required: false
       secret: false
       default: false
     - name: Deployment Name
       isArray: false
-      description: Description of the deployment to update.
-      required: false
+      description: Name of the deployment to update.
+      required: true
       secret: false
       default: false
     - name: Updated Nodes for Deployment
@@ -204,19 +204,19 @@ script:
       default: false
     outputs:
     - contextPath: updated_deployment_data.id
-      description: The ID of deployment created.
+      description: The ID of deployment to update.
       type: Number
     - contextPath: updated_deployment_data.accountId
-      description: The account of deployment created.
+      description: The account of deployment to update.
       type: String
     - contextPath: updated_deployment_data.name
-      description: The name of deployment created.
+      description: The name of deployment to update.
       type: String
     - contextPath: updated_deployment_data.createdAt
-      description: The creation time of deployment created.
+      description: The creation time of deployment to update.
       type: String
     - contextPath: updated_deployment_data.description
-      description: The description of deployment created.
+      description: The description of deployment to update.
       type: String
     - contextPath: updated_deployment_data.nodes
       description: The nodes that are part of deployment.
@@ -224,7 +224,7 @@ script:
   script: '-'
   type: python
   subtype: python3
-  dockerimage: demisto/python3:3.10.13.73190
+  dockerimage: demisto/python3:3.10.13.74666
   feed: false
   isfetch: false
   runonce: false
