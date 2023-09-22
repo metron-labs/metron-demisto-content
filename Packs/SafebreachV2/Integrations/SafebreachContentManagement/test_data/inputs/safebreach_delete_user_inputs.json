@@ -1,0 +1,48 @@
+{
+    "successful_delete_just_email":{
+        "args":{
+            "User ID" : null,
+            "Email":"acme@email.com",
+
+            "Name":"acme updated",
+            "User Description":"updated user description",
+            "Is Active": "False",
+            "Email Post Creation": false,
+            "Admin Name":"",
+            "User role": "operator",
+            "Deployments":[1,2,3,4,5]
+        },
+        "command":"safebreach-delete-user"
+    },
+    "successful_delete_id_and_email":{
+        "args":{
+            "User ID" : 123456789,
+            "Email":"acme@email.com",
+
+            "Name":"acme updated",
+            "User Description":"updated user description",
+            "Is Active": "False",
+            "Email Post Creation": false,
+            "Admin Name":"",
+            "User role": "operator",
+            "Deployments":[1,2,3,4,5]
+        },
+        "command":"safebreach-delete-user"
+    },
+    "failed_delete":{
+        "args":{
+            "User ID" : 22,
+            "Email":"acme1@email.com",
+
+            "Name":"acme",
+            "Is Active": "False",
+            "Email Post Creation": "False",
+            "Password":"asdf",
+            "Admin Name":"",
+            "Change Password on create":"False",
+            "User role": "operator",
+            "Deployments":[1,2,3,4,5]
+        },
+        "command":"safebreach-delete-user"
+    }
+}

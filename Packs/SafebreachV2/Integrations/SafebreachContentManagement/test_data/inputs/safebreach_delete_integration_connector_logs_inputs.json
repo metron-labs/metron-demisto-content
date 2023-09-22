@@ -1,0 +1,13 @@
+{
+    "success":{
+        "args":{
+            "Connector ID":"skXv47LK_l7Hni340wEm112"
+        },
+        "command":"safebreach-delete-integration-errors"
+    },"fail":{
+        "args":{
+            "Connector ID":"skXv47LK_l7Hni340wEmmm"
+        },
+        "command":"safebreach-delete-integration-errors"
+    }
+}

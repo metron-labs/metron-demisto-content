@@ -1,0 +1,235 @@
+category: Deception & Breach Simulation
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
+commonfields:
+  id: Safebreach Content Management
+  version: -1
+name: Safebreach Content Management
+display: Safebreach Content Management
+configuration:
+- display: Server URL
+  name: base_url
+  type: 0
+  required: true
+  additionalinfo: This is base URL for your instance.
+- display: API Key
+  name: api_key
+  type: 4
+  required: true
+  additionalinfo: This is API key for your instance, this can be created in safebreach user                       administration>APIkeys and then it must be saved as there is no way to view this again
+- display: Account ID
+  name: account_id
+  type: 1
+  required: true
+  additionalinfo: This is account ID of account with which we want to get data from safebreach
+- display: Verify SSL Certificate
+  name: verify
+  type: 8
+  required: false
+  additionalinfo: This Field is useful for checking if the certificate of SSL for HTTPS is valid or not
+script:
+  commands:
+  - deprecated: false
+    description: This command creates a API Key with given data.
+    name: safebreach-generate-api-key
+    arguments:
+    - name: Name
+      isArray: false
+      description: Name of the API Key to create.
+      required: true
+      secret: false
+      default: false
+    - name: Description
+      isArray: false
+      description: Description of the API Key to create.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: generated_api_key.name
+      description: The Name of API Key created.
+      type: Number
+    - contextPath: generated_api_key.description
+      description: The Description of API Key created.
+      type: String
+    - contextPath: generated_api_key.createdBy
+      description: The User ID of API key creator.
+      type: String
+    - contextPath: generated_api_key.createdAt
+      description: The creation time of API key.
+      type: String
+    - contextPath: generated_api_key.key
+      description: The API key Value.
+      type: String
+    - contextPath: generated_api_key.roles
+      description: The roles allowed for this api key.
+      type: String
+    - contextPath: generated_api_key.role
+      description: The role of API Key.
+      type: String
+  - deprecated: false
+    description: This command creates a deployment with given data.
+    name: safebreach-create-deployment
+    arguments:
+    - name: Name
+      isArray: false
+      description: Name of the deployment to create.
+      required: true
+      secret: false
+      default: false
+    - name: Description
+      isArray: false
+      description: Description of the deployment to create.
+      required: false
+      secret: false
+      default: false
+    - name: Nodes
+      isArray: true
+      description: Comma separated ID of all nodes the deployment should be part of.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: created_deployment_data.id
+      description: The ID of deployment created.
+      type: Number
+    - contextPath: created_deployment_data.accountId
+      description: The account of deployment created.
+      type: String
+    - contextPath: created_deployment_data.name
+      description: The name of deployment created.
+      type: String
+    - contextPath: created_deployment_data.createdAt
+      description: The creation time of deployment created.
+      type: String
+    - contextPath: created_deployment_data.description
+      description: The description of deployment created.
+      type: String
+    - contextPath: created_deployment_data.nodes
+      description: The nodes that are part of deployment.
+      type: String
+  - deprecated: false
+    description: This command deletes a API key with given name.
+    name: safebreach-delete-api-key
+    arguments:
+    - name: Key Name
+      isArray: false
+      description: Name of the API Key to Delete.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: deleted_api_key.name
+      description: The Name of API Key deleted.
+      type: Number
+    - contextPath: deleted_api_key.description
+      description: The Description of API Key deleted.
+      type: String
+    - contextPath: deleted_api_key.createdBy
+      description: The User ID of API key creator.
+      type: String
+    - contextPath: deleted_api_key.createdAt
+      description: The creation time of API key.
+      type: String
+    - contextPath: deleted_api_key.deletedAt
+      description: The deletion time of API key.
+      type: String
+  - deprecated: false
+    description: This command deletes a deployment with given data.
+    name: safebreach-delete-deployment
+    arguments:
+    - name: Deployment ID
+      isArray: false
+      description: ID of the deployment to delete.
+      required: false
+      secret: false
+      default: false
+    - name: Deployment Name
+      isArray: false
+      description: Name of the deployment to delete.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: deleted_deployment_data.id
+      description: The ID of deployment to be deleted.
+      type: Number
+    - contextPath: deleted_deployment_data.accountId
+      description: The account of deployment to be deleted.
+      type: String
+    - contextPath: deleted_deployment_data.name
+      description: The name of deployment to be deleted.
+      type: String
+    - contextPath: deleted_deployment_data.createdAt
+      description: The creation time of deployment to be deleted.
+      type: String
+    - contextPath: deleted_deployment_data.description
+      description: The description of deployment to be deleted.
+      type: String
+    - contextPath: deleted_deployment_data.nodes
+      description: The nodes that are part of deployment.
+      type: String
+  - deprecated: false
+    description: This command updates a deployment with given data.
+    name: safebreach-update-deployment
+    arguments:
+    - name: Deployment ID
+      isArray: false
+      description: ID of the deployment to update.
+      required: false
+      secret: false
+      default: false
+    - name: Deployment Name
+      isArray: false
+      description: Name of the deployment to update.
+      required: true
+      secret: false
+      default: false
+    - name: Updated Nodes for Deployment
+      isArray: false
+      description: Comma separated ID of all nodes the deployment should be part of.
+      required: false
+      secret: false
+      default: false
+    - name: Updated Deployment Name
+      isArray: false
+      description: Name of the deployment to update to.
+      required: false
+      secret: false
+      default: false
+    - name: Updated deployment description.
+      isArray: false
+      description: name of the deployment to update to.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: updated_deployment_data.id
+      description: The ID of deployment to update.
+      type: Number
+    - contextPath: updated_deployment_data.accountId
+      description: The account of deployment to update.
+      type: String
+    - contextPath: updated_deployment_data.name
+      description: The name of deployment to update.
+      type: String
+    - contextPath: updated_deployment_data.createdAt
+      description: The creation time of deployment to update.
+      type: String
+    - contextPath: updated_deployment_data.description
+      description: The description of deployment to update.
+      type: String
+    - contextPath: updated_deployment_data.nodes
+      description: The nodes that are part of deployment.
+      type: String
+  script: '-'
+  type: python
+  subtype: python3
+  dockerimage: demisto/python3:3.10.13.74666
+  feed: false
+  isfetch: false
+  runonce: false
+  longRunning: false
+  longRunningPort: false
+fromversion: 6.2.0
+tests:
+- No tests
