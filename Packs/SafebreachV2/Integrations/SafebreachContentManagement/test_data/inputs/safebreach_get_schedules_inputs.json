@@ -1,0 +1,38 @@
+{
+    "success_deleted_details":{
+        "args":{
+            "deleted":"true",
+            "details":"true"
+        },
+        "command":"safebreach-get-schedules"
+    },
+    "success_deleted_no_details":{
+        "args":{
+            "deleted":"true",
+            "details":"false"
+        },
+        "command":"safebreach-get-schedules"
+    },
+    "success_no_deleted_details":{
+        "args":{
+            "deleted":"false",
+            "details":"true"
+        },
+        "command":"safebreach-get-schedules"
+    },
+    "success_no_deleted_no_details":{
+        "args":{
+            "deleted":"false",
+            "details":"false"
+        },
+        "command":"safebreach-get-schedules"
+    },
+    "fail":{
+        "args":{
+            "deleted":"true",
+            "details":"true"
+        },
+        "command":"safebreach-get-schedules"
+    }
+    
+}

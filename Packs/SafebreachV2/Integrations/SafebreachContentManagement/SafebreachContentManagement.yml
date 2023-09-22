@@ -1,0 +1,413 @@
+category: Deception & Breach Simulation
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
+commonfields:
+  id: Safebreach Content Management
+  version: -1
+name: Safebreach Content Management
+display: Safebreach Content Management
+configuration:
+- display: Server URL
+  name: base_url
+  type: 0
+  required: true
+  additionalinfo: This is base URL for your instance.
+- display: API Key
+  name: api_key
+  type: 4
+  required: true
+  additionalinfo: This is API key for your instance, this can be created in safebreach user                       administration>APIkeys and then it must be saved as there is no way to view this again
+- display: Account ID
+  name: account_id
+  type: 1
+  required: true
+  additionalinfo: This is account ID of account with which we want to get data from safebreach
+- display: Verify SSL Certificate
+  name: verify
+  type: 8
+  required: false
+  additionalinfo: This Field is useful for checking if the certificate of SSL for HTTPS is valid or not
+script:
+  commands:
+  - deprecated: false
+    description: This command deleted connector related errors.
+    name: safebreach-delete-integration-errors
+    arguments:
+    - name: Connector ID
+      isArray: false
+      description: The connector ID of Integration connector to have its errors deleted.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: errors_cleared.error
+      description: Error count after deletion of errors for the given connector.
+      type: Number
+    - contextPath: errors_cleared.result
+      description: error deletion status whether true or false.
+      type: String
+  - deprecated: false
+    description: This command deletes tests with given plan ID.
+    name: safebreach-delete-test-summary-of-given-test
+    arguments:
+    - name: Test ID
+      isArray: false
+      description: number of entries per page to be retrieved.
+      required: false
+      secret: false
+      default: false
+    - name: Soft Delete
+      isArray: false
+      description: Should archived tests be included in search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: deleted_test_results.planId
+      description: Plan ID of the simulation.
+      type: String
+    - contextPath: deleted_test_results.planName
+      description: Plan Name of the simulation.
+      type: String
+    - contextPath: deleted_test_results.securityActionPerControl
+      description: Security Actions of the simulation.
+      type: String
+    - contextPath: deleted_test_results.planRunId
+      description: Plan Run ID of the simulation.
+      type: String
+    - contextPath: deleted_test_results.runId
+      description: Run ID of the simulation.
+      type: String
+    - contextPath: deleted_test_results.status
+      description: status of the simulation.
+      type: String
+    - contextPath: deleted_test_results.plannedSimulationsAmount
+      description: Planned simulations amount of the simulation.
+      type: String
+    - contextPath: deleted_test_results.simulatorExecutions
+      description: simulator executions of the simulation.
+      type: String
+    - contextPath: deleted_test_results.ranBy
+      description: user who started the simulation.
+      type: String
+    - contextPath: deleted_test_results.simulatorCount
+      description: simulators count of simulation.
+      type: String
+    - contextPath: deleted_test_results.endTime
+      description: End Time of the simulation.
+      type: String
+    - contextPath: deleted_test_results.startTime
+      description: start time of the simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.stopped
+      description: stopped count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.missed
+      description: missed count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.logged
+      description: logged count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.detected
+      description: detected count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.prevented
+      description: prevented count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.inconsistent
+      description: inconsistent count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.drifted
+      description: drifted count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.not_drifted
+      description: not drifted count of simulation.
+      type: String
+    - contextPath: deleted_test_results.finalStatus.baseline
+      description: baseline count of simulation.
+      type: String
+  - deprecated: false
+    description: This command gives all connector related errors.
+    name: safebreach-get-integration-errors
+    arguments: []
+    outputs:
+    - contextPath: integration_errors.connector
+      description: The connector ID of Integration connector retrieved.
+      type: Number
+    - contextPath: integration_errors.action
+      description: The action of Integration connector error.
+      type: String
+    - contextPath: integration_errors.success
+      description: status of connector error.
+      type: String
+    - contextPath: integration_errors.error
+      description: Error description.
+      type: String
+    - contextPath: integration_errors.timestamp
+      description: Time of error.
+      type: String
+  - deprecated: false
+    description: This command gets tests with given modifiers.
+    name: safebreach-get-test-summary
+    arguments:
+    - name: Include Archived
+      isArray: false
+      description: Should archived tests be included in search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: Entries per Page
+      isArray: false
+      description: number of entries per page to be retrieved.
+      required: false
+      secret: false
+      default: false
+    - name: Plan ID
+      isArray: false
+      description: plan Id of test.
+      required: false
+      secret: false
+      default: false
+    - name: Status
+      isArray: false
+      description: Status of simulation.
+      required: false
+      secret: false
+      default: false
+      defaultValue: CANCELED
+      predefined:
+      - CANCELED
+      - COMPLETED
+      auto: PREDEFINED
+    - name: Simulation ID
+      isArray: false
+      description: Unique ID of the simulation.
+      required: false
+      secret: false
+      default: false
+    - name: Sort By
+      isArray: false
+      description: sort by option.
+      required: false
+      secret: false
+      default: false
+      defaultValue: endTime
+      predefined:
+      - endTime
+      - startTime
+      - planRunId
+      - stepRunId
+      auto: PREDEFINED
+    outputs:
+    - contextPath: test_results.planId
+      description: Plan ID of the simulation.
+      type: String
+    - contextPath: test_results.planName
+      description: Plan Name of the simulation.
+      type: String
+    - contextPath: test_results.securityActionPerControl
+      description: Security Actions of the simulation.
+      type: String
+    - contextPath: test_results.planRunId
+      description: Plan Run ID of the simulation.
+      type: String
+    - contextPath: test_results.runId
+      description: Run ID of the simulation.
+      type: String
+    - contextPath: test_results.status
+      description: status of the simulation.
+      type: String
+    - contextPath: test_results.plannedSimulationsAmount
+      description: Planned simulations amount of the simulation.
+      type: String
+    - contextPath: test_results.simulatorExecutions
+      description: simulator executions of the simulation.
+      type: String
+    - contextPath: test_results.ranBy
+      description: user who started the simulation.
+      type: String
+    - contextPath: test_results.simulatorCount
+      description: simulators count of simulation.
+      type: String
+    - contextPath: test_results.endTime
+      description: End Time of the simulation.
+      type: String
+    - contextPath: test_results.startTime
+      description: start time of the simulation.
+      type: String
+    - contextPath: test_results.finalStatus.stopped
+      description: stopped count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.missed
+      description: missed count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.logged
+      description: logged count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.detected
+      description: detected count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.prevented
+      description: prevented count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.inconsistent
+      description: inconsistent count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.drifted
+      description: drifted count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.not_drifted
+      description: not drifted count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.baseline
+      description: baseline count of simulation.
+      type: String
+  - deprecated: false
+    description: This command gets tests with given plan ID.
+    name: safebreach-get-test-summary-with-plan-run-id
+    arguments:
+    - name: Include Archived
+      isArray: false
+      description: Should archived tests be included in search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: Entries per Page
+      isArray: false
+      description: number of entries per page to be retrieved.
+      required: false
+      secret: false
+      default: false
+    - name: Plan ID
+      isArray: false
+      description: plan Id of test.
+      required: true
+      secret: false
+      default: false
+    - name: Status
+      isArray: false
+      description: Status of simulation.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - CANCELED
+      - COMPLETED
+      auto: PREDEFINED
+    - name: Simulation ID
+      isArray: false
+      description: Unique ID of the simulation.
+      required: false
+      secret: false
+      default: false
+    - name: Sort By
+      isArray: false
+      description: sort by option.
+      required: false
+      secret: false
+      default: false
+      defaultValue: endTime
+      predefined:
+      - endTime
+      - startTime
+      - planRunId
+      - stepRunId
+      auto: PREDEFINED
+    outputs:
+    - contextPath: test_results.planId
+      description: Plan ID of the simulation.
+      type: String
+    - contextPath: test_results.planName
+      description: Plan Name of the simulation.
+      type: String
+    - contextPath: test_results.securityActionPerControl
+      description: Security Actions of the simulation.
+      type: String
+    - contextPath: test_results.planRunId
+      description: Plan Run ID of the simulation.
+      type: String
+    - contextPath: test_results.runId
+      description: Run ID of the simulation.
+      type: String
+    - contextPath: test_results.status
+      description: status of the simulation.
+      type: String
+    - contextPath: test_results.plannedSimulationsAmount
+      description: Planned simulations amount of the simulation.
+      type: String
+    - contextPath: test_results.simulatorExecutions
+      description: simulator executions of the simulation.
+      type: String
+    - contextPath: test_results.ranBy
+      description: user who started the simulation.
+      type: String
+    - contextPath: test_results.simulatorCount
+      description: simulators count of simulation.
+      type: String
+    - contextPath: test_results.endTime
+      description: End Time of the simulation.
+      type: String
+    - contextPath: test_results.startTime
+      description: start time of the simulation.
+      type: String
+    - contextPath: test_results.finalStatus.stopped
+      description: stopped count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.missed
+      description: missed count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.logged
+      description: logged count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.detected
+      description: detected count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.prevented
+      description: prevented count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.inconsistent
+      description: inconsistent count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.drifted
+      description: drifted count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.not_drifted
+      description: not drifted count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.baseline
+      description: baseline count of simulation.
+      type: String
+  - deprecated: false
+    description: This command rotates generated verification token.
+    name: safebreach-rotate-verification-token
+    arguments: []
+    outputs:
+    - contextPath: Safebreach Content Management.new_token
+      description: new Token.
+      type: String
+  script: '-'
+  type: python
+  subtype: python3
+  dockerimage: demisto/python3:3.10.13.74666
+  feed: false
+  isfetch: false
+  runonce: false
+  longRunning: false
+  longRunningPort: false
+fromversion: 6.2.0
+tests:
+- No tests
