@@ -100,7 +100,7 @@ def test_get_simulator_with_name(mocker):
         main()
         call = safebreach_content_management.return_results.call_args_list
         command_results = call[0].args[0]
-        assert command_results.outputs_prefix == "simulator_details"
+        assert command_results.outputs_prefix == "simulator_details_with_name"
         # assert command_results.outputs == test_output["outputs"][key]
 
 

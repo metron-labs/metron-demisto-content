@@ -1,4 +1,14 @@
-This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete .
+
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    
+This integration was integrated and tested with version 0.0.1 of Safebreach Content Management.
+
 ## Configure Safebreach Content Management on Cortex XSOAR
 
 1. Navigate to **Settings** > **Integrations** > **Servers & Services**.
@@ -46,34 +56,34 @@ This command deletes simulator with given name.
 | deleted_simulator_details.name | String | name for given simulator. | 
 | deleted_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | deleted_simulator_details.is_critical | String | Whether the simulator is critical. | 
-| deleted_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
-| deleted_simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
-| deleted_simulator_details.is_mail_target | Number | If simulator is mail target. | 
-| deleted_simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
-| deleted_simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
+| deleted_simulator_details.is_exfiltration | String | If Simulator is exfiltration target. | 
+| deleted_simulator_details.is_infiltration | String | If simulator is infiltration target. | 
+| deleted_simulator_details.is_mail_target | String | If simulator is mail target. | 
+| deleted_simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
+| deleted_simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
 | deleted_simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
 | deleted_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
 | deleted_simulator_details.external_ip | String | external ip of given simulator. | 
 | deleted_simulator_details.internal_ip | String | internal ip of given simulator. | 
 | deleted_simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
-| deleted_simulator_details.preferred_interface | Number | Preferred simulator interface. | 
-| deleted_simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
+| deleted_simulator_details.preferred_interface | String | Preferred simulator interface. | 
+| deleted_simulator_details.preferred_ip | String | Preferred Ip of simulator. | 
 | deleted_simulator_details.hostname | String | Hostname of given simulator. | 
 | deleted_simulator_details.connection_type | String | connection_type of given simulator. | 
 | deleted_simulator_details.simulator_status | String | status of the simulator. | 
-| deleted_simulator_details.connection_status | Number | connection status of node/simulator. | 
-| deleted_simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
+| deleted_simulator_details.connection_status | String | connection status of node/simulator. | 
+| deleted_simulator_details.simulator_framework_version | String | Framework version of simulator. | 
 | deleted_simulator_details.operating_system_type | String | operating system type of given simulator. | 
 | deleted_simulator_details.operating_system | String | Operating system of given simulator. | 
 | deleted_simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
-| deleted_simulator_details.deployments | Number | deployments simulator is part of. | 
-| deleted_simulator_details.created_at | Number | Creation datetime of simulator. | 
+| deleted_simulator_details.deployments | String | deployments simulator is part of. | 
+| deleted_simulator_details.created_at | String | Creation datetime of simulator. | 
 | deleted_simulator_details.updated_at | String | Update datetime of given simulator. | 
 | deleted_simulator_details.deleted_at | String | deletion datetime of given simulator. | 
 | deleted_simulator_details.assets | String | Assets of given simulator. | 
-| deleted_simulator_details.simulation_users | Number | simulator users list. | 
-| deleted_simulator_details.proxies | Number | Proxies of simulator. | 
-| deleted_simulator_details.advanced_actions | Number | Advanced simulator details. | 
+| deleted_simulator_details.simulation_users | String | simulator users list. | 
+| deleted_simulator_details.proxies | String | Proxies of simulator. | 
+| deleted_simulator_details.advanced_actions | String | Advanced simulator details. | 
 
 ### safebreach-get-available-simulator-details
 
@@ -92,33 +102,17 @@ We are using this command to get all available simulators.
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | secret | if secrets are to be included for search. Possible values are: true, false. | Optional | 
 | shouldIncludeProxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
-| hostname | if hostname to be included for search. Possible values are: true, false. | Optional | 
-| connectionType | if connectionType to be included for search. Possible values are: true, false. | Optional | 
+| hostname | if hostname to be included for search. | Optional | 
+| connectionType | if connectionType to be included for search. | Optional | 
 | externalIp | if external IP details to be included for search. | Optional | 
 | internalIp | if Internal IP are to be included for search. | Optional | 
 | os | if Operating system details to be included for search. Possible values are: true, false. | Optional | 
 | sortDirection | direction in which secrets are to be sorted. Possible values are: asc, desc. Default is asc. | Optional | 
-| startRow | if there are too many entries then where should we start looking from. | Optional | 
 | pageSize | number of entries to search. | Optional | 
 | isEnabled | if to search only enabled ones. Possible values are: true, false. | Optional | 
 | isConnected | status of connection of nodes to search. Possible values are: true, false. | Optional | 
 | isCritical | whether to search only for critical nodes or not. Possible values are: true, false. | Optional | 
-| assets | Whether search only for assets and which assets. | Optional | 
 | additionalDetails | Whether to show additional details or not. Possible values are: true, false. | Optional | 
-| impersonatedUsers | should search only for impersonated user targets or not. Possible values are: true, false. | Optional | 
-| isAzureAttacker | Whether to search only for azure attackers. Possible values are: true, false. | Optional | 
-| isAwsAttacker | Whether to search only for aws attacker. Possible values are: true, false. | Optional | 
-| isPreExecutor | should search only for pre-executors or not. Possible values are: true, false. | Optional | 
-| isInfiltrationTarget | Whether to search only for infiltration targets. Possible values are: true, false. | Optional | 
-| isMailTarget | Whether to search only for Mail targets. Possible values are: true, false. | Optional | 
-| isExfiltrationTarget | should search only for exfiltration targets or not. Possible values are: true, false. | Optional | 
-| deployments | deployments list which the search should look. | Optional | 
-| advancedActions | advanced actions to search. | Optional | 
-| roles | roles to search. | Optional | 
-| userids | userids to search. | Optional | 
-| versions | versions to filter by. | Optional | 
-| proxyIds | proxy ids to search. | Optional | 
-| assetIds | asset ids to search. | Optional | 
 | status | if simulator status are to be included for search. Possible values are: APPROVED, PENDING, ALL. Default is ALL. | Optional | 
 
 #### Context Output
@@ -130,34 +124,34 @@ We are using this command to get all available simulators.
 | simulator_details.name | String | name for given simulator. | 
 | simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | simulator_details.is_critical | String | Whether the simulator is critical. | 
-| simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
-| simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
-| simulator_details.is_mail_target | Number | If simulator is mail target. | 
-| simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
-| simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
+| simulator_details.is_exfiltration | String | If Simulator is exfiltration target. | 
+| simulator_details.is_infiltration | String | If simulator is infiltration target. | 
+| simulator_details.is_mail_target | String | If simulator is mail target. | 
+| simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
+| simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
 | simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
 | simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
 | simulator_details.external_ip | String | external ip of given simulator. | 
 | simulator_details.internal_ip | String | internal ip of given simulator. | 
 | simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
-| simulator_details.preferred_interface | Number | Preferred simulator interface. | 
-| simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
+| simulator_details.preferred_interface | String | Preferred simulator interface. | 
+| simulator_details.preferred_ip | String | Preferred Ip of simulator. | 
 | simulator_details.hostname | String | Hostname of given simulator. | 
 | simulator_details.connection_type | String | connection_type of given simulator. | 
 | simulator_details.simulator_status | String | status of the simulator. | 
-| simulator_details.connection_status | Number | connection status of node/simulator. | 
-| simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
+| simulator_details.connection_status | String | connection status of node/simulator. | 
+| simulator_details.simulator_framework_version | String | Framework version of simulator. | 
 | simulator_details.operating_system_type | String | operating system type of given simulator. | 
 | simulator_details.operating_system | String | Operating system of given simulator. | 
 | simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
-| simulator_details.deployments | Number | deployments simulator is part of. | 
-| simulator_details.created_at | Number | Creation datetime of simulator. | 
+| simulator_details.deployments | String | deployments simulator is part of. | 
+| simulator_details.created_at | String | Creation datetime of simulator. | 
 | simulator_details.updated_at | String | Update datetime of given simulator. | 
 | simulator_details.deleted_at | String | deletion datetime of given simulator. | 
 | simulator_details.assets | String | Assets of given simulator. | 
-| simulator_details.simulation_users | Number | simulator users list. | 
-| simulator_details.proxies | Number | Proxies of simulator. | 
-| simulator_details.advanced_actions | Number | Advanced simulator details. | 
+| simulator_details.simulation_users | String | simulator users list. | 
+| simulator_details.proxies | String | Proxies of simulator. | 
+| simulator_details.advanced_actions | String | Advanced simulator details. | 
 
 ### safebreach-get-available-simulator-count
 
@@ -184,8 +178,8 @@ This command gives all details related to account, we are using this to find ass
 | account_details.userQuota | String | User Quota for the given account, max number of users for this account. | 
 | account_details.nodesQuota | Number | The simulator quota for the given account. | 
 | account_details.registrationDate | Number | The registration date of given account. | 
-| account_details.activationDate | Number | The Activation date of given account. | 
-| account_details.expirationDate | Number | Account expiration date. | 
+| account_details.activationDate | String | The Activation date of given account. | 
+| account_details.expirationDate | String | Account expiration date. | 
 
 ### safebreach-get-simulator-with-name
 
@@ -200,7 +194,7 @@ This command gives simulator with given name
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Simulator/Node Name | Name of simulator/node to search with. | Optional | 
+| Simulator/Node Name | Name of simulator/node to search with. | Required | 
 | details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 
@@ -208,39 +202,39 @@ This command gives simulator with given name
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| simulator_details.is_enabled | String | Whether the node is enabled or not. | 
-| simulator_details.simulator_id | String | The Id of given simulator. | 
-| simulator_details.name | String | name for given simulator. | 
-| simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
-| simulator_details.is_critical | String | Whether the simulator is critical. | 
-| simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
-| simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
-| simulator_details.is_mail_target | Number | If simulator is mail target. | 
-| simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
-| simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
-| simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
-| simulator_details.external_ip | String | external ip of given simulator. | 
-| simulator_details.internal_ip | String | internal ip of given simulator. | 
-| simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
-| simulator_details.preferred_interface | Number | Preferred simulator interface. | 
-| simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
-| simulator_details.hostname | String | Hostname of given simulator. | 
-| simulator_details.connection_type | String | connection_type of given simulator. | 
-| simulator_details.simulator_status | String | status of the simulator. | 
-| simulator_details.connection_status | Number | connection status of node/simulator. | 
-| simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
-| simulator_details.operating_system_type | String | operating system type of given simulator. | 
-| simulator_details.operating_system | String | Operating system of given simulator. | 
-| simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
-| simulator_details.deployments | Number | deployments simulator is part of. | 
-| simulator_details.created_at | Number | Creation datetime of simulator. | 
-| simulator_details.updated_at | String | Update datetime of given simulator. | 
-| simulator_details.deleted_at | String | deletion datetime of given simulator. | 
-| simulator_details.assets | String | Assets of given simulator. | 
-| simulator_details.simulation_users | Number | simulator users list. | 
-| simulator_details.proxies | Number | Proxies of simulator. | 
-| simulator_details.advanced_actions | Number | Advanced simulator details. | 
+| simulator_details_with_name.is_enabled | String | Whether the node is enabled or not. | 
+| simulator_details_with_name.simulator_id | String | The Id of given simulator. | 
+| simulator_details_with_name.name | String | name for given simulator. | 
+| simulator_details_with_name.account_id | String | Account Id of account Hosting given simulator. | 
+| simulator_details_with_name.is_critical | String | Whether the simulator is critical. | 
+| simulator_details_with_name.is_exfiltration | String | If Simulator is exfiltration target. | 
+| simulator_details_with_name.is_infiltration | String | If simulator is infiltration target. | 
+| simulator_details_with_name.is_mail_target | String | If simulator is mail target. | 
+| simulator_details_with_name.is_mail_attacker | String | If simulator is mail attacker. | 
+| simulator_details_with_name.is_pre_executor | String | Whether the node is pre executor. | 
+| simulator_details_with_name.is_aws_attacker | String | if the given simulator is aws attacker. | 
+| simulator_details_with_name.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| simulator_details_with_name.external_ip | String | external ip of given simulator. | 
+| simulator_details_with_name.internal_ip | String | internal ip of given simulator. | 
+| simulator_details_with_name.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| simulator_details_with_name.preferred_interface | String | Preferred simulator interface. | 
+| simulator_details_with_name.preferred_ip | String | Preferred Ip of simulator. | 
+| simulator_details_with_name.hostname | String | Hostname of given simulator. | 
+| simulator_details_with_name.connection_type | String | connection_type of given simulator. | 
+| simulator_details_with_name.simulator_status | String | status of the simulator. | 
+| simulator_details_with_name.connection_status | String | connection status of node/simulator. | 
+| simulator_details_with_name.simulator_framework_version | String | Framework version of simulator. | 
+| simulator_details_with_name.operating_system_type | String | operating system type of given simulator. | 
+| simulator_details_with_name.operating_system | String | Operating system of given simulator. | 
+| simulator_details_with_name.execution_hostname | String | Execution Hostname of the given node. | 
+| simulator_details_with_name.deployments | String | deployments simulator is part of. | 
+| simulator_details_with_name.created_at | String | Creation datetime of simulator. | 
+| simulator_details_with_name.updated_at | String | Update datetime of given simulator. | 
+| simulator_details_with_name.deleted_at | String | deletion datetime of given simulator. | 
+| simulator_details_with_name.assets | String | Assets of given simulator. | 
+| simulator_details_with_name.simulation_users | String | simulator users list. | 
+| simulator_details_with_name.proxies | String | Proxies of simulator. | 
+| simulator_details_with_name.advanced_actions | String | Advanced simulator details. | 
 
 ### safebreach-update-simulator-with-given-name
 
@@ -258,18 +252,6 @@ This command updates simulator with given name with given details.
 | Simulator/Node Name | Name of simulator/node to search with. | Required | 
 | details | if details are to be included for search. Possible values are: true, false. Default is true. | Optional | 
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Optional | 
-| isEnabled | set true to enable the node. Possible values are: false, true. | Optional | 
-| isProxySupported | set true to enable the proxy support. Possible values are: false, true. | Optional | 
-| isCritical | set true to make node as critical node. Possible values are: false, true. | Optional | 
-| isExfiltration | set true to make the node as exfiltration node. Possible values are: false, true. | Optional | 
-| isInfiltration | set true to make the node as infiltration node. Possible values are: false, true. | Optional | 
-| isMailTarget | set true to make node as mail target. Possible values are: false, true. | Optional | 
-| isMailAttacker | set true to make node as MailAttacker node. Possible values are: false, true. | Optional | 
-| isPreExecutor | set true to enable the node as PreExecutor node. Possible values are: false, true. | Optional | 
-| isAWSAttacker | set true to make node as AWS attacker target. Possible values are: false, true. | Optional | 
-| isAzureAttacker | set true to make node as Azure attacker node. Possible values are: false, true. | Optional | 
-| isWebApplicationAttacker | set true to enable the node as web application attacker node. Possible values are: false, true. | Optional | 
-| useSystemUser | set true to enable the node get system user access. Possible values are: false, true. | Optional | 
 | connectionUrl | the given value will be set as connection string. | Optional | 
 | cloudProxyUrl | the given value will be set as cloud proxy url. | Optional | 
 | name | the given value will be set as name of simulator. | Optional | 
@@ -286,31 +268,31 @@ This command updates simulator with given name with given details.
 | updated_simulator_details.name | String | name for given simulator. | 
 | updated_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
 | updated_simulator_details.is_critical | String | Whether the simulator is critical. | 
-| updated_simulator_details.is_exfiltration | Number | If Simulator is exfiltration target. | 
-| updated_simulator_details.is_infiltration | Number | If simulator is infiltration target. | 
-| updated_simulator_details.is_mail_target | Number | If simulator is mail target. | 
-| updated_simulator_details.is_mail_attacker | Number | If simulator is mail attacker. | 
-| updated_simulator_details.is_pre_executor | Number | Whether the node is pre executor. | 
+| updated_simulator_details.is_exfiltration | String | If Simulator is exfiltration target. | 
+| updated_simulator_details.is_infiltration | String | If simulator is infiltration target. | 
+| updated_simulator_details.is_mail_target | String | If simulator is mail target. | 
+| updated_simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
+| updated_simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
 | updated_simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
 | updated_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
 | updated_simulator_details.external_ip | String | external ip of given simulator. | 
 | updated_simulator_details.internal_ip | String | internal ip of given simulator. | 
 | updated_simulator_details.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
-| updated_simulator_details.preferred_interface | Number | Preferred simulator interface. | 
-| updated_simulator_details.preferred_ip | Number | Preferred Ip of simulator. | 
+| updated_simulator_details.preferred_interface | String | Preferred simulator interface. | 
+| updated_simulator_details.preferred_ip | String | Preferred Ip of simulator. | 
 | updated_simulator_details.hostname | String | Hostname of given simulator. | 
 | updated_simulator_details.connection_type | String | connection_type of given simulator. | 
 | updated_simulator_details.simulator_status | String | status of the simulator. | 
-| updated_simulator_details.connection_status | Number | connection status of node/simulator. | 
-| updated_simulator_details.simulator_framework_version | Number | Framework version of simulator. | 
+| updated_simulator_details.connection_status | String | connection status of node/simulator. | 
+| updated_simulator_details.simulator_framework_version | String | Framework version of simulator. | 
 | updated_simulator_details.operating_system_type | String | operating system type of given simulator. | 
 | updated_simulator_details.operating_system | String | Operating system of given simulator. | 
 | updated_simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
-| updated_simulator_details.deployments | Number | deployments simulator is part of. | 
-| updated_simulator_details.created_at | Number | Creation datetime of simulator. | 
+| updated_simulator_details.deployments | String | deployments simulator is part of. | 
+| updated_simulator_details.created_at | String | Creation datetime of simulator. | 
 | updated_simulator_details.updated_at | String | Update datetime of given simulator. | 
 | updated_simulator_details.deleted_at | String | deletion datetime of given simulator. | 
 | updated_simulator_details.assets | String | Assets of given simulator. | 
-| updated_simulator_details.simulation_users | Number | simulator users list. | 
-| updated_simulator_details.proxies | Number | Proxies of simulator. | 
-| updated_simulator_details.advanced_actions | Number | Advanced simulator details. | 
+| updated_simulator_details.simulation_users | String | simulator users list. | 
+| updated_simulator_details.proxies | String | Proxies of simulator. | 
+| updated_simulator_details.advanced_actions | String | Advanced simulator details. | 

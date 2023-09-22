@@ -7,21 +7,19 @@ bool_map = {
     "true": True,
     "false": False,
     "True": True,
-    "False": False
+    "False": False,
+    True: True,
+    False: False
 }
 
 simulator_details_inputs = [
-    InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                  default="true", required=True, is_array=False),
-    InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
-                  default="true", required=True, is_array=False),
     InputArgument(name="secret", description="if secrets are to be included for search.", options=["true", "false"],
                   required=False, is_array=False),
     InputArgument(name="shouldIncludeProxies", description="if proxies are to be included for search.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="hostname", description="if hostname to be included for search.", options=["true", "false"],
+    InputArgument(name="hostname", description="if hostname to be included for search.",
                   required=False, is_array=False),
-    InputArgument(name="connectionType", description="if connectionType to be included for search.", options=["true", "false"],
+    InputArgument(name="connectionType", description="if connectionType to be included for search.",
                   required=False, is_array=False),
     InputArgument(name="externalIp", description="if external IP details to be included for search.",
                   required=False, is_array=False),
@@ -57,15 +55,15 @@ simulators_output_fields = [
     OutputArgument(name="is_critical", description="Whether the simulator is critical.",
                    output_type=str),
     OutputArgument(name="is_exfiltration", description="If Simulator is exfiltration target.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_infiltration", description="If simulator is infiltration target.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_mail_target", description="If simulator is mail target.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_mail_attacker", description="If simulator is mail attacker.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_pre_executor", description="Whether the node is pre executor.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="is_aws_attacker", description="if the given simulator is aws attacker.",
                    output_type=str),
     OutputArgument(name="is_azure_attacker", description="If the given simulator is azure attacker.",
@@ -77,9 +75,9 @@ simulators_output_fields = [
     OutputArgument(name="is_web_application_attacker", description="Whether the simulator is Web application attacker.",
                    output_type=str),
     OutputArgument(name="preferred_interface", description="Preferred simulator interface.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="preferred_ip", description="Preferred Ip of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="hostname", description="Hostname of given simulator.",
                    output_type=str),
     OutputArgument(name="connection_type", description="connection_type of given simulator.",
@@ -87,9 +85,9 @@ simulators_output_fields = [
     OutputArgument(name="simulator_status", description="status of the simulator.",
                    output_type=str),
     OutputArgument(name="connection_status", description="connection status of node/simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="simulator_framework_version", description="Framework version of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="operating_system_type", description="operating system type of given simulator.",
                    output_type=str),
     OutputArgument(name="operating_system", description="Operating system of given simulator.",
@@ -97,9 +95,9 @@ simulators_output_fields = [
     OutputArgument(name="execution_hostname", description="Execution Hostname of the given node.",
                    output_type=str),
     OutputArgument(name="deployments", description="deployments simulator is part of.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="created_at", description="Creation datetime of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="updated_at", description="Update datetime of given simulator.",
                    output_type=str),
     OutputArgument(name="deleted_at", description="deletion datetime of given simulator.",
@@ -107,11 +105,11 @@ simulators_output_fields = [
     OutputArgument(name="assets", description="Assets of given simulator.",
                    output_type=str),
     OutputArgument(name="simulation_users", description="simulator users list.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="proxies", description="Proxies of simulator.",
-                   output_type=int),
+                   output_type=str),
     OutputArgument(name="advanced_actions", description="Advanced simulator details.",
-                   output_type=int)
+                   output_type=str)
 ]
 
 simulator_details_for_update_fields = [
@@ -155,15 +153,18 @@ test_summaries_output_fields = [
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
-    description="This Integration aims to provide easy access to safebreach from XSOAR.\
-        Following are the things that user can get access through XSOAR command integration: \
-        1. User get, create, update and delete. \
-        2. Deployment create, update and delete. \
-        3. Tests get and delete. \
-        4. Nodes get, update, delete. ",
+    description="""
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.73190",
+    docker_image="demisto/python3:3.10.13.74666",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -285,11 +286,11 @@ class Client(BaseClient):
         Returns:
             (dict,list,Exception): a dictionary or list with data based on API call OR Throws an error based on status code
         """
-        base_url = demisto.params().get("base_url", "")
+        base_url = demisto.params().get("base_url", "").strip()
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
         request_url = f"{base_url}/api/{url}"
-        api_key = demisto.params().get("api_key")
+        api_key = demisto.params().get("api_key", "").strip()
         headers = {
             'Accept': 'application/json',
             'x-apitoken': api_key
@@ -302,7 +303,8 @@ class Client(BaseClient):
             else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
-        """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
+        """
+            This function handles errors related to SBcodes if the endpoint gives sbcode in errors
 
         Args:
             response (dict): all errors given by 400 response code will be accepted as dictionary and are formatted based on 
@@ -311,8 +313,9 @@ class Client(BaseClient):
         Raises:
             Exception: all errors will be formatted and then thrown as exception string which will show as error_results in XSOAR
         """
+        demisto.debug(f"error being sent to format_sb_code_error function is {response.get('error')}")
         exception_string = format_sb_code_error(response.get("error"))
-        raise Exception(exception_string)
+        raise SBError(exception_string)
 
     def get_all_users_for_test(self):
         """
@@ -326,6 +329,8 @@ class Client(BaseClient):
             account_id = demisto.params().get("account_id", 0)
             url = f"/config/v1/accounts/{account_id}/users"
             response = self.get_response(url=url)
+            demisto.info(f"the response of function get_all_users_for_test is {response}")
+
             if response and response.get("data"):
                 return "ok"
             elif response.get("data") == []:
@@ -377,7 +382,7 @@ class Client(BaseClient):
             raise NotFoundError(f"No Matching simulators found with details not found details are {request_params}")
         return simulators_details
 
-    def create_simulator_params(self):
+    def create_search_simulator_params(self):
         """This function creates parameters related to simulator as a dictionary
 
         Returns:
@@ -389,9 +394,9 @@ class Client(BaseClient):
         request_params = {}
         for parameter in possible_inputs:
             if demisto.args().get(parameter):
-                request_params[parameter] = demisto.args().get(parameter) \
-                    if demisto.args().get(parameter) not in ["true", "false"] \
-                    else bool_map[demisto.args().get(parameter)]
+                request_params[parameter] = bool_map[demisto.args().get(parameter)] \
+                    if (demisto.args().get(parameter) not in ["true", "false"] and parameter in ["details", "deleted",
+                        "isEnabled", "isConnected", "isCritical", "additionalDetails"]) else demisto.args().get(parameter)
         return request_params
 
     def flatten_node_details(self, nodes):
@@ -456,11 +461,11 @@ class Client(BaseClient):
         Returns:
             dict: dict of request parameters
         """
-        name = demisto.args().get("Simulator/Node Name")
+        name = demisto.args().get("Simulator/Node Name", "").strip()
         request_params = {
             "name": name,
-            "deleted": demisto.args().get("deleted", "false"),
-            "details": demisto.args().get("details", "false")
+            "deleted": demisto.args().get("deleted", "true"),
+            "details": demisto.args().get("details", "true")
         }
         return request_params
 
@@ -474,9 +479,11 @@ class Client(BaseClient):
             int: Simulator ID with given name
         """
         request_params = self.get_simulator_with_name_request_params()
+        demisto.info(f"get_simulator_with_name_request_params returned {request_params} ")
         result = self.get_simulators_details(request_params=request_params)
+        demisto.info(f"get_simulators_details returned {result}")
         try:
-            simulator_id = result.get("data", {}).get("rows", {})[0].get("id")
+            simulator_id = result.get("data", {}).get("rows", [])[0].get("id")
             return simulator_id
         except IndexError:
             raise NotFoundError("Simulator with given details could not be found")
@@ -511,6 +518,8 @@ class Client(BaseClient):
             dict: deleted node related data
         """
         simulator_id = self.get_simulator_with_a_name_return_id()
+        demisto.info(f"simulator id of given simulator is {simulator_id}")
+
         force_delete = demisto.args().get("Should Force Delete")
         result = self.delete_node_with_given_id(node_id=simulator_id, force=force_delete)
         return result
@@ -523,21 +532,21 @@ class Client(BaseClient):
             dict: Update Node payload
         """
         data_dict = {
-            "connectionUrl": demisto.args().get("connectionUrl", "").lower(),
-            "cloudProxyUrl": demisto.args().get("cloudProxyUrl", ""),
-            "name": demisto.args().get("name", ""),
-            "tunnel": demisto.args().get("tunnel", ""),
-            "preferredInterface": demisto.args().get("preferredInterface", ""),
-            "preferredIp": demisto.args().get("preferredIp", ""),
+            "connectionUrl": demisto.args().get("connectionUrl", "").lower().strip(),
+            "cloudProxyUrl": demisto.args().get("cloudProxyUrl", "").strip(),
+            "name": demisto.args().get("name", "").strip(),
+            "tunnel": demisto.args().get("tunnel", "").strip(),
+            "preferredInterface": demisto.args().get("preferredInterface", "").strip(),
+            "preferredIp": demisto.args().get("preferredIp", "").strip(),
         }
-
+        demisto.info(f"update node payload before deletion of useless keys is {data_dict}")
         for (key, value) in tuple(data_dict.items()):
             if not value:
                 data_dict.pop(key)
         return data_dict
 
     def update_node(self, node_id, node_data):
-        """This function calls update node details API and returns updated datas
+        """This function calls update node details API and returns updated data
 
         Args:
             node_id (str): ID of node to update
@@ -560,7 +569,11 @@ class Client(BaseClient):
             dict: this is updated node details for given node ID
         """
         simulator_id = self.get_simulator_with_a_name_return_id()
+        demisto.info(f"simulator id is {simulator_id}")
+
         payload = self.make_update_node_payload()
+        demisto.info(f"update simulator payload is {payload}")
+
         updated_node = self.update_node(node_id=simulator_id, node_data=payload)
         return updated_node
 
@@ -578,17 +591,26 @@ def get_simulators_and_display_in_table(client: Client, just_name=False):
         dict: simulator details
     """
     request_params = client.get_simulator_with_name_request_params() if just_name \
-        else client.create_simulator_params()
+        else client.create_search_simulator_params()
+    demisto.info(f"request parameters for {demisto.command()} is {request_params}")
+
     result = client.get_simulators_details(request_params=request_params)
+    demisto.info(f"related simulations are {result}")
+
     flattened_nodes, keys = client.flatten_node_details(result.get("data", {}).get("rows", {}))
+
     human_readable = tableToMarkdown(
         name="Simulators Details",
         t=flattened_nodes,
         headers=keys)
     outputs = result.get("data", {}).get("rows")
     outputs = outputs[0] if just_name else outputs
+    outputs_prefix = "simulator_details_with_name" if demisto.command() == "safebreach-get-simulator-with-name" \
+        else "simulator_details"
+    demisto.info(f"json output is {outputs} with prefix {outputs_prefix}")
+
     result = CommandResults(
-        outputs_prefix="simulator_details",
+        outputs_prefix=outputs_prefix,
         outputs=outputs,
         readable_output=human_readable
     )
@@ -615,9 +637,9 @@ def get_simulators_and_display_in_table(client: Client, just_name=False):
         OutputArgument(name="registrationDate", description="The registration date of given account.",
                        prefix="account_details", output_type=int),
         OutputArgument(name="activationDate", description="The Activation date of given account.",
-                       prefix="account_details", output_type=int),
+                       prefix="account_details", output_type=str),
         OutputArgument(name="expirationDate", description="Account expiration date.",
-                       prefix="account_details", output_type=int),
+                       prefix="account_details", output_type=str),
     ],
     description="This command gives all details related to account, we are using this to find assigned simulator quota.")
 def get_simulator_quota_with_table(client: Client):
@@ -640,6 +662,8 @@ def get_simulator_quota_with_table(client: Client):
         'account_details': simulator_details.get("data"),
         "simulator_quota": simulator_details.get("data").get("nodesQuota")
     }
+    demisto.info(f"json output for get_simulator_quota is {outputs}")
+
     simulator_details = CommandResults(
         outputs_prefix="account_details",
         outputs=outputs,
@@ -650,7 +674,12 @@ def get_simulator_quota_with_table(client: Client):
 
 @metadata_collector.command(
     command_name="safebreach-get-available-simulator-details",
-    inputs_list=simulator_details_inputs,
+    inputs_list=[
+        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
+        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
+                      default="true", required=True, is_array=False),
+    ] + simulator_details_inputs,
     outputs_prefix="simulator_details",
     outputs_list=simulators_output_fields,
     description="We are using this command to get all available simulators.")
@@ -670,13 +699,13 @@ def get_all_simulator_details(client: Client):
     command_name="safebreach-get-simulator-with-name",
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
-                      required=False, is_array=False),
+                      required=True, is_array=False),
         InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
                       default="true", required=True, is_array=False),
         InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
                       default="true", required=True, is_array=False),
     ],
-    outputs_prefix="simulator_details",
+    outputs_prefix="simulator_details_with_name",
     outputs_list=simulators_output_fields,
     description="This command gives simulator with given name")
 def get_simulator_with_name(client: Client):
@@ -723,6 +752,8 @@ def delete_simulator_with_given_name(client: Client):
         t=flattened_nodes,
         headers=keys)
     outputs = deleted_node.get("data", {})
+    demisto.info(f"json output of delete simulator with given name is {outputs}")
+
     result = CommandResults(
         outputs_prefix="deleted_simulator_details",
         outputs=outputs,
@@ -761,6 +792,8 @@ def update_simulator_with_given_name(client: Client):
         t=flattened_nodes,
         headers=keys)
     outputs = updated_node.get("data", {})
+    demisto.info(f"json output of update simulator with a given name is {outputs}")
+
     result = CommandResults(
         outputs_prefix="updated_simulator_details",
         outputs=outputs,
