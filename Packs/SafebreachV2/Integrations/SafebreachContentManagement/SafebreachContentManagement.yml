@@ -1,0 +1,633 @@
+category: Deception & Breach Simulation
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
+commonfields:
+  id: Safebreach Content Management
+  version: -1
+name: Safebreach Content Management
+display: Safebreach Content Management
+configuration:
+- display: Server URL
+  name: base_url
+  type: 0
+  required: true
+  additionalinfo: This is base URL for your instance.
+- display: API Key
+  name: api_key
+  type: 4
+  required: true
+  additionalinfo: This is API key for your instance, this can be created in safebreach user                       administration>APIkeys and then it must be saved as there is no way to view this again
+- display: Account ID
+  name: account_id
+  type: 1
+  required: true
+  additionalinfo: This is account ID of account with which we want to get data from safebreach
+- display: Verify SSL Certificate
+  name: verify
+  type: 8
+  required: false
+  additionalinfo: This Field is useful for checking if the certificate of SSL for HTTPS is valid or not
+script:
+  commands:
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-delete-schedule
+    arguments:
+    - name: schedule ID
+      isArray: false
+      description: schedule ID of schedule to delete.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: deleted_Schedule.id
+      description: the Id of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.isEnabled
+      description: if simulation is enabled.
+      type: Boolean
+    - contextPath: deleted_Schedule.name
+      description: the name of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.cronString
+      description: the cron expression the schedule.
+      type: String
+    - contextPath: deleted_Schedule.runDate
+      description: the run date of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.cronTimezone
+      description: the time zone of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.taskId
+      description: the plan ID of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.description
+      description: the description of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.matrixId
+      description: the matrix ID of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.createdAt
+      description: the creation datetime of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.updatedAt
+      description: the updated datetime of the schedule.
+      type: String
+    - contextPath: deleted_Schedule.deletedAt
+      description: the deletion time of the schedule.
+      type: String
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-get-active-running-simulations
+    arguments: []
+    outputs:
+    - contextPath: active_simulations.status
+      description: the status of the simulation.
+      type: String
+    - contextPath: active_simulations.timestamp
+      description: the time of the simulation.
+      type: String
+    - contextPath: active_simulations.numOfTasks
+      description: the number of steps involved in the simulation.
+      type: String
+    - contextPath: active_simulations.planRunId
+      description: the planRunId of the simulation.
+      type: String
+    - contextPath: active_simulations.stepRunId
+      description: the step id of the simulation.
+      type: String
+    - contextPath: active_simulations.jobId
+      description: the job id of the simulation.
+      type: String
+    - contextPath: active_simulations.taskId
+      description: the task ID of the simulation.
+      type: String
+    - contextPath: active_simulations.moveId
+      description: the move ID of the simulation.
+      type: String
+    - contextPath: active_simulations.moveRevision
+      description: the move revision of the simulation.
+      type: String
+    - contextPath: active_simulations.node_ids_involved
+      description: the nodes involved in the simulation.
+      type: String
+    - contextPath: active_simulations.node_names_involved
+      description: the names of nodes the simulation.
+      type: String
+    - contextPath: active_simulations.timeout
+      description: the timeout of the simulation if its failing etc.
+      type: String
+    - contextPath: active_simulations.packageId
+      description: the package ID of the simulation.
+      type: String
+  - deprecated: false
+    description: This command gets tests which are in running or queued state.
+    name: safebreach-get-active-running-tests
+    arguments: []
+    outputs:
+    - contextPath: active_tests.id
+      description: Id of Actively running test.
+      type: Number
+    - contextPath: active_tests.name
+      description: Name of the test being run.
+      type: String
+    - contextPath: active_tests.description
+      description: Details related to the test being run.
+      type: String
+    - contextPath: active_tests.successCriteria
+      description: Plan Run ID of the simulation.
+      type: String
+    - contextPath: active_tests.originalScenarioId
+      description: Original scenario ID of the running test.
+      type: String
+    - contextPath: active_tests.actions count
+      description: number of actions.
+      type: String
+    - contextPath: active_tests.edges count
+      description: number of edges.
+      type: String
+    - contextPath: active_tests.createdAt
+      description: details related to when test is created.
+      type: String
+    - contextPath: active_tests.updatedAt
+      description: details related to when test is last updated/changed.
+      type: String
+    - contextPath: active_tests.steps count
+      description: number of steps in simulator.
+      type: String
+    - contextPath: active_tests.planId
+      description: planId of the test.
+      type: String
+    - contextPath: active_tests.originalPlan ID
+      description: original plan ID for reference.
+      type: String
+    - contextPath: active_tests.ranBy
+      description: User who ran the plan.
+      type: String
+    - contextPath: active_tests.ranFrom
+      description: Where the test ran from.
+      type: String
+    - contextPath: active_tests.enableFeedbackLoop
+      description: Should feedback loop be enabled.
+      type: String
+    - contextPath: active_tests.planRunId
+      description: plan run id.
+      type: String
+    - contextPath: active_tests.priority
+      description: priority of tests.
+      type: String
+    - contextPath: active_tests.retrySimulations
+      description: Should simulations be retried.
+      type: String
+    - contextPath: active_tests.flowControl
+      description: Flow control of tests.
+      type: String
+    - contextPath: active_tests.slot position
+      description: position in queue.
+      type: String
+    - contextPath: active_tests.slot status
+      description: is the test paused.
+      type: Boolean
+    - contextPath: active_tests.pauseDuration
+      description: is the test paused and if so till when.
+      type: String
+    - contextPath: active_tests.totalJobs
+      description: Total number of jobs for this test.
+      type: String
+    - contextPath: active_tests.pausedDate
+      description: when the test is paused.
+      type: String
+    - contextPath: active_tests.expectedSimulationsAmount
+      description: number of simulations expected.
+      type: String
+    - contextPath: active_tests.dispatchedSimulationsAmount
+      description: the number of simulations dispatched.
+      type: String
+    - contextPath: active_tests.blockedSimulationsAmount
+      description: The number of simulations blocked.
+      type: String
+    - contextPath: active_tests.unblockedSimulationsAmount
+      description: The number of simulations unblocked.
+      type: String
+    - contextPath: active_tests.skippedSimulationsAmount
+      description: The number of simulations skipped.
+      type: String
+    - contextPath: active_tests.failedSimulationsAmount
+      description: The number of simulations failed.
+      type: String
+    - contextPath: active_tests.isPrepared
+      description: Total number of simulations that have been prepared.
+      type: String
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-get-custom-scenarios
+    arguments:
+    - name: schedule details
+      isArray: false
+      description: Whether to get details of custom scenarios,            set this to true every time unless you explicitly dont need details.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: custom_scenarios.id
+      description: the Id of scenario.
+      type: String
+    - contextPath: custom_scenarios.name
+      description: the name of the scenario.
+      type: String
+    - contextPath: custom_scenarios.description
+      description: the description of the scenario.
+      type: String
+    - contextPath: custom_scenarios.successCriteria
+      description: success criteria the scenario.
+      type: String
+    - contextPath: custom_scenarios.originalScenarioId
+      description: original scenario id of scenario.
+      type: String
+    - contextPath: custom_scenarios.actions_list
+      description: actions list of the scenario.
+      type: String
+    - contextPath: custom_scenarios.edges_count
+      description: edges count for the scenario.
+      type: String
+    - contextPath: custom_scenarios.steps_order
+      description: the order of steps of the scenario.
+      type: String
+    - contextPath: custom_scenarios.createdAt
+      description: the creation datetime of the scenario.
+      type: String
+    - contextPath: custom_scenarios.updatedAt
+      description: the last updated time the scenario.
+      type: String
+    - contextPath: custom_scenarios.custom_data_object_for_rerun_scenario
+      description: the data which can be used for             rerun-simulation command.
+      type: String
+    - contextPath: custom_scenarios.custom_data_for_rerun_test
+      description: the data which can be used for rerun-test command.
+      type: String
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-get-prebuilt-scenarios
+    arguments: []
+    outputs:
+    - contextPath: prebuilt_scenarios.id
+      description: the Id of scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.name
+      description: the name of the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.description
+      description: the description of the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.createdBy
+      description: user id of user, who created the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.createdAt
+      description: creation datetime of scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.updatedAt
+      description: the update datetime of the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.recommended
+      description: the recommendation status of the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.tags_list
+      description: the tags of the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.categories
+      description: the category ids of the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.steps_order
+      description: the order of steps involved in the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.order
+      description: the order of the scenario.
+      type: String
+    - contextPath: prebuilt_scenarios.minApiVer
+      description: the minimum version of API required for scenario to be executed.
+      type: String
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-get-schedules
+    arguments:
+    - name: deleted
+      isArray: false
+      description: should deleted be retrieved.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: details
+      isArray: false
+      description: Should details tests be included in result.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: schedules.id
+      description: the Id of the schedule.
+      type: String
+    - contextPath: schedules.isEnabled
+      description: if simulation is enabled.
+      type: Boolean
+    - contextPath: schedules.name
+      description: the name of the schedule.
+      type: String
+    - contextPath: schedules.cronString
+      description: the cron expression the schedule.
+      type: String
+    - contextPath: schedules.runDate
+      description: the run date of the schedule.
+      type: String
+    - contextPath: schedules.cronTimezone
+      description: the time zone of the schedule.
+      type: String
+    - contextPath: schedules.taskId
+      description: the plan ID of the schedule.
+      type: String
+    - contextPath: schedules.description
+      description: the description of the schedule.
+      type: String
+    - contextPath: schedules.matrixId
+      description: the matrix ID of the schedule.
+      type: String
+    - contextPath: schedules.createdAt
+      description: the creation datetime of the schedule.
+      type: String
+    - contextPath: schedules.updatedAt
+      description: the updated datetime of the schedule.
+      type: String
+    - contextPath: schedules.deletedAt
+      description: the deletion time of the schedule.
+      type: String
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-get-services-status
+    arguments: []
+    outputs:
+    - contextPath: services_status.name
+      description: the name of the service.
+      type: String
+    - contextPath: services_status.version
+      description: version of the service.
+      type: String
+    - contextPath: services_status.connection status
+      description: connection status of service.
+      type: String
+    - contextPath: services_status.error
+      description: error status of service.
+      type: String
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-get-verification-token
+    arguments: []
+    outputs:
+    - contextPath: verification_token.token
+      description: the value of new verification token.
+      type: String
+  - deprecated: false
+    description: This command gets simulations which are in running or queued state.
+    name: safebreach-play-pause-simulations-tests
+    arguments:
+    - name: Simulation/Test State
+      isArray: false
+      description: State of tests/simulators to set to.
+      required: true
+      secret: false
+      default: false
+      predefined:
+      - resume
+      - pause
+      auto: PREDEFINED
+    outputs:
+    - contextPath: simulations_tests_status.status
+      description: the status of the simulations/tests.
+      type: String
+  - deprecated: false
+    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table."
+    name: safebreach-rerun-scenario
+    arguments:
+    - name: position
+      isArray: false
+      description: position in queue to put the given simulation data at.
+      required: false
+      secret: false
+      default: false
+    - name: enable feedback loop
+      isArray: false
+      description: this argument is used to enable/disable feedback loop.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: retry simulation
+      isArray: false
+      description: this argument is used to retry according to retry policy                 mention in retry policy field.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - ''
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: wait for retry
+      isArray: false
+      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - ''
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: priority
+      isArray: false
+      description: the priority of this simulation action.
+      required: false
+      secret: false
+      default: false
+      defaultValue: low
+      predefined:
+      - low
+      - high
+      auto: PREDEFINED
+    - name: simulation data
+      isArray: false
+      description: simulation data for the given simulation.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: changed_data.id
+      description: the Id of scenario.
+      type: String
+    - contextPath: changed_data.name
+      description: the name of the scenario.
+      type: String
+    - contextPath: changed_data.description
+      description: the description of the scenario.
+      type: String
+    - contextPath: changed_data.successCriteria
+      description: success criteria the scenario.
+      type: String
+    - contextPath: changed_data.originalScenarioId
+      description: original scenario id of scenario.
+      type: String
+    - contextPath: changed_data.actions_list
+      description: actions list of the scenario.
+      type: String
+    - contextPath: changed_data.edges_count
+      description: edges count for the scenario.
+      type: String
+    - contextPath: changed_data.steps_order
+      description: the order of steps of the scenario.
+      type: String
+    - contextPath: changed_data.createdAt
+      description: the creation datetime of the scenario.
+      type: String
+    - contextPath: changed_data.updatedAt
+      description: the last updated time the scenario.
+      type: String
+  - deprecated: false
+    description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table."
+    name: safebreach-rerun-test
+    arguments:
+    - name: position
+      isArray: false
+      description: position in queue to put the given test data at.
+      required: false
+      secret: false
+      default: false
+    - name: enable feedback loop
+      isArray: false
+      description: this argument is used to enable/disable feedback loop.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: retry simulation
+      isArray: false
+      description: this argument is used to retry according to retry policy                 mention in retry policy field.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - ''
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: wait for retry
+      isArray: false
+      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - ''
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: priority
+      isArray: false
+      description: the priority of this test action.
+      required: false
+      secret: false
+      default: false
+      defaultValue: low
+      predefined:
+      - low
+      - high
+      auto: PREDEFINED
+    - name: test data
+      isArray: false
+      description: test data for the given test.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: changed_data.id
+      description: the Id of scenario.
+      type: String
+    - contextPath: changed_data.name
+      description: the name of the scenario.
+      type: String
+    - contextPath: changed_data.description
+      description: the description of the scenario.
+      type: String
+    - contextPath: changed_data.successCriteria
+      description: success criteria the scenario.
+      type: String
+    - contextPath: changed_data.originalScenarioId
+      description: original scenario id of scenario.
+      type: String
+    - contextPath: changed_data.actions_list
+      description: actions list of the scenario.
+      type: String
+    - contextPath: changed_data.edges_count
+      description: edges count for the scenario.
+      type: String
+    - contextPath: changed_data.steps_order
+      description: the order of steps of the scenario.
+      type: String
+    - contextPath: changed_data.createdAt
+      description: the creation datetime of the scenario.
+      type: String
+    - contextPath: changed_data.updatedAt
+      description: the last updated time the scenario.
+      type: String
+    - contextPath: changed_data.planId
+      description: the plan id of the scenario.
+      type: String
+    - contextPath: changed_data.ranBy
+      description: the user id of the user who ran the scenario.
+      type: String
+    - contextPath: changed_data.ranFrom
+      description: where the user ran the scenario from.
+      type: String
+    - contextPath: changed_data.enableFeedbackLoop
+      description: feedback loop status of the scenario.
+      type: String
+    - contextPath: changed_data.planRunId
+      description: plan run id of the scenario.
+      type: String
+    - contextPath: changed_data.priority
+      description: priority of the scenario.
+      type: String
+    - contextPath: changed_data.retrySimulations
+      description: retry status of the scenario.
+      type: String
+  script: '-'
+  type: python
+  subtype: python3
+  dockerimage: demisto/python3:3.10.13.74666
+  feed: false
+  isfetch: false
+  runonce: false
+  longRunning: false
+  longRunningPort: false
+fromversion: 6.9.0
+tests:
+- No tests
