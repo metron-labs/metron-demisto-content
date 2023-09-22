@@ -1,5 +1,5 @@
 category: Deception & Breach Simulation
-description: 'This Integration aims to provide easy access to safebreach from XSOAR.        Following are the things that user can get access through XSOAR command integration:         1. User get, create, update and delete.         2. Deployment create, update and delete.         3. Tests get and delete.         4. Nodes get, update, delete. '
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
 commonfields:
   id: Safebreach Content Management
   version: -1
@@ -373,28 +373,28 @@ script:
       auto: PREDEFINED
     outputs:
     - contextPath: updated_user_data.id
-      description: The ID of User created.
+      description: The ID of User updated.
       type: Number
     - contextPath: updated_user_data.name
-      description: The name of User created.
+      description: The name of User updated.
       type: String
     - contextPath: updated_user_data.email
-      description: The email of User created.
+      description: The email of User updated.
       type: String
     - contextPath: updated_user_data.createdAt
-      description: The creation time of User created.
+      description: The creation time of User updated.
       type: String
     - contextPath: updated_user_data.deletedAt
-      description: The Deletion time of User created.
+      description: The Deletion time of User updated.
       type: String
     - contextPath: updated_user_data.roles
-      description: The roles of User created.
+      description: The roles of User updated.
       type: String
     - contextPath: updated_user_data.description
-      description: The description of User created.
+      description: The description of User updated.
       type: String
     - contextPath: updated_user_data.role
-      description: The role of User created.
+      description: The role of User updated.
       type: String
     - contextPath: updated_user_data.deployments
       description: The deployments user is part of.
@@ -402,12 +402,12 @@ script:
   script: '-'
   type: python
   subtype: python3
-  dockerimage: demisto/python3:3.10.13.73190
+  dockerimage: demisto/python3:3.10.13.74666
   feed: false
   isfetch: false
   runonce: false
   longRunning: false
   longRunningPort: false
-fromversion: 6.2.0
+fromversion: 6.9.0
 tests:
 - No tests

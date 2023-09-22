@@ -7,20 +7,25 @@ bool_map = {
     "true": True,
     "false": False,
     "True": True,
-    "False": False
+    "False": False,
+    True: True,
+    False: False
 }
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
-    description="This Integration aims to provide easy access to safebreach from XSOAR.\
-        Following are the things that user can get access through XSOAR command integration: \
-        1. User get, create, update and delete. \
-        2. Deployment create, update and delete. \
-        3. Tests get and delete. \
-        4. Nodes get, update, delete. ",
+    description="""
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.73190",
+    docker_image="demisto/python3:3.10.13.74666",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -142,11 +147,11 @@ class Client(BaseClient):
         Returns:
             (dict,list,Exception): a dictionary or list with data based on API call OR Throws an error based on status code
         """
-        base_url = demisto.params().get("base_url", "")
+        base_url = demisto.params().get("base_url", "").strip()
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
         request_url = f"{base_url}/api/{url}"
-        api_key = demisto.params().get("api_key")
+        api_key = demisto.params().get("api_key", "").strip()
         headers = {
             'Accept': 'application/json',
             'x-apitoken': api_key
@@ -159,7 +164,8 @@ class Client(BaseClient):
             else self.handle_sbcodes(response)
 
     def handle_sbcodes(self, response: dict):
-        """This function handles errors related to SBcodes if the endpoint gives sbcode in errors
+        """
+            This function handles errors related to SBcodes if the endpoint gives sbcode in errors
 
         Args:
             response (dict): all errors given by 400 response code will be accepted as dictionary and are formatted based on 
@@ -168,8 +174,9 @@ class Client(BaseClient):
         Raises:
             Exception: all errors will be formatted and then thrown as exception string which will show as error_results in XSOAR
         """
+        demisto.debug(f"error being sent to format_sb_code_error function is {response.get('error')}")
         exception_string = format_sb_code_error(response.get("error"))
-        raise Exception(exception_string)
+        raise SBError(exception_string)
 
     def get_all_users_for_test(self):
         """
@@ -183,6 +190,8 @@ class Client(BaseClient):
             account_id = demisto.params().get("account_id", 0)
             url = f"/config/v1/accounts/{account_id}/users"
             response = self.get_response(url=url)
+            demisto.info(f"the response of function get_all_users_for_test is {response}")
+
             if response and response.get("data"):
                 return "ok"
             elif response.get("data") == []:
@@ -221,7 +230,7 @@ class Client(BaseClient):
             dict: user data related to the user who has been deleted
         """
         user_id = demisto.args().get("User ID")
-        user_email = demisto.args().get("Email")
+        user_email = demisto.args().get("Email", "").strip()
         # we are prioritizing email or ID when both are given by user
         if user_email and not user_id:
             # retrieve all users and filter with given details
@@ -269,14 +278,14 @@ class Client(BaseClient):
             dict: created user data
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name")
-        email = demisto.args().get("Email")
+        name = demisto.args().get("Name", "").strip()
+        email = demisto.args().get("Email", "").strip()
         is_active = bool_map.get(demisto.args().get("Is Active"), "false")
         send_email_post_creation = bool_map.get(demisto.args().get("Email Post Creation"), "false")
         password = demisto.args().get("Password")
-        admin_name = demisto.args().get("Admin Name", "")
+        admin_name = demisto.args().get("Admin Name", "").strip()
         change_password = bool_map.get(demisto.args().get("Change Password on create"), "false")
-        role = demisto.args().get("User role", "")
+        role = demisto.args().get("User role", "").strip()
         deployment_list = demisto.args().get("Deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
 
@@ -291,6 +300,7 @@ class Client(BaseClient):
             "isActive": is_active,
             "deployments": deployment_list,
         }
+        demisto.info(f"user payload for create user is {user_payload}")
 
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/users"
@@ -306,12 +316,12 @@ class Client(BaseClient):
         """
 
         user_id = demisto.args().get("User ID")
-        user_email = demisto.args().get("Email")
+        user_email = demisto.args().get("Email", "").strip()
 
-        name = demisto.args().get("Name")
-        is_active = bool_map[demisto.args().get("Is Active", False)]
-        description = demisto.args().get("User Description", "")
-        role = demisto.args().get("User role")
+        name = demisto.args().get("Name", "").strip()
+        is_active = bool_map[demisto.args().get("Is Active", "False")]
+        description = demisto.args().get("User Description", "").strip()
+        role = demisto.args().get("User role", "").strip()
         password = demisto.args().get("Password")
         deployment_list = demisto.args().get("Deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
@@ -324,15 +334,17 @@ class Client(BaseClient):
             "role": role,
             "password": password
         }
+        demisto.info(f"upload user payload is {details}")
+
         # retrieve user based on email and user_id whichever is present
         if user_email and not user_id:
             user_list = self.get_users_list()
             demisto.info("retrieved user list which contains all available users in safebreach")
             user = list(filter(lambda user_data: user_data.get("email") == user_email, user_list))
             if not user:
+                demisto.info(f"filtered users are {user} while all users are {user_list}")
                 raise NotFoundError(f"User with {user_id} or {user_email} not found")
             user_id = user[0]["id"]
-            demisto.info("user has been found and details are being given for updating user")
         user = self.update_user_with_details(user_id, details)
         return user
 
@@ -414,12 +426,15 @@ def get_user_id_by_name_or_email(client: Client):
     """
 
     name = demisto.args().get("name", "a random non existent name which shouldn't be searchable")
-    email = demisto.args().get("email")
+    email = demisto.args().get("email", "").strip()
     user_list = client.get_users_list()
+    demisto.info(f"retrieved user list which has {len(user_list)} users")
+
     filtered_user_list = list(
         filter(lambda user_data: ((name in user_data['name'] if name else False) or (email in user_data['email'])), user_list))
-    if filtered_user_list:
+    demisto.info(f"filtered user list which contains {len(filtered_user_list)}")
 
+    if filtered_user_list:
         human_readable = tableToMarkdown(name="user data", t=filtered_user_list, headers=['id', 'name', 'email'])
         outputs = filtered_user_list
 
@@ -430,6 +445,7 @@ def get_user_id_by_name_or_email(client: Client):
         )
 
         return result
+    demisto.info(f"list of retrieved users are {user_list}")
     raise NotFoundError(f"user with name {name} or email {email} was not found")
 
 
@@ -530,20 +546,20 @@ def create_user(client: Client):
     ],
     outputs_prefix="updated_user_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of User created.", prefix="updated_user_data", output_type=int),
-        OutputArgument(name="name", description="The name of User created.", prefix="updated_user_data",
+        OutputArgument(name="id", description="The ID of User updated.", prefix="updated_user_data", output_type=int),
+        OutputArgument(name="name", description="The name of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="email", description="The email of User created.", prefix="updated_user_data",
+        OutputArgument(name="email", description="The email of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of User created.", prefix="updated_user_data",
+        OutputArgument(name="createdAt", description="The creation time of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="deletedAt", description="The Deletion time of User created.", prefix="updated_user_data",
+        OutputArgument(name="deletedAt", description="The Deletion time of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="roles", description="The roles of User created.", prefix="updated_user_data",
+        OutputArgument(name="roles", description="The roles of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="description", description="The description of User created.", prefix="updated_user_data",
+        OutputArgument(name="description", description="The description of User updated.", prefix="updated_user_data",
                        output_type=str),
-        OutputArgument(name="role", description="The role of User created.", prefix="updated_user_data",
+        OutputArgument(name="role", description="The role of User updated.", prefix="updated_user_data",
                        output_type=str),
         OutputArgument(name="deployments", description="The deployments user is part of.", prefix="updated_user_data",
                        output_type=str),
@@ -566,6 +582,7 @@ def update_user_with_details(client: Client):
                                               "role", "deployments", "createdAt", "updatedAt"])
     outputs = updated_user.get("data", {})
 
+    demisto.info(f"json output for update user is {outputs}")
     result = CommandResults(
         outputs_prefix="updated_user_data",
         outputs=outputs,
@@ -623,6 +640,8 @@ def delete_user_with_details(client: Client):
                                      headers=['id', 'name', 'email', "deletedAt", "roles",
                                               "description", "role", "deployments", "createdAt"])
     outputs = deleted_user.get("data", {})
+    demisto.info(f"json output for delete uer is {outputs}")
+
     result = CommandResults(
         outputs_prefix="deleted_user_data",
         outputs=outputs,
