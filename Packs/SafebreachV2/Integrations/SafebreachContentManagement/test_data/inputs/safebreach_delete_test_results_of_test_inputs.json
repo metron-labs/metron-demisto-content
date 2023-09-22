@@ -1,0 +1,16 @@
+{
+    "success":{
+        "args":{
+            "Test ID": 123456,
+            "Soft Delete":"true"
+        },
+        "command":"safebreach-delete-test-summary-of-given-test"
+    },
+    "fail":{
+        "args":{
+            "Test ID": null,
+            "Soft Delete":"true"
+        },
+        "command":"safebreach-delete-test-summary-of-given-test"
+    }
+}

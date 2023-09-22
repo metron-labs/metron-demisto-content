@@ -1,0 +1,766 @@
+category: Deception & Breach Simulation
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
+commonfields:
+  id: Safebreach Content Management
+  version: -1
+name: Safebreach Content Management
+display: Safebreach Content Management
+configuration:
+- display: Server URL
+  name: base_url
+  type: 0
+  required: true
+  additionalinfo: This is base URL for your instance.
+- display: API Key
+  name: api_key
+  type: 4
+  required: true
+  additionalinfo: This is API key for your instance, this can be created in safebreach user                       administration>APIkeys and then it must be saved as there is no way to view this again
+- display: Account ID
+  name: account_id
+  type: 1
+  required: true
+  additionalinfo: This is account ID of account with which we want to get data from safebreach
+- display: Verify SSL Certificate
+  name: verify
+  type: 8
+  required: false
+  additionalinfo: This Field is useful for checking if the certificate of SSL for HTTPS is valid or not
+script:
+  commands:
+  - deprecated: false
+    description: This command deletes simulator with given name.
+    name: safebreach-delete-simulator-with-name
+    arguments:
+    - name: Simulator/Node Name
+      isArray: false
+      description: Name of simulator/node to search with.
+      required: true
+      secret: false
+      default: false
+    - name: Should Force Delete
+      isArray: false
+      description: Should we force delete the simulator.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'false'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: details
+      isArray: false
+      description: if details are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: deleted
+      isArray: false
+      description: if deleted are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: deleted_simulator_details.is_enabled
+      description: Whether the node is enabled or not.
+      type: String
+    - contextPath: deleted_simulator_details.simulator_id
+      description: The Id of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.name
+      description: name for given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.account_id
+      description: Account Id of account Hosting given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.is_critical
+      description: Whether the simulator is critical.
+      type: String
+    - contextPath: deleted_simulator_details.is_exfiltration
+      description: If Simulator is exfiltration target.
+      type: String
+    - contextPath: deleted_simulator_details.is_infiltration
+      description: If simulator is infiltration target.
+      type: String
+    - contextPath: deleted_simulator_details.is_mail_target
+      description: If simulator is mail target.
+      type: String
+    - contextPath: deleted_simulator_details.is_mail_attacker
+      description: If simulator is mail attacker.
+      type: String
+    - contextPath: deleted_simulator_details.is_pre_executor
+      description: Whether the node is pre executor.
+      type: String
+    - contextPath: deleted_simulator_details.is_aws_attacker
+      description: if the given simulator is aws attacker.
+      type: String
+    - contextPath: deleted_simulator_details.is_azure_attacker
+      description: If the given simulator is azure attacker.
+      type: String
+    - contextPath: deleted_simulator_details.external_ip
+      description: external ip of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.internal_ip
+      description: internal ip of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.is_web_application_attacker
+      description: Whether the simulator is Web application attacker.
+      type: String
+    - contextPath: deleted_simulator_details.preferred_interface
+      description: Preferred simulator interface.
+      type: String
+    - contextPath: deleted_simulator_details.preferred_ip
+      description: Preferred Ip of simulator.
+      type: String
+    - contextPath: deleted_simulator_details.hostname
+      description: Hostname of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.connection_type
+      description: connection_type of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.simulator_status
+      description: status of the simulator.
+      type: String
+    - contextPath: deleted_simulator_details.connection_status
+      description: connection status of node/simulator.
+      type: String
+    - contextPath: deleted_simulator_details.simulator_framework_version
+      description: Framework version of simulator.
+      type: String
+    - contextPath: deleted_simulator_details.operating_system_type
+      description: operating system type of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.operating_system
+      description: Operating system of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.execution_hostname
+      description: Execution Hostname of the given node.
+      type: String
+    - contextPath: deleted_simulator_details.deployments
+      description: deployments simulator is part of.
+      type: String
+    - contextPath: deleted_simulator_details.created_at
+      description: Creation datetime of simulator.
+      type: String
+    - contextPath: deleted_simulator_details.updated_at
+      description: Update datetime of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.deleted_at
+      description: deletion datetime of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.assets
+      description: Assets of given simulator.
+      type: String
+    - contextPath: deleted_simulator_details.simulation_users
+      description: simulator users list.
+      type: String
+    - contextPath: deleted_simulator_details.proxies
+      description: Proxies of simulator.
+      type: String
+    - contextPath: deleted_simulator_details.advanced_actions
+      description: Advanced simulator details.
+      type: String
+  - deprecated: false
+    description: We are using this command to get all available simulators.
+    name: safebreach-get-available-simulator-details
+    arguments:
+    - name: details
+      isArray: false
+      description: if details are to be included for search.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: deleted
+      isArray: false
+      description: if deleted are to be included for search.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: secret
+      isArray: false
+      description: if secrets are to be included for search.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: shouldIncludeProxies
+      isArray: false
+      description: if proxies are to be included for search.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: hostname
+      isArray: false
+      description: if hostname to be included for search.
+      required: false
+      secret: false
+      default: false
+    - name: connectionType
+      isArray: false
+      description: if connectionType to be included for search.
+      required: false
+      secret: false
+      default: false
+    - name: externalIp
+      isArray: false
+      description: if external IP details to be included for search.
+      required: false
+      secret: false
+      default: false
+    - name: internalIp
+      isArray: false
+      description: if Internal IP are to be included for search.
+      required: false
+      secret: false
+      default: false
+    - name: os
+      isArray: false
+      description: if Operating system details to be included for search.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: sortDirection
+      isArray: false
+      description: direction in which secrets are to be sorted.
+      required: false
+      secret: false
+      default: false
+      defaultValue: asc
+      predefined:
+      - asc
+      - desc
+      auto: PREDEFINED
+    - name: pageSize
+      isArray: false
+      description: number of entries to search.
+      required: false
+      secret: false
+      default: false
+    - name: isEnabled
+      isArray: false
+      description: if to search only enabled ones.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: isConnected
+      isArray: false
+      description: status of connection of nodes to search.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: isCritical
+      isArray: false
+      description: whether to search only for critical nodes or not.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: additionalDetails
+      isArray: false
+      description: Whether to show additional details or not.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: status
+      isArray: false
+      description: if simulator status are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: ALL
+      predefined:
+      - APPROVED
+      - PENDING
+      - ALL
+      auto: PREDEFINED
+    outputs:
+    - contextPath: simulator_details.is_enabled
+      description: Whether the node is enabled or not.
+      type: String
+    - contextPath: simulator_details.simulator_id
+      description: The Id of given simulator.
+      type: String
+    - contextPath: simulator_details.name
+      description: name for given simulator.
+      type: String
+    - contextPath: simulator_details.account_id
+      description: Account Id of account Hosting given simulator.
+      type: String
+    - contextPath: simulator_details.is_critical
+      description: Whether the simulator is critical.
+      type: String
+    - contextPath: simulator_details.is_exfiltration
+      description: If Simulator is exfiltration target.
+      type: String
+    - contextPath: simulator_details.is_infiltration
+      description: If simulator is infiltration target.
+      type: String
+    - contextPath: simulator_details.is_mail_target
+      description: If simulator is mail target.
+      type: String
+    - contextPath: simulator_details.is_mail_attacker
+      description: If simulator is mail attacker.
+      type: String
+    - contextPath: simulator_details.is_pre_executor
+      description: Whether the node is pre executor.
+      type: String
+    - contextPath: simulator_details.is_aws_attacker
+      description: if the given simulator is aws attacker.
+      type: String
+    - contextPath: simulator_details.is_azure_attacker
+      description: If the given simulator is azure attacker.
+      type: String
+    - contextPath: simulator_details.external_ip
+      description: external ip of given simulator.
+      type: String
+    - contextPath: simulator_details.internal_ip
+      description: internal ip of given simulator.
+      type: String
+    - contextPath: simulator_details.is_web_application_attacker
+      description: Whether the simulator is Web application attacker.
+      type: String
+    - contextPath: simulator_details.preferred_interface
+      description: Preferred simulator interface.
+      type: String
+    - contextPath: simulator_details.preferred_ip
+      description: Preferred Ip of simulator.
+      type: String
+    - contextPath: simulator_details.hostname
+      description: Hostname of given simulator.
+      type: String
+    - contextPath: simulator_details.connection_type
+      description: connection_type of given simulator.
+      type: String
+    - contextPath: simulator_details.simulator_status
+      description: status of the simulator.
+      type: String
+    - contextPath: simulator_details.connection_status
+      description: connection status of node/simulator.
+      type: String
+    - contextPath: simulator_details.simulator_framework_version
+      description: Framework version of simulator.
+      type: String
+    - contextPath: simulator_details.operating_system_type
+      description: operating system type of given simulator.
+      type: String
+    - contextPath: simulator_details.operating_system
+      description: Operating system of given simulator.
+      type: String
+    - contextPath: simulator_details.execution_hostname
+      description: Execution Hostname of the given node.
+      type: String
+    - contextPath: simulator_details.deployments
+      description: deployments simulator is part of.
+      type: String
+    - contextPath: simulator_details.created_at
+      description: Creation datetime of simulator.
+      type: String
+    - contextPath: simulator_details.updated_at
+      description: Update datetime of given simulator.
+      type: String
+    - contextPath: simulator_details.deleted_at
+      description: deletion datetime of given simulator.
+      type: String
+    - contextPath: simulator_details.assets
+      description: Assets of given simulator.
+      type: String
+    - contextPath: simulator_details.simulation_users
+      description: simulator users list.
+      type: String
+    - contextPath: simulator_details.proxies
+      description: Proxies of simulator.
+      type: String
+    - contextPath: simulator_details.advanced_actions
+      description: Advanced simulator details.
+      type: String
+  - deprecated: false
+    description: This command gives all details related to account, we are using this to find assigned simulator quota.
+    name: safebreach-get-available-simulator-count
+    arguments: []
+    outputs:
+    - contextPath: account_details.id
+      description: The account ID of account.
+      type: Number
+    - contextPath: account_details.name
+      description: The Account Name of account being queried.
+      type: String
+    - contextPath: account_details.contactName
+      description: Contact name for given account.
+      type: String
+    - contextPath: account_details.contactEmail
+      description: Email of the contact person.
+      type: String
+    - contextPath: account_details.userQuota
+      description: User Quota for the given account, max number of users for this account.
+      type: String
+    - contextPath: account_details.nodesQuota
+      description: The simulator quota for the given account.
+      type: Number
+    - contextPath: account_details.registrationDate
+      description: The registration date of given account.
+      type: Number
+    - contextPath: account_details.activationDate
+      description: The Activation date of given account.
+      type: String
+    - contextPath: account_details.expirationDate
+      description: Account expiration date.
+      type: String
+  - deprecated: false
+    description: This command gives simulator with given name
+    name: safebreach-get-simulator-with-name
+    arguments:
+    - name: Simulator/Node Name
+      isArray: false
+      description: Name of simulator/node to search with.
+      required: true
+      secret: false
+      default: false
+    - name: details
+      isArray: false
+      description: if details are to be included for search.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: deleted
+      isArray: false
+      description: if deleted are to be included for search.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: simulator_details_with_name.is_enabled
+      description: Whether the node is enabled or not.
+      type: String
+    - contextPath: simulator_details_with_name.simulator_id
+      description: The Id of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.name
+      description: name for given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.account_id
+      description: Account Id of account Hosting given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.is_critical
+      description: Whether the simulator is critical.
+      type: String
+    - contextPath: simulator_details_with_name.is_exfiltration
+      description: If Simulator is exfiltration target.
+      type: String
+    - contextPath: simulator_details_with_name.is_infiltration
+      description: If simulator is infiltration target.
+      type: String
+    - contextPath: simulator_details_with_name.is_mail_target
+      description: If simulator is mail target.
+      type: String
+    - contextPath: simulator_details_with_name.is_mail_attacker
+      description: If simulator is mail attacker.
+      type: String
+    - contextPath: simulator_details_with_name.is_pre_executor
+      description: Whether the node is pre executor.
+      type: String
+    - contextPath: simulator_details_with_name.is_aws_attacker
+      description: if the given simulator is aws attacker.
+      type: String
+    - contextPath: simulator_details_with_name.is_azure_attacker
+      description: If the given simulator is azure attacker.
+      type: String
+    - contextPath: simulator_details_with_name.external_ip
+      description: external ip of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.internal_ip
+      description: internal ip of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.is_web_application_attacker
+      description: Whether the simulator is Web application attacker.
+      type: String
+    - contextPath: simulator_details_with_name.preferred_interface
+      description: Preferred simulator interface.
+      type: String
+    - contextPath: simulator_details_with_name.preferred_ip
+      description: Preferred Ip of simulator.
+      type: String
+    - contextPath: simulator_details_with_name.hostname
+      description: Hostname of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.connection_type
+      description: connection_type of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.simulator_status
+      description: status of the simulator.
+      type: String
+    - contextPath: simulator_details_with_name.connection_status
+      description: connection status of node/simulator.
+      type: String
+    - contextPath: simulator_details_with_name.simulator_framework_version
+      description: Framework version of simulator.
+      type: String
+    - contextPath: simulator_details_with_name.operating_system_type
+      description: operating system type of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.operating_system
+      description: Operating system of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.execution_hostname
+      description: Execution Hostname of the given node.
+      type: String
+    - contextPath: simulator_details_with_name.deployments
+      description: deployments simulator is part of.
+      type: String
+    - contextPath: simulator_details_with_name.created_at
+      description: Creation datetime of simulator.
+      type: String
+    - contextPath: simulator_details_with_name.updated_at
+      description: Update datetime of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.deleted_at
+      description: deletion datetime of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.assets
+      description: Assets of given simulator.
+      type: String
+    - contextPath: simulator_details_with_name.simulation_users
+      description: simulator users list.
+      type: String
+    - contextPath: simulator_details_with_name.proxies
+      description: Proxies of simulator.
+      type: String
+    - contextPath: simulator_details_with_name.advanced_actions
+      description: Advanced simulator details.
+      type: String
+  - deprecated: false
+    description: This command updates simulator with given name with given details.
+    name: safebreach-update-simulator-with-given-name
+    arguments:
+    - name: Simulator/Node Name
+      isArray: false
+      description: Name of simulator/node to search with.
+      required: true
+      secret: false
+      default: false
+    - name: details
+      isArray: false
+      description: if details are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: deleted
+      isArray: false
+      description: if deleted are to be included for search.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: connectionUrl
+      isArray: false
+      description: the given value will be set as connection string.
+      required: false
+      secret: false
+      default: false
+    - name: cloudProxyUrl
+      isArray: false
+      description: the given value will be set as cloud proxy url.
+      required: false
+      secret: false
+      default: false
+    - name: name
+      isArray: false
+      description: the given value will be set as name of simulator.
+      required: false
+      secret: false
+      default: false
+    - name: preferredInterface
+      isArray: false
+      description: the given value will be set as preferred interface string.
+      required: false
+      secret: false
+      default: false
+    - name: preferredIp
+      isArray: false
+      description: the given value will be set as Preferred IP.
+      required: false
+      secret: false
+      default: false
+    - name: tunnel
+      isArray: false
+      description: the given value will be set as tunnel.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: updated_simulator_details.is_enabled
+      description: Whether the node is enabled or not.
+      type: String
+    - contextPath: updated_simulator_details.simulator_id
+      description: The Id of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.name
+      description: name for given simulator.
+      type: String
+    - contextPath: updated_simulator_details.account_id
+      description: Account Id of account Hosting given simulator.
+      type: String
+    - contextPath: updated_simulator_details.is_critical
+      description: Whether the simulator is critical.
+      type: String
+    - contextPath: updated_simulator_details.is_exfiltration
+      description: If Simulator is exfiltration target.
+      type: String
+    - contextPath: updated_simulator_details.is_infiltration
+      description: If simulator is infiltration target.
+      type: String
+    - contextPath: updated_simulator_details.is_mail_target
+      description: If simulator is mail target.
+      type: String
+    - contextPath: updated_simulator_details.is_mail_attacker
+      description: If simulator is mail attacker.
+      type: String
+    - contextPath: updated_simulator_details.is_pre_executor
+      description: Whether the node is pre executor.
+      type: String
+    - contextPath: updated_simulator_details.is_aws_attacker
+      description: if the given simulator is aws attacker.
+      type: String
+    - contextPath: updated_simulator_details.is_azure_attacker
+      description: If the given simulator is azure attacker.
+      type: String
+    - contextPath: updated_simulator_details.external_ip
+      description: external ip of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.internal_ip
+      description: internal ip of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.is_web_application_attacker
+      description: Whether the simulator is Web application attacker.
+      type: String
+    - contextPath: updated_simulator_details.preferred_interface
+      description: Preferred simulator interface.
+      type: String
+    - contextPath: updated_simulator_details.preferred_ip
+      description: Preferred Ip of simulator.
+      type: String
+    - contextPath: updated_simulator_details.hostname
+      description: Hostname of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.connection_type
+      description: connection_type of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.simulator_status
+      description: status of the simulator.
+      type: String
+    - contextPath: updated_simulator_details.connection_status
+      description: connection status of node/simulator.
+      type: String
+    - contextPath: updated_simulator_details.simulator_framework_version
+      description: Framework version of simulator.
+      type: String
+    - contextPath: updated_simulator_details.operating_system_type
+      description: operating system type of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.operating_system
+      description: Operating system of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.execution_hostname
+      description: Execution Hostname of the given node.
+      type: String
+    - contextPath: updated_simulator_details.deployments
+      description: deployments simulator is part of.
+      type: String
+    - contextPath: updated_simulator_details.created_at
+      description: Creation datetime of simulator.
+      type: String
+    - contextPath: updated_simulator_details.updated_at
+      description: Update datetime of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.deleted_at
+      description: deletion datetime of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.assets
+      description: Assets of given simulator.
+      type: String
+    - contextPath: updated_simulator_details.simulation_users
+      description: simulator users list.
+      type: String
+    - contextPath: updated_simulator_details.proxies
+      description: Proxies of simulator.
+      type: String
+    - contextPath: updated_simulator_details.advanced_actions
+      description: Advanced simulator details.
+      type: String
+  script: '-'
+  type: python
+  subtype: python3
+  dockerimage: demisto/python3:3.10.13.74666
+  feed: false
+  isfetch: false
+  runonce: false
+  longRunning: false
+  longRunningPort: false
+fromversion: 6.2.0
+tests:
+- No tests

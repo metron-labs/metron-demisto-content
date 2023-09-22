@@ -1,0 +1,24 @@
+{
+    "success":{
+        "args":{
+            "Include Archived": "true",
+            "Entries per Page":100,
+            "Plan ID": 123,
+            "Status" : "CANCELED",
+            "Simulation ID": "",
+            "Sort By":"endTime"
+        },
+        "command":"safebreach-get-test-summary"
+    },
+    "fail":{
+        "args":{
+            "Include Archived": "true",
+            "Entries per Page":100,
+            "Plan ID": "",
+            "Status" : "CANCELED",
+            "Simulation ID": "",
+            "Sort By":"endTime"
+        },
+        "command":"safebreach-get-test-summary"
+    }
+}
