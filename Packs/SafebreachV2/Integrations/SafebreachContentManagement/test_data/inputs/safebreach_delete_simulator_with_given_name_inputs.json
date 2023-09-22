@@ -1,0 +1,11 @@
+{
+    "success":{
+        "args":{
+            "details": "true",
+            "deleted":"true",
+            "Simulator/Node Name":"DesktopXWindowsCrowd",
+            "Should Force Delete":"false"
+        },
+        "command":"safebreach-delete-simulator-with-name"
+    }
+}

@@ -1,0 +1,64 @@
+{
+    "successful_update_just_email":{
+        "args":{
+            "User ID" : null,
+            "Email":"acme@email.com",
+
+            "Name":"acme updated",
+            "User Description":"updated user description",
+            "Is Active": "False",
+            "Email Post Creation": false,
+            "Admin Name":"",
+            "User role": "operator",
+            "Deployments":[1,2,3,4,5]
+        },
+        "command":"safebreach-update-user-details"
+    },
+    "successful_update_id_and_email":{
+        "args":{
+            "User ID" : 123456789,
+            "Email":"acme@email.com",
+
+            "Name":"acme updated",
+            "User Description":"updated user description",
+            "Is Active": "False",
+            "Email Post Creation": false,
+            "Admin Name":"",
+            "User role": "operator",
+            "Deployments":[1,2,3,4,5]
+        },
+        "command":"safebreach-update-user-details"
+    },
+    "weak_password":{
+        "args":{
+            "User ID" : 123456789,
+            "Email":"acme@email.com",
+
+            "Name":"acme",
+            "Is Active": "False",
+            "Email Post Creation": "False",
+            "Password":"asdf",
+            "Admin Name":"",
+            "Change Password on create":"False",
+            "User role": "operator",
+            "Deployments":[1,2,3,4,5]
+        },
+        "command":"safebreach-update-user-details"
+    },
+    "failed_update":{
+        "args":{
+            "User ID" : null,
+            "Email":"acme@email.com",
+
+            "Name":"acme",
+            "Is Active": "False",
+            "Email Post Creation": "False",
+            "Password":"asdf",
+            "Admin Name":"",
+            "Change Password on create":"False",
+            "User role": "operator",
+            "Deployments":[1,2,3,4,5]
+        },
+        "command":"safebreach-update-user-details"
+    }
+}

@@ -1,0 +1,413 @@
+category: Deception & Breach Simulation
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
+commonfields:
+  id: Safebreach Content Management
+  version: -1
+name: Safebreach Content Management
+display: Safebreach Content Management
+configuration:
+- display: Server URL
+  name: base_url
+  type: 0
+  required: true
+  additionalinfo: This is base URL for your instance.
+- display: API Key
+  name: api_key
+  type: 4
+  required: true
+  additionalinfo: This is API key for your instance, this can be created in safebreach user                       administration>APIkeys and then it must be saved as there is no way to view this again
+- display: Account ID
+  name: account_id
+  type: 1
+  required: true
+  additionalinfo: This is account ID of account with which we want to get data from safebreach
+- display: Verify SSL Certificate
+  name: verify
+  type: 8
+  required: false
+  additionalinfo: This Field is useful for checking if the certificate of SSL for HTTPS is valid or not
+script:
+  commands:
+  - deprecated: false
+    description: This command creates a user with given data.
+    name: safebreach-create-user
+    arguments:
+    - name: Name
+      isArray: false
+      description: Name of the user to create.
+      required: false
+      secret: false
+      default: false
+    - name: Email
+      isArray: false
+      description: Email of the user to Create.
+      required: true
+      secret: false
+      default: false
+    - name: Is Active
+      isArray: false
+      description: Whether the user is active upon creation.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'false'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: Email Post Creation
+      isArray: false
+      description: Should Email be sent to user on creation.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'false'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: Password
+      isArray: false
+      description: Password of user being created.
+      required: true
+      secret: false
+      default: false
+    - name: Admin Name
+      isArray: false
+      description: Name of the Admin creating user.
+      required: false
+      secret: false
+      default: false
+    - name: Change Password on create
+      isArray: false
+      description: Should user change password on creation.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'false'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: User role
+      isArray: false
+      description: Role of the user being Created.
+      required: false
+      secret: false
+      default: false
+      defaultValue: viewer
+      predefined:
+      - viewer
+      - administrator
+      - contentDeveloper
+      - operator
+      auto: PREDEFINED
+    - name: Deployments
+      isArray: true
+      description: Comma separated ID of all deployments the user should be part of.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: created_user_data.id
+      description: The ID of User created.
+      type: Number
+    - contextPath: created_user_data.name
+      description: The name of User created.
+      type: String
+    - contextPath: created_user_data.email
+      description: The email of User created.
+      type: String
+    - contextPath: created_user_data.createdAt
+      description: The creation time of User created.
+      type: String
+    - contextPath: created_user_data.deletedAt
+      description: The Deletion time of User created.
+      type: String
+    - contextPath: created_user_data.roles
+      description: The roles of User created.
+      type: String
+    - contextPath: created_user_data.description
+      description: The description of User created.
+      type: String
+    - contextPath: created_user_data.role
+      description: The role of User created.
+      type: String
+    - contextPath: created_user_data.deployments
+      description: The deployments user is part of.
+      type: String
+  - deprecated: false
+    description: This command deletes a user with given data.
+    name: safebreach-delete-user
+    arguments:
+    - name: User ID
+      isArray: false
+      description: user ID of user from safebreach to search.
+      required: false
+      secret: false
+      default: false
+    - name: Email
+      isArray: false
+      description: Email of the user to Search for updating user details.
+      required: true
+      secret: false
+      default: false
+    - name: Should Include Details
+      isArray: false
+      description: If Details of user are to be included while             querying all users.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: Should Include Deleted
+      isArray: false
+      description: If deleted users are to be included while querying all users.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: deleted_user_data.id
+      description: The ID of User deleted.
+      type: Number
+    - contextPath: deleted_user_data.name
+      description: The name of User deleted.
+      type: String
+    - contextPath: deleted_user_data.email
+      description: The email of User deleted.
+      type: String
+    - contextPath: deleted_user_data.createdAt
+      description: The creation time of User deleted.
+      type: String
+    - contextPath: deleted_user_data.deletedAt
+      description: The Deletion time of User deleted.
+      type: String
+    - contextPath: deleted_user_data.roles
+      description: The roles of User deleted.
+      type: String
+    - contextPath: deleted_user_data.description
+      description: The description of User deleted.
+      type: String
+    - contextPath: deleted_user_data.role
+      description: The role of User deleted.
+      type: String
+    - contextPath: deleted_user_data.deployments
+      description: The deployments user was part of.
+      type: String
+  - deprecated: false
+    description: This command gives all users depending on inputs given.
+    name: safebreach-get-all-users
+    arguments:
+    - name: Should Include Details
+      isArray: false
+      description: If Details of user are to be included while querying all             users.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: Should Include Deleted
+      isArray: false
+      description: If deleted users are to be included while querying all users.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: user_data.id
+      description: The ID of User retrieved.
+      type: Number
+    - contextPath: user_data.name
+      description: The name of User retrieved.
+      type: String
+    - contextPath: user_data.email
+      description: The email of User retrieved.
+      type: String
+  - deprecated: false
+    description: This command gives all users depending on inputs given.
+    name: safebreach-get-user-with-matching-name-or-email
+    arguments:
+    - name: name
+      isArray: false
+      description: Name of the user to lookup.
+      required: false
+      secret: false
+      default: false
+    - name: email
+      isArray: false
+      description: Email of the user to lookup.
+      required: true
+      secret: false
+      default: false
+    - name: Should Include Details
+      isArray: false
+      description: If Details of user are to be included while             querying all users.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      auto: PREDEFINED
+    - name: Should Include Deleted
+      isArray: false
+      description: If deleted users are to be included while querying all users.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: filtered_users.id
+      description: The ID of User retrieved.
+      type: Number
+    - contextPath: filtered_users.name
+      description: The name of User retrieved.
+      type: String
+    - contextPath: filtered_users.email
+      description: The email of User retrieved.
+      type: String
+  - deprecated: false
+    description: This command updates a user with given data.
+    name: safebreach-update-user-details
+    arguments:
+    - name: User ID
+      isArray: false
+      description: user ID of user from safebreach to search.
+      required: false
+      secret: false
+      default: false
+    - name: Email
+      isArray: false
+      description: Email of the user to Search for updating user details.
+      required: true
+      secret: false
+      default: false
+    - name: Name
+      isArray: false
+      description: Update the user name to given string.
+      required: false
+      secret: false
+      default: false
+    - name: User Description
+      isArray: false
+      description: Update the user Description to given string.
+      required: false
+      secret: false
+      default: false
+    - name: Is Active
+      isArray: false
+      description: Update the user Status.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - 'true'
+      - 'false'
+      - ''
+      auto: PREDEFINED
+    - name: Password
+      isArray: false
+      description: Password of user to be updated with.
+      required: false
+      secret: false
+      default: false
+    - name: User role
+      isArray: false
+      description: Role of the user to be changed to.
+      required: false
+      secret: false
+      default: false
+      defaultValue: viewer
+      predefined:
+      - viewer
+      - administrator
+      - contentDeveloper
+      - operator
+      auto: PREDEFINED
+    - name: Deployments
+      isArray: true
+      description: Comma separated ID of all deployments the user should be part of.
+      required: false
+      secret: false
+      default: false
+    - name: Should Include Details
+      isArray: false
+      description: If Details of user are to be included while            querying all users.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    - name: Should Include Deleted
+      isArray: false
+      description: If deleted users are to be included while querying all users.
+      required: true
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'true'
+      - 'false'
+      auto: PREDEFINED
+    outputs:
+    - contextPath: updated_user_data.id
+      description: The ID of User updated.
+      type: Number
+    - contextPath: updated_user_data.name
+      description: The name of User updated.
+      type: String
+    - contextPath: updated_user_data.email
+      description: The email of User updated.
+      type: String
+    - contextPath: updated_user_data.createdAt
+      description: The creation time of User updated.
+      type: String
+    - contextPath: updated_user_data.deletedAt
+      description: The Deletion time of User updated.
+      type: String
+    - contextPath: updated_user_data.roles
+      description: The roles of User updated.
+      type: String
+    - contextPath: updated_user_data.description
+      description: The description of User updated.
+      type: String
+    - contextPath: updated_user_data.role
+      description: The role of User updated.
+      type: String
+    - contextPath: updated_user_data.deployments
+      description: The deployments user is part of.
+      type: String
+  script: '-'
+  type: python
+  subtype: python3
+  dockerimage: demisto/python3:3.10.13.74666
+  feed: false
+  isfetch: false
+  runonce: false
+  longRunning: false
+  longRunningPort: false
+fromversion: 6.9.0
+tests:
+- No tests

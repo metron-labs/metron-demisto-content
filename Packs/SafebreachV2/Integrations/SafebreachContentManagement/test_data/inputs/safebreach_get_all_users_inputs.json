@@ -1,0 +1,23 @@
+{
+    "details_and_deleted":{
+        "args":{
+            "Should Include Details": "true",
+            "Should Include Deleted":"true"
+        },
+        "command":"safebreach-get-all-users"
+    },
+    "just_details":{
+        "args":{
+            "Should Include Details": "true",
+            "Should Include Deleted":"false"
+        },
+        "command":"safebreach-get-all-users"
+    },
+    "just_deleted":{
+        "args":{
+            "Should Include Details": "false",
+            "Should Include Deleted":"true"
+        },
+        "command":"safebreach-get-all-users"
+    }
+}
