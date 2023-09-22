@@ -7,7 +7,9 @@ bool_map = {
     "true": True,
     "false": False,
     "True": True,
-    "False": False
+    "False": False,
+    True: True,
+    False: False
 }
 
 test_summaries_output_fields = [
@@ -37,15 +39,18 @@ test_summaries_output_fields = [
 
 metadata_collector = YMLMetadataCollector(
     integration_name="Safebreach Content Management",
-    description="This Integration aims to provide easy access to safebreach from XSOAR.\
-        Following are the things that user can get access through XSOAR command integration: \
-        1. User get, create, update and delete. \
-        2. Deployment create, update and delete. \
-        3. Tests get and delete. \
-        4. Nodes get, update, delete. ",
+    description="""
+    This Integration aims to provide easy access to safebreach from XSOAR.
+    Following are the things that user can get access through XSOAR command integration:
+    1. User get, create, update and delete. 
+    2. Deployment create, update and delete.
+    3. Tests get and delete.
+    4. Nodes get, update, delete.
+    5. Get current tests/simulation status and/or queue them.
+    """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.73190",
+    docker_image="demisto/python3:3.10.13.74666",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -167,11 +172,11 @@ class Client(BaseClient):
         Returns:
             (dict,list,Exception): a dictionary or list with data based on API call OR Throws an error based on status code
         """
-        base_url = demisto.params().get("base_url", "")
+        base_url = demisto.params().get("base_url", "").strip()
         base_url = base_url if base_url[-1] != "/" else base_url[0:-1]
         url = url if url[0] != "/" else url[1:]
         request_url = f"{base_url}/api/{url}"
-        api_key = demisto.params().get("api_key")
+        api_key = demisto.params().get("api_key", "").strip()
         headers = {
             'Accept': 'application/json',
             'x-apitoken': api_key
@@ -194,6 +199,7 @@ class Client(BaseClient):
         Raises:
             Exception: all errors will be formatted and then thrown as exception string which will show as error_results in XSOAR
         """
+        demisto.debug(f"error being sent to format_sb_code_error function is {response.get('error')}")
         exception_string = format_sb_code_error(response.get("error"))
         raise SBError(exception_string)
 
@@ -209,6 +215,7 @@ class Client(BaseClient):
             account_id = demisto.params().get("account_id", 0)
             url = f"/config/v1/accounts/{account_id}/users"
             response = self.get_response(url=url)
+            demisto.info(f"the response of function get_all_users_for_test is {response}")
             if response and response.get("data"):
                 return "ok"
             elif response.get("data") == []:
@@ -341,7 +348,8 @@ class Client(BaseClient):
             dict: status stating whether its success and how many errors are remaining incase of failure to delete some
         """
         account_id = demisto.params().get("account_id", 0)
-        connector_id = demisto.args().get("Connector ID")
+        connector_id = demisto.args().get("Connector ID", "").strip()
+        demisto.info(f"connector id for deleting integration errors is {connector_id}")
 
         method = "DELETE"
         url = f"/siem/v1/accounts/{account_id}/config/providers/status/delete/{connector_id}"
@@ -585,7 +593,7 @@ def delete_test_result_of_test(client: Client):
         CommandResults,Dict: A table showing deletion results and a dict of outputs showing the same
     """
     test_summaries = client.delete_test_result_of_test()
-
+    demisto.info(f"output of delete_test_result_of_test is {test_summaries}")
     human_readable = tableToMarkdown(
         name="Deleted Test",
         t=test_summaries.get("data", {}),
