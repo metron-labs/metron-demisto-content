@@ -98,7 +98,7 @@ This command creates a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| name | Name of the user to create. | Optional | 
+| name | Name of the user to create. | Required | 
 | email | Email of the user to Create. | Required | 
 | is_active | Whether the user is active upon creation. Possible values are: true, false. Default is false. | Optional | 
 | email_post_creation | Should Email be sent to user on creation. Possible values are: true, false. Default is false. | Optional | 
@@ -135,7 +135,7 @@ This command deletes a API key with given name.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Key name | Name of the API Key to Delete. | Required | 
+| key_name | Name of the API Key to Delete. | Required | 
 
 #### Context Output
 

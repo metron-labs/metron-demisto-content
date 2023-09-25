@@ -726,6 +726,7 @@ class Client(BaseClient):
             dict : flattened error logs which are easier to display on table
         """
         flattened_logs_list = []
+
         for connector in error_logs:
             logs = error_logs[connector]["logs"] if error_logs[connector].get("status") == "error" else []
             if logs:
@@ -1527,7 +1528,7 @@ def get_user_id_by_name_or_email(client: Client):
 @metadata_collector.command(
     command_name="safebreach-create-user",
     inputs_list=[
-        InputArgument(name="name", description="Name of the user to create.", required=False, is_array=False),
+        InputArgument(name="name", description="Name of the user to create.", required=True, is_array=False),
         InputArgument(name="email", description="Email of the user to Create.", required=True,
                       is_array=False),
         InputArgument(name="is_active", description="Whether the user is active upon creation.",
@@ -1928,7 +1929,7 @@ def create_api_key(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-api-key",
     inputs_list=[
-        InputArgument(name="Key name", description="Name of the API Key to Delete.", required=True, is_array=False),
+        InputArgument(name="key_name", description="Name of the API Key to Delete.", required=True, is_array=False),
     ],
     outputs_prefix="deleted_api_key",
     outputs_list=[
@@ -2039,11 +2040,14 @@ def delete_integration_error_logs(client: Client):
         CommandResults,Dict: This returns a table of data showing deleted details and dict showing same in outputs
     """
     error_logs = client.delete_integration_error_logs()
-
+    headers = ["error", "result"]
+    if error_logs.get("errorMessage"):
+        # should we throw a connector not found here or just show it as success saying no connector found
+        headers = ["error", "errorMessage"]
     human_readable = tableToMarkdown(
         name="Integration Connector errors status",
         t=error_logs,
-        headers=["error", "result"])
+        headers=headers)
     outputs = error_logs
     demisto.info(f"json output for delete integration error logs is {outputs}")
 

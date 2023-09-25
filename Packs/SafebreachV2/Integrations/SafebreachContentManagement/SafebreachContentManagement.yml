@@ -114,7 +114,7 @@ script:
     - name: name
       isArray: false
       description: Name of the user to create.
-      required: false
+      required: true
       secret: false
       default: false
     - name: email
@@ -219,7 +219,7 @@ script:
     description: This command deletes a API key with given name.
     name: safebreach-delete-api-key
     arguments:
-    - name: Key name
+    - name: key_name
       isArray: false
       description: Name of the API Key to Delete.
       required: true
@@ -2287,6 +2287,6 @@ script:
   runonce: false
   longRunning: false
   longRunningPort: false
-fromversion: 6.9.0
+fromversion: 6.2.0
 tests:
 - No tests
