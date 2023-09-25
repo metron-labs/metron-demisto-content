@@ -1,22 +1,22 @@
 {
     "details_and_deleted":{
         "args":{
-            "Should Include Details": "true",
-            "Should Include Deleted":"true"
+            "should_include_details": "true",
+            "should_include_deleted":"true"
         },
         "command":"safebreach-get-all-users"
     },
     "just_details":{
         "args":{
-            "Should Include Details": "true",
-            "Should Include Deleted":"false"
+            "should_include_details": "true",
+            "should_include_deleted":"false"
         },
         "command":"safebreach-get-all-users"
     },
     "just_deleted":{
         "args":{
-            "Should Include Details": "false",
-            "Should Include Deleted":"true"
+            "should_include_details": "false",
+            "should_include_deleted":"true"
         },
         "command":"safebreach-get-all-users"
     }

@@ -138,9 +138,9 @@ def test_create_user(mocker: Callable[..., Generator[MockerFixture, None, None]]
         if key == "successful_creation":
             assert test_output["outputs"][key].get("data") is not None
             assert test_output["outputs"][key].get("data")["name"] == \
-                test_input[key]["args"]["Name"]
+                test_input[key]["args"]["name"]
             assert test_output["outputs"][key].get("data")["email"] == \
-                test_input[key]["args"]["Email"]
+                test_input[key]["args"]["email"]
 
         elif key == "weak_password":
             assert callable(test_output["outputs"][key]["data"]) is False
@@ -165,7 +165,7 @@ def test_update_user_with_details(mocker: Callable[..., Generator[MockerFixture,
             try:
                 safebreach_content_management.update_user_with_details(mock_sb_client)
             except NotFoundError as error:
-                assert f"User with {test_input[key]['args']['User ID']} or {test_input[key]['args']['Email']} not found" == str(
+                assert f"User with {test_input[key]['args']['user_id']} or {test_input[key]['args']['email']} not found" == str(
                     error)
             continue
         else:
@@ -182,11 +182,11 @@ def test_update_user_with_details(mocker: Callable[..., Generator[MockerFixture,
 
         assert test_output["outputs"][key].get("data") is not None
         assert test_output["outputs"][key].get("data")["name"] == \
-            test_input[key]["args"]["Name"]
+            test_input[key]["args"]["name"]
         assert test_output["outputs"][key].get("data")["email"] == \
-            test_input[key]["args"]["Email"]
+            test_input[key]["args"]["email"]
         assert test_output["outputs"][key].get("data")["description"] == \
-            test_input[key]["args"]["User Description"]
+            test_input[key]["args"]["user_description"]
 
 
 def test_delete_user_with_details(mocker: Callable[..., Generator[MockerFixture, None, None]]):
@@ -204,7 +204,7 @@ def test_delete_user_with_details(mocker: Callable[..., Generator[MockerFixture,
             try:
                 safebreach_content_management.delete_user_with_details(mock_sb_client)
             except NotFoundError as error:
-                assert f"User with {test_input[key]['args']['User ID']} or {test_input[key]['args']['Email']} not found" == str(
+                assert f"User with {test_input[key]['args']['user_id']} or {test_input[key]['args']['email']} not found" == str(
                     error)
             continue
         else:
@@ -220,11 +220,11 @@ def test_delete_user_with_details(mocker: Callable[..., Generator[MockerFixture,
 
         assert test_output["outputs"][key].get("data") is not None
         assert test_output["outputs"][key].get("data")["name"] == \
-            test_input[key]["args"]["Name"]
+            test_input[key]["args"]["name"]
         assert test_output["outputs"][key].get("data")["email"] == \
-            test_input[key]["args"]["Email"]
+            test_input[key]["args"]["email"]
         assert test_output["outputs"][key].get("data")["description"] == \
-            test_input[key]["args"]["User Description"]
+            test_input[key]["args"]["user_description"]
 
 
 def test_create_deployment(mocker: Callable[..., Generator[MockerFixture, None, None]]):
@@ -250,9 +250,9 @@ def test_create_deployment(mocker: Callable[..., Generator[MockerFixture, None, 
             assert command_results.outputs == test_output["outputs"][key].get("data")
             assert test_output["outputs"][key].get("data") is not None
             assert test_output["outputs"][key].get("data")["name"] == \
-                test_input[key]["args"]["Name"]
+                test_input[key]["args"]["name"]
             assert test_output["outputs"][key].get("data")["description"] == \
-                test_input[key]["args"]["Description"]
+                test_input[key]["args"]["description"]
             assert test_output["outputs"][key].get("data")["deletedAt"] is None
 
         else:
@@ -285,13 +285,13 @@ def test_update_deployment(mocker: Callable[..., Generator[MockerFixture, None, 
             assert command_results.outputs == test_output["outputs"][key].get("data")
             assert test_output["outputs"][key].get("data") is not None
             assert test_output["outputs"][key].get("data")["name"] == \
-                test_input[key]["args"]["Updated Deployment Name"]
+                test_input[key]["args"]["updated_deployment_name"]
             assert test_output["outputs"][key].get("data")["description"] == \
-                test_input[key]["args"]["Updated deployment description."]
+                test_input[key]["args"]["updated_deployment_description"]
             assert test_output["outputs"][key].get("data")["deletedAt"] is None
 
         else:
-            assert test_output["outputs"][key].get("data").get("Updated Deployment Name") is None
+            assert test_output["outputs"][key].get("data").get("updated_deployment_name") is None
 
 
 def test_delete_deployment(mocker: Callable[..., Generator[MockerFixture, None, None]]):
@@ -349,9 +349,9 @@ def test_create_api_key(mocker: Callable[..., Generator[MockerFixture, None, Non
             assert command_results.outputs == test_output["outputs"][key].get("data")
             assert test_output["outputs"][key].get("data") is not None
             assert test_output["outputs"][key].get("data")["name"] == \
-                test_input[key]["args"]["Name"]
+                test_input[key]["args"]["name"]
             assert test_output["outputs"][key].get("data")["description"] == \
-                test_input[key]["args"]["Description"]
+                test_input[key]["args"]["description"]
             assert test_output["outputs"][key].get("data")["deletedAt"] is None
 
         else:
@@ -377,7 +377,7 @@ def test_delete_api_key(mocker: Callable[..., Generator[MockerFixture, None, Non
             try:
                 safebreach_content_management.delete_api_key(mock_sb_client)
             except NotFoundError as err:
-                assert f"couldn't find APi key with given name: {test_input[key]['args']['Key Name']}" == str(err)
+                assert f"couldn't find APi key with given name: {test_input[key]['args']['key_name']}" == str(err)
             continue
         call = safebreach_content_management.return_results.call_args_list
         command_results = call[0].args[0]
@@ -390,7 +390,7 @@ def test_delete_api_key(mocker: Callable[..., Generator[MockerFixture, None, Non
         assert command_results.outputs == test_output["outputs"][key].get("data")
         assert test_output["outputs"][key].get("data") is not None
         assert test_output["outputs"][key].get("data")["name"] == \
-            test_input[key]["args"]["Key Name"]
+            test_input[key]["args"]["key_name"]
         assert test_output["outputs"][key].get("data")["deletedAt"] is not None
 
 
@@ -434,8 +434,8 @@ def test_get_all_tests_summary(mocker: Callable[..., Generator[MockerFixture, No
         assert command_results.outputs_prefix == "tests_data"
         assert command_results.outputs == {"tests_data": test_output["outputs"][key]}
         for test in test_output["outputs"][key]:
-            assert test["status"] == test_input[key]["args"]["Status"]
-        assert len(test_output["outputs"][key]) <= test_input[key]["args"]["Entries per Page"]
+            assert test["status"] == test_input[key]["args"]["status"]
+        assert len(test_output["outputs"][key]) <= test_input[key]["args"]["entries_per_page"]
 
 
 def test_get_all_tests_summary_with_plan_id(mocker: Callable[..., Generator[MockerFixture, None, None]]):
@@ -452,14 +452,14 @@ def test_get_all_tests_summary_with_plan_id(mocker: Callable[..., Generator[Mock
         call = safebreach_content_management.return_results.call_args_list
         command_results = call[0].args[0]
         if key == "success":
-            assert bool(test_input[key]["args"]["Plan ID"]) is True
+            assert bool(test_input[key]["args"]["plan_id"]) is True
         else:
-            assert bool(test_input[key]["args"]["Plan ID"]) is False
+            assert bool(test_input[key]["args"]["plan_id"]) is False
         assert command_results.outputs_prefix == "tests_data"
         assert command_results.outputs == {"tests_data": test_output["outputs"][key]}
         for test in test_output["outputs"][key]:
-            assert test["status"] == test_input[key]["args"]["Status"]
-        assert len(test_output["outputs"][key]) <= test_input[key]["args"]["Entries per Page"]
+            assert test["status"] == test_input[key]["args"]["status"]
+        assert len(test_output["outputs"][key]) <= test_input[key]["args"]["entries_per_page"]
 
 
 def test_delete_test_result_of_test(mocker: Callable[..., Generator[MockerFixture, None, None]]):
@@ -476,9 +476,9 @@ def test_delete_test_result_of_test(mocker: Callable[..., Generator[MockerFixtur
         call = safebreach_content_management.return_results.call_args_list
         command_results = call[0].args[0]
         if key == "success":
-            assert bool(test_input[key]["args"]["Test ID"]) is True
+            assert bool(test_input[key]["args"]["test_id"]) is True
         else:
-            assert bool(test_input[key]["args"]["Test ID"]) is False
+            assert bool(test_input[key]["args"]["test_id"]) is False
             continue
         assert command_results.outputs_prefix == "deleted_test_results"
         assert command_results.readable_output == tableToMarkdown(
@@ -520,13 +520,13 @@ def test_delete_integration_error_logs(mocker):
         command_results = call[0].args[0]
         if key == "fail":
             assert test_output["outputs"][key].get("errorCode") is not None
-            assert test_input[key]["args"]["Connector ID"] in test_output["outputs"][key].get("errorMessage")
+            assert test_input[key]["args"]["connector_id"] in test_output["outputs"][key].get("errorMessage")
             continue
         else:
             assert test_output["outputs"][key].get("error") is not None
         assert command_results.outputs_prefix == "errors_cleared"
         assert command_results.readable_output == tableToMarkdown(
-            name="Integration Connector errors Status", t=command_results.outputs,
+            name="Integration Connector errors status", t=command_results.outputs,
             headers=["error", "result"])
 
 

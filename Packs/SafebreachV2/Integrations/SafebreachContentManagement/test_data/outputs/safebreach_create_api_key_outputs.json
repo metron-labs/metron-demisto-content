@@ -4,7 +4,7 @@
             "data": {
                 "id": 59,
                 "name": "acme",
-                "description": "Description",
+                "description": "description",
                 "accountId": 3470636202,
                 "createdBy": 347063620200002,
                 "updatedAt": "2023-09-09T15:10:26.592Z",

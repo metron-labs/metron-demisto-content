@@ -2,7 +2,7 @@
     "successful_creation":{
         "command":"safebreach-rotate-verification-token",
         "args":{
-            "Name":"test rotate"
+            "name":"test rotate"
         }
     }
 }

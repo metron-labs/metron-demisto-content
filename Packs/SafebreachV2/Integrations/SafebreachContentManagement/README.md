@@ -7,7 +7,7 @@
     4. Nodes get, update, delete.
     5. Get current tests/simulation status and/or queue them.
     
-This integration was integrated and tested with version xx of Safebreach Content Management.
+This integration was integrated and tested with version 0.0.1 of Safebreach Content Management.
 
 ## Configure Safebreach Content Management on Cortex XSOAR
 
@@ -42,8 +42,8 @@ This command creates a API Key with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Name | Name of the API Key to create. | Required | 
-| Description | Description of the API Key to create. | Optional | 
+| name | Name of the API Key to create. | Required | 
+| description | Description of the API Key to create. | Optional | 
 
 #### Context Output
 
@@ -51,7 +51,7 @@ This command creates a API Key with given data.
 | --- | --- | --- |
 | generated_api_key.name | Number | The Name of API Key created. | 
 | generated_api_key.description | String | The Description of API Key created. | 
-| generated_api_key.createdBy | String | The User ID of API key creator. | 
+| generated_api_key.createdBy | String | The user_id of API key creator. | 
 | generated_api_key.createdAt | String | The creation time of API key. | 
 | generated_api_key.key | String | The API key Value. | 
 | generated_api_key.roles | String | The roles allowed for this api key. | 
@@ -70,9 +70,9 @@ This command creates a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Name | Name of the deployment to create. | Required | 
-| Description | Description of the deployment to create. | Optional | 
-| Nodes | Comma separated ID of all nodes the deployment should be part of. | Optional | 
+| name | Name of the deployment to create. | Required | 
+| description | Description of the deployment to create. | Optional | 
+| nodes | Comma separated ID of all nodes the deployment should be part of. | Optional | 
 
 #### Context Output
 
@@ -98,15 +98,15 @@ This command creates a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Name | Name of the user to create. | Optional | 
-| Email | Email of the user to Create. | Required | 
-| Is Active | Whether the user is active upon creation. Possible values are: true, false. Default is false. | Optional | 
-| Email Post Creation | Should Email be sent to user on creation. Possible values are: true, false. Default is false. | Optional | 
-| Password | Password of user being created. | Required | 
-| Admin Name | Name of the Admin creating user. | Optional | 
-| Change Password on create | Should user change password on creation. Possible values are: true, false. Default is false. | Optional | 
-| User role | Role of the user being Created. Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
-| Deployments | Comma separated ID of all deployments the user should be part of. | Optional | 
+| name | Name of the user to create. | Optional | 
+| email | Email of the user to Create. | Required | 
+| is_active | Whether the user is active upon creation. Possible values are: true, false. Default is false. | Optional | 
+| email_post_creation | Should Email be sent to user on creation. Possible values are: true, false. Default is false. | Optional | 
+| password | Password of user being created. | Required | 
+| admin_name | Name of the Admin creating user. | Optional | 
+| change_password_on_create | Should user change password on creation. Possible values are: true, false. Default is false. | Optional | 
+| user_role | Role of the user being Created. Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
+| deployments | Comma separated ID of all deployments the user should be part of. | Optional | 
 
 #### Context Output
 
@@ -135,7 +135,7 @@ This command deletes a API key with given name.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Key Name | Name of the API Key to Delete. | Required | 
+| Key name | Name of the API Key to Delete. | Required | 
 
 #### Context Output
 
@@ -143,7 +143,7 @@ This command deletes a API key with given name.
 | --- | --- | --- |
 | deleted_api_key.name | Number | The Name of API Key deleted. | 
 | deleted_api_key.description | String | The Description of API Key deleted. | 
-| deleted_api_key.createdBy | String | The User ID of API key creator. | 
+| deleted_api_key.createdBy | String | The user_id of API key creator. | 
 | deleted_api_key.createdAt | String | The creation time of API key. | 
 | deleted_api_key.deletedAt | String | The deletion time of API key. | 
 
@@ -160,8 +160,8 @@ This command deletes a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Deployment ID | ID of the deployment to delete. | Optional | 
-| Deployment Name | Name of the deployment to delete. | Required | 
+| deployment_id | ID of the deployment to delete. | Optional | 
+| deployment_name | Name of the deployment to delete. | Required | 
 
 #### Context Output
 
@@ -187,7 +187,7 @@ This command deleted connector related errors.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Connector ID | The connector ID of Integration connector to have its errors deleted. | Required | 
+| connector_id | The connector ID of Integration connector to have its errors deleted. | Required | 
 
 #### Context Output
 
@@ -209,7 +209,7 @@ This command gets simulations which are in running or queued state.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| schedule ID | schedule ID of schedule to delete. | Required | 
+| schedule_id | schedule ID of schedule to delete. | Required | 
 
 #### Context Output
 
@@ -241,7 +241,7 @@ This command deletes simulator with given name.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Simulator/Node Name | Name of simulator/node to search with. | Required | 
+| simulator_or_node_name | Name of simulator/node to search with. | Required | 
 | Should Force Delete | Should we force delete the simulator. Possible values are: true, false. Default is false. | Required | 
 | details | if details are to be included for search. Possible values are: true, false. Default is true. | Optional | 
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Optional | 
@@ -297,8 +297,8 @@ This command deletes tests with given plan ID.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Test ID | number of entries per page to be retrieved. | Optional | 
-| Soft Delete | Should archived tests be included in search. Possible values are: true, false. Default is true. | Optional | 
+| test_id | number of entries per page to be retrieved. | Optional | 
+| soft_delete | Should archived tests be included in search. Possible values are: true, false. Default is true. | Optional | 
 
 #### Context Output
 
@@ -339,10 +339,10 @@ This command deletes a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| User ID | user ID of user from safebreach to search. | Optional | 
-| Email | Email of the user to Search for updating user details. | Required | 
-| Should Include Details | If Details of user are to be included while             querying all users. Possible values are: true, false. Default is true. | Optional | 
-| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
+| user_id | user ID of user from safebreach to search. | Optional | 
+| email | Email of the user to Search for updating user details. | Required | 
+| should_include_details | If Details of user are to be included while             querying all users. Possible values are: true, false. Default is true. | Optional | 
+| should_include_deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -436,11 +436,11 @@ This command gets tests which are in running or queued state.
 | active_tests.name | String | Name of the test being run. | 
 | active_tests.description | String | Details related to the test being run. | 
 | active_tests.successCriteria | String | Plan Run ID of the simulation. | 
-| active_tests.originalScenarioId | String | Original scenario ID of the running test | 
-| active_tests.actions count | String | number of actions | 
+| active_tests.originalScenarioId | String | Original scenario ID of the running test. | 
+| active_tests.actions count | String | number of actions. | 
 | active_tests.edges count | String | number of edges. | 
 | active_tests.createdAt | String | details related to when test is created. | 
-| active_tests.updatedAt | String | details related to when test is last updated/changed | 
+| active_tests.updatedAt | String | details related to when test is last updated/changed. | 
 | active_tests.steps count | String | number of steps in simulator. | 
 | active_tests.planId | String | planId of the test. | 
 | active_tests.originalPlan ID | String | original plan ID for reference. | 
@@ -449,20 +449,20 @@ This command gets tests which are in running or queued state.
 | active_tests.enableFeedbackLoop | String | Should feedback loop be enabled. | 
 | active_tests.planRunId | String | plan run id. | 
 | active_tests.priority | String | priority of tests. | 
-| active_tests.retrySimulations | String | Should simulations be retried | 
-| active_tests.flowControl | String | Flow control of tests | 
+| active_tests.retrySimulations | String | Should simulations be retried. | 
+| active_tests.flowControl | String | Flow control of tests. | 
 | active_tests.slot position | String | position in queue. | 
 | active_tests.slot status | Boolean | is the test paused. | 
-| active_tests.pauseDuration | String | is the test paused and if so till when | 
-| active_tests.totalJobs | String | Total number of jobs for this test | 
-| active_tests.pausedDate | String | when the test is paused | 
-| active_tests.expectedSimulationsAmount | String | number of simulations expected | 
-| active_tests.dispatchedSimulationsAmount | String | the number of simulations dispatched | 
-| active_tests.blockedSimulationsAmount | String | The number of simulations blocked | 
-| active_tests.unblockedSimulationsAmount | String | The number of simulations unblocked | 
-| active_tests.skippedSimulationsAmount | String | The number of simulations skipped | 
-| active_tests.failedSimulationsAmount | String | The number of simulations failed | 
-| active_tests.isPrepared | String | Total number of simulations that have been prepared | 
+| active_tests.pauseDuration | String | is the test paused and if so till when. | 
+| active_tests.totalJobs | String | Total number of jobs for this test. | 
+| active_tests.pausedDate | String | when the test is paused. | 
+| active_tests.expectedSimulationsAmount | String | number of simulations expected. | 
+| active_tests.dispatchedSimulationsAmount | String | the number of simulations dispatched. | 
+| active_tests.blockedSimulationsAmount | String | The number of simulations blocked. | 
+| active_tests.unblockedSimulationsAmount | String | The number of simulations unblocked. | 
+| active_tests.skippedSimulationsAmount | String | The number of simulations skipped. | 
+| active_tests.failedSimulationsAmount | String | The number of simulations failed. | 
+| active_tests.isPrepared | String | Total number of simulations that have been prepared. | 
 
 ### safebreach-get-available-simulator-details
 
@@ -480,18 +480,18 @@ We are using this command to get all available simulators.
 | details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | secret | if secrets are to be included for search. Possible values are: true, false. | Optional | 
-| shouldIncludeProxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
+| should_include_proxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
 | hostname | if hostname to be included for search. | Optional | 
-| connectionType | if connectionType to be included for search. | Optional | 
-| externalIp | if external IP details to be included for search. | Optional | 
-| internalIp | if Internal IP are to be included for search. | Optional | 
+| connection_type | if connectionType to be included for search. | Optional | 
+| external_ip | if external IP details to be included for search. | Optional | 
+| internal_ip | if Internal IP are to be included for search. | Optional | 
 | os | if Operating system details to be included for search. Possible values are: true, false. | Optional | 
-| sortDirection | direction in which secrets are to be sorted. Possible values are: asc, desc. Default is asc. | Optional | 
-| pageSize | number of entries to search. | Optional | 
-| isEnabled | if to search only enabled ones. Possible values are: true, false. | Optional | 
-| isConnected | status of connection of nodes to search. Possible values are: true, false. | Optional | 
-| isCritical | whether to search only for critical nodes or not. Possible values are: true, false. | Optional | 
-| additionalDetails | Whether to show additional details or not. Possible values are: true, false. | Optional | 
+| sort_direction | direction in which secrets are to be sorted. Possible values are: asc, desc. Default is asc. | Optional | 
+| page_size | number of entries to search. | Optional | 
+| is_enabled | if to search only enabled ones. Possible values are: true, false. | Optional | 
+| is_connected | status of connection of nodes to search. Possible values are: true, false. | Optional | 
+| is_critical | whether to search only for critical nodes or not. Possible values are: true, false. | Optional | 
+| additional_details | Whether to show additional details or not. Possible values are: true, false. | Optional | 
 | status | if simulator status are to be included for search. Possible values are: APPROVED, PENDING, ALL. Default is ALL. | Optional | 
 
 #### Context Output
@@ -545,12 +545,12 @@ This command gets tests with given modifiers.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Include Archived | Should archived tests be included in search. Possible values are: true, false. Default is true. | Optional | 
-| Entries per Page | number of entries per page to be retrieved. | Optional | 
-| Plan ID | plan Id of test. | Optional | 
-| Status | Status of simulation. Possible values are: CANCELED, COMPLETED. Default is CANCELED. | Optional | 
-| Simulation ID | Unique ID of the simulation. | Optional | 
-| Sort By | sort by option. Possible values are: endTime, startTime, planRunId, stepRunId. Default is endTime. | Optional | 
+| include_archived | Should archived tests be included in search. Possible values are: true, false. Default is true. | Optional | 
+| entries_per_page | number of entries per page to be retrieved. | Optional | 
+| plan_id | plan Id of test. | Optional | 
+| status | Status of simulation. Possible values are: CANCELED, COMPLETED. Default is CANCELED. | Optional | 
+| simulation_id | Unique ID of the simulation. | Optional | 
+| sort_by | sort by option. Possible values are: endTime, startTime, planRunId, stepRunId. Default is endTime. | Optional | 
 
 #### Context Output
 
@@ -591,12 +591,12 @@ This command gets tests with given plan ID.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Include Archived | Should archived tests be included in search. Possible values are: true, false. Default is true. | Optional | 
-| Entries per Page | number of entries per page to be retrieved. | Optional | 
-| Plan ID | plan Id of test. | Required | 
-| Status | Status of simulation. Possible values are: CANCELED, COMPLETED. | Optional | 
-| Simulation ID | Unique ID of the simulation. | Optional | 
-| Sort By | sort by option. Possible values are: endTime, startTime, planRunId, stepRunId. Default is endTime. | Optional | 
+| include_archived | Should archived tests be included in search. Possible values are: true, false. Default is true. | Optional | 
+| entries_per_page | number of entries per page to be retrieved. | Optional | 
+| plan_id | plan Id of test. | Required | 
+| status | Status of simulation. Possible values are: CANCELED, COMPLETED. | Optional | 
+| simulation_id | Unique ID of the simulation. | Optional | 
+| sort_by | sort by option. Possible values are: endTime, startTime, planRunId, stepRunId. Default is endTime. | Optional | 
 
 #### Context Output
 
@@ -637,8 +637,8 @@ This command gives all users depending on inputs given.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Should Include Details | If Details of user are to be included while querying all             users. Possible values are: true, false. Default is true. | Optional | 
-| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
+| should_include_details | If Details of user are to be included while querying all             users. Possible values are: true, false. Default is true. | Optional | 
+| should_include_deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -661,7 +661,7 @@ This command gets simulations which are in running or queued state.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| schedule details | Whether to get details of custom scenarios,            set this to true every time unless you explicitly dont need details. Possible values are: false, true. Default is true. | Optional | 
+| schedule_details | Whether to get details of custom scenarios,            set this to true every time unless you explicitly dont need details. Possible values are: false, true. Default is true. | Optional | 
 
 #### Context Output
 
@@ -709,7 +709,7 @@ This command gets simulations which are in running or queued state.
 | prebuilt_scenarios.categories | String | the category ids of the scenario. | 
 | prebuilt_scenarios.steps_order | String | the order of steps involved in the scenario. | 
 | prebuilt_scenarios.order | String | the order of the scenario. | 
-| prebuilt_scenarios.minApiVer | String | the minimum version of API required for scenario to be executed | 
+| prebuilt_scenarios.minApiVer | String | the minimum version of API required for scenario to be executed. | 
 
 ### safebreach-get-schedules
 
@@ -798,7 +798,7 @@ This command gives all details related to account, we are using this to find ass
 ### safebreach-get-simulator-with-name
 
 ***
-This command gives simulator with given name
+This command gives simulator with given name.
 
 #### Base Command
 
@@ -808,7 +808,7 @@ This command gives simulator with given name
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Simulator/Node Name | Name of simulator/node to search with. | Required | 
+| simulator_or_node_name | Name of simulator/node to search with. | Required | 
 | details | if details are to be included for search. Possible values are: true, false. Default is true. | Required | 
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
 
@@ -865,8 +865,8 @@ This command gives all users depending on inputs given.
 | --- | --- | --- |
 | name | Name of the user to lookup. | Optional | 
 | email | Email of the user to lookup. | Required | 
-| Should Include Details | If Details of user are to be included while             querying all users. Possible values are: true. Default is true. | Required | 
-| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
+| should_include_details | If Details of user are to be included while             querying all users. Possible values are: true. Default is true. | Required | 
+| should_include_deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -909,7 +909,7 @@ This command gets simulations which are in running or queued state.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Simulation/Test State | State of tests/simulators to set to. Possible values are: resume, pause. | Required | 
+| simulation_or_test_state | State of tests/simulators to set to. Possible values are: resume, pause. | Required | 
 
 #### Context Output
 
@@ -920,7 +920,7 @@ This command gets simulations which are in running or queued state.
 ### safebreach-rerun-scenario
 
 ***
-this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table 
+this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table.
 
 #### Base Command
 
@@ -931,11 +931,11 @@ this commands puts given simulation data at a given position, for this command t
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | position | position in queue to put the given simulation data at. | Optional | 
-| enable feedback loop | this argument is used to enable/disable feedback loop. Possible values are: false, true. Default is true. | Optional | 
-| retry simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
-| wait for retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
+| enable_feedback_loop | this argument is used to enable/disable feedback loop. Possible values are: false, true. Default is true. | Optional | 
+| retry_simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
+| wait_for_retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
 | priority | the priority of this simulation action. Possible values are: low, high. Default is low. | Optional | 
-| simulation data | simulation data for the given simulation. | Required | 
+| simulation_data | simulation data for the given simulation. | Required | 
 
 #### Context Output
 
@@ -955,7 +955,7 @@ this commands puts given simulation data at a given position, for this command t
 ### safebreach-rerun-test
 
 ***
-this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table 
+this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table.
 
 #### Base Command
 
@@ -966,11 +966,11 @@ this commands puts given test data at a given position, for this command to get 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | position | position in queue to put the given test data at. | Optional | 
-| enable feedback loop | this argument is used to enable/disable feedback loop. Possible values are: false, true. Default is true. | Optional | 
-| retry simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
-| wait for retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
+| enable_feedback_loop | this argument is used to enable/disable feedback loop. Possible values are: false, true. Default is true. | Optional | 
+| retry_simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
+| wait_for_retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
 | priority | the priority of this test action. Possible values are: low, high. Default is low. | Optional | 
-| test data | test data for the given test. | Required | 
+| test_data | test data for the given test. | Required | 
 
 #### Context Output
 
@@ -1027,11 +1027,11 @@ This command updates a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Deployment ID | ID of the deployment to update. | Optional | 
-| Deployment Name | Name of the deployment to update. | Required | 
-| Updated Nodes for Deployment | Comma separated ID of all nodes the deployment should be part of. | Optional | 
-| Updated Deployment Name | Name of the deployment to update to. | Optional | 
-| Updated deployment description. | name of the deployment to update to. | Optional | 
+| deployment_id | ID of the deployment to update. | Optional | 
+| deployment_name | Name of the deployment to update. | Required | 
+| updated_nodes_for_deployment | Comma separated ID of all nodes the deployment should be part of. | Optional | 
+| updated_deployment_name | Name of the deployment to update to. | Optional | 
+| updated_deployment_description | name of the deployment to update to. | Optional | 
 
 #### Context Output
 
@@ -1057,14 +1057,14 @@ This command updates simulator with given name with given details.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| Simulator/Node Name | Name of simulator/node to search with. | Required | 
+| simulator_or_node_name | Name of simulator/node to search with. | Required | 
 | details | if details are to be included for search. Possible values are: true, false. Default is true. | Optional | 
 | deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Optional | 
-| connectionUrl | the given value will be set as connection string. | Optional | 
-| cloudProxyUrl | the given value will be set as cloud proxy url. | Optional | 
+| connection_url | the given value will be set as connection string. | Optional | 
+| cloud_proxy_url | the given value will be set as cloud proxy url. | Optional | 
 | name | the given value will be set as name of simulator. | Optional | 
-| preferredInterface | the given value will be set as preferred interface string. | Optional | 
-| preferredIp | the given value will be set as Preferred IP. | Optional | 
+| preferred_interface | the given value will be set as preferred interface string. | Optional | 
+| preferred_ip | the given value will be set as Preferred IP. | Optional | 
 | tunnel | the given value will be set as tunnel. | Optional | 
 
 #### Context Output
@@ -1118,16 +1118,16 @@ This command updates a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| User ID | user ID of user from safebreach to search. | Optional | 
-| Email | Email of the user to Search for updating user details. | Required | 
-| Name | Update the user name to given string. | Optional | 
-| User Description | Update the user Description to given string. | Optional | 
-| Is Active | Update the user Status. Possible values are: true, false, . | Optional | 
-| Password | Password of user to be updated with. | Optional | 
-| User role | Role of the user to be changed to. Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
-| Deployments | Comma separated ID of all deployments the user should be part of. | Optional | 
-| Should Include Details | If Details of user are to be included while            querying all users. Possible values are: true, false. Default is true. | Optional | 
-| Should Include Deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
+| user_id | user ID of user from safebreach to search. | Optional | 
+| email | Email of the user to Search for updating user details. | Required | 
+| name | Update the user name to given string. | Optional | 
+| user_description | Update the user Description to given string. | Optional | 
+| is_active | Update the user Status. Possible values are: true, false, . | Optional | 
+| password | Password of user to be updated with. | Optional | 
+| user_role | Role of the user to be changed to. Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
+| deployments | Comma separated ID of all deployments the user should be part of. | Optional | 
+| should_include_details | If Details of user are to be included while            querying all users. Possible values are: true, false. Default is true. | Optional | 
+| should_include_deleted | If deleted users are to be included while querying all users. Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 

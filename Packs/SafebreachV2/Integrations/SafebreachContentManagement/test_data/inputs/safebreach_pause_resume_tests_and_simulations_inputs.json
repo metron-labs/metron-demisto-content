@@ -1,19 +1,19 @@
 {
     "pause":{
         "args":{
-            "Simulation/Test State":"pause"
+            "simulation_or_test_state":"pause"
         },
         "command":"safebreach-play-pause-simulations-tests"
     },
     "resume":{
         "args":{
-            "Simulation/Test State":"resume"
+            "simulation_or_test_state":"resume"
         },
         "command":"safebreach-play-pause-simulations-tests"
     },
     "fail":{
         "args":{
-            "Simulation/Test State":"pause"
+            "simulation_or_test_state":"pause"
         },
         "command":"safebreach-play-pause-simulations-tests"
     }

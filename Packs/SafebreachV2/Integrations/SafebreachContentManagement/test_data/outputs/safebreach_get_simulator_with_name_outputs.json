@@ -584,7 +584,7 @@
                         "EMAIL_RETENTION": false,
                         "MAILBOXES": [
                             "Inbox",
-                            "Junk Email",
+                            "Junk email",
                             "Spam",
                             "Junk",
                             "[Gmail]/Spam"

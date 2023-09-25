@@ -32,13 +32,13 @@ script:
     description: This command creates a API Key with given data.
     name: safebreach-generate-api-key
     arguments:
-    - name: Name
+    - name: name
       isArray: false
       description: Name of the API Key to create.
       required: true
       secret: false
       default: false
-    - name: Description
+    - name: description
       isArray: false
       description: Description of the API Key to create.
       required: false
@@ -52,7 +52,7 @@ script:
       description: The Description of API Key created.
       type: String
     - contextPath: generated_api_key.createdBy
-      description: The User ID of API key creator.
+      description: The user_id of API key creator.
       type: String
     - contextPath: generated_api_key.createdAt
       description: The creation time of API key.
@@ -70,19 +70,19 @@ script:
     description: This command creates a deployment with given data.
     name: safebreach-create-deployment
     arguments:
-    - name: Name
+    - name: name
       isArray: false
       description: Name of the deployment to create.
       required: true
       secret: false
       default: false
-    - name: Description
+    - name: description
       isArray: false
       description: Description of the deployment to create.
       required: false
       secret: false
       default: false
-    - name: Nodes
+    - name: nodes
       isArray: true
       description: Comma separated ID of all nodes the deployment should be part of.
       required: false
@@ -111,19 +111,19 @@ script:
     description: This command creates a user with given data.
     name: safebreach-create-user
     arguments:
-    - name: Name
+    - name: name
       isArray: false
       description: Name of the user to create.
       required: false
       secret: false
       default: false
-    - name: Email
+    - name: email
       isArray: false
       description: Email of the user to Create.
       required: true
       secret: false
       default: false
-    - name: Is Active
+    - name: is_active
       isArray: false
       description: Whether the user is active upon creation.
       required: false
@@ -134,7 +134,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: Email Post Creation
+    - name: email_post_creation
       isArray: false
       description: Should Email be sent to user on creation.
       required: false
@@ -145,19 +145,19 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: Password
+    - name: password
       isArray: false
       description: Password of user being created.
       required: true
       secret: false
       default: false
-    - name: Admin Name
+    - name: admin_name
       isArray: false
       description: Name of the Admin creating user.
       required: false
       secret: false
       default: false
-    - name: Change Password on create
+    - name: change_password_on_create
       isArray: false
       description: Should user change password on creation.
       required: false
@@ -168,7 +168,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: User role
+    - name: user_role
       isArray: false
       description: Role of the user being Created.
       required: false
@@ -181,7 +181,7 @@ script:
       - contentDeveloper
       - operator
       auto: PREDEFINED
-    - name: Deployments
+    - name: deployments
       isArray: true
       description: Comma separated ID of all deployments the user should be part of.
       required: false
@@ -219,7 +219,7 @@ script:
     description: This command deletes a API key with given name.
     name: safebreach-delete-api-key
     arguments:
-    - name: Key Name
+    - name: Key name
       isArray: false
       description: Name of the API Key to Delete.
       required: true
@@ -233,7 +233,7 @@ script:
       description: The Description of API Key deleted.
       type: String
     - contextPath: deleted_api_key.createdBy
-      description: The User ID of API key creator.
+      description: The user_id of API key creator.
       type: String
     - contextPath: deleted_api_key.createdAt
       description: The creation time of API key.
@@ -245,13 +245,13 @@ script:
     description: This command deletes a deployment with given data.
     name: safebreach-delete-deployment
     arguments:
-    - name: Deployment ID
+    - name: deployment_id
       isArray: false
       description: ID of the deployment to delete.
       required: false
       secret: false
       default: false
-    - name: Deployment Name
+    - name: deployment_name
       isArray: false
       description: Name of the deployment to delete.
       required: true
@@ -280,7 +280,7 @@ script:
     description: This command deleted connector related errors.
     name: safebreach-delete-integration-errors
     arguments:
-    - name: Connector ID
+    - name: connector_id
       isArray: false
       description: The connector ID of Integration connector to have its errors deleted.
       required: true
@@ -297,7 +297,7 @@ script:
     description: This command gets simulations which are in running or queued state.
     name: safebreach-delete-schedule
     arguments:
-    - name: schedule ID
+    - name: schedule_id
       isArray: false
       description: schedule ID of schedule to delete.
       required: true
@@ -344,7 +344,7 @@ script:
     description: This command deletes simulator with given name.
     name: safebreach-delete-simulator-with-name
     arguments:
-    - name: Simulator/Node Name
+    - name: simulator_or_node_name
       isArray: false
       description: Name of simulator/node to search with.
       required: true
@@ -487,13 +487,13 @@ script:
     description: This command deletes tests with given plan ID.
     name: safebreach-delete-test-summary-of-given-test
     arguments:
-    - name: Test ID
+    - name: test_id
       isArray: false
       description: number of entries per page to be retrieved.
       required: false
       secret: false
       default: false
-    - name: Soft Delete
+    - name: soft_delete
       isArray: false
       description: Should archived tests be included in search.
       required: false
@@ -572,19 +572,19 @@ script:
     description: This command deletes a user with given data.
     name: safebreach-delete-user
     arguments:
-    - name: User ID
+    - name: user_id
       isArray: false
       description: user ID of user from safebreach to search.
       required: false
       secret: false
       default: false
-    - name: Email
+    - name: email
       isArray: false
       description: Email of the user to Search for updating user details.
       required: true
       secret: false
       default: false
-    - name: Should Include Details
+    - name: should_include_details
       isArray: false
       description: If Details of user are to be included while             querying all users.
       required: false
@@ -595,7 +595,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: Should Include Deleted
+    - name: should_include_deleted
       isArray: false
       description: If deleted users are to be included while querying all users.
       required: true
@@ -832,7 +832,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: shouldIncludeProxies
+    - name: should_include_proxies
       isArray: false
       description: if proxies are to be included for search.
       required: false
@@ -848,19 +848,19 @@ script:
       required: false
       secret: false
       default: false
-    - name: connectionType
+    - name: connection_type
       isArray: false
       description: if connectionType to be included for search.
       required: false
       secret: false
       default: false
-    - name: externalIp
+    - name: external_ip
       isArray: false
       description: if external IP details to be included for search.
       required: false
       secret: false
       default: false
-    - name: internalIp
+    - name: internal_ip
       isArray: false
       description: if Internal IP are to be included for search.
       required: false
@@ -876,7 +876,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: sortDirection
+    - name: sort_direction
       isArray: false
       description: direction in which secrets are to be sorted.
       required: false
@@ -887,13 +887,13 @@ script:
       - asc
       - desc
       auto: PREDEFINED
-    - name: pageSize
+    - name: page_size
       isArray: false
       description: number of entries to search.
       required: false
       secret: false
       default: false
-    - name: isEnabled
+    - name: is_enabled
       isArray: false
       description: if to search only enabled ones.
       required: false
@@ -903,7 +903,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: isConnected
+    - name: is_connected
       isArray: false
       description: status of connection of nodes to search.
       required: false
@@ -913,7 +913,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: isCritical
+    - name: is_critical
       isArray: false
       description: whether to search only for critical nodes or not.
       required: false
@@ -923,7 +923,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: additionalDetails
+    - name: additional_details
       isArray: false
       description: Whether to show additional details or not.
       required: false
@@ -1049,7 +1049,7 @@ script:
     description: This command gets tests with given modifiers.
     name: safebreach-get-test-summary
     arguments:
-    - name: Include Archived
+    - name: include_archived
       isArray: false
       description: Should archived tests be included in search.
       required: false
@@ -1060,19 +1060,19 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: Entries per Page
+    - name: entries_per_page
       isArray: false
       description: number of entries per page to be retrieved.
       required: false
       secret: false
       default: false
-    - name: Plan ID
+    - name: plan_id
       isArray: false
       description: plan Id of test.
       required: false
       secret: false
       default: false
-    - name: Status
+    - name: status
       isArray: false
       description: Status of simulation.
       required: false
@@ -1083,13 +1083,13 @@ script:
       - CANCELED
       - COMPLETED
       auto: PREDEFINED
-    - name: Simulation ID
+    - name: simulation_id
       isArray: false
       description: Unique ID of the simulation.
       required: false
       secret: false
       default: false
-    - name: Sort By
+    - name: sort_by
       isArray: false
       description: sort by option.
       required: false
@@ -1170,7 +1170,7 @@ script:
     description: This command gets tests with given plan ID.
     name: safebreach-get-test-summary-with-plan-run-id
     arguments:
-    - name: Include Archived
+    - name: include_archived
       isArray: false
       description: Should archived tests be included in search.
       required: false
@@ -1181,19 +1181,19 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: Entries per Page
+    - name: entries_per_page
       isArray: false
       description: number of entries per page to be retrieved.
       required: false
       secret: false
       default: false
-    - name: Plan ID
+    - name: plan_id
       isArray: false
       description: plan Id of test.
       required: true
       secret: false
       default: false
-    - name: Status
+    - name: status
       isArray: false
       description: Status of simulation.
       required: false
@@ -1203,13 +1203,13 @@ script:
       - CANCELED
       - COMPLETED
       auto: PREDEFINED
-    - name: Simulation ID
+    - name: simulation_id
       isArray: false
       description: Unique ID of the simulation.
       required: false
       secret: false
       default: false
-    - name: Sort By
+    - name: sort_by
       isArray: false
       description: sort by option.
       required: false
@@ -1290,7 +1290,7 @@ script:
     description: This command gives all users depending on inputs given.
     name: safebreach-get-all-users
     arguments:
-    - name: Should Include Details
+    - name: should_include_details
       isArray: false
       description: If Details of user are to be included while querying all             users.
       required: false
@@ -1301,7 +1301,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: Should Include Deleted
+    - name: should_include_deleted
       isArray: false
       description: If deleted users are to be included while querying all users.
       required: true
@@ -1326,7 +1326,7 @@ script:
     description: This command gets simulations which are in running or queued state.
     name: safebreach-get-custom-scenarios
     arguments:
-    - name: schedule details
+    - name: schedule_details
       isArray: false
       description: Whether to get details of custom scenarios,            set this to true every time unless you explicitly dont need details.
       required: false
@@ -1531,7 +1531,7 @@ script:
     description: This command gives simulator with given name.
     name: safebreach-get-simulator-with-name
     arguments:
-    - name: Simulator/Node Name
+    - name: simulator_or_node_name
       isArray: false
       description: Name of simulator/node to search with.
       required: true
@@ -1675,7 +1675,7 @@ script:
       required: true
       secret: false
       default: false
-    - name: Should Include Details
+    - name: should_include_details
       isArray: false
       description: If Details of user are to be included while             querying all users.
       required: true
@@ -1685,7 +1685,7 @@ script:
       predefined:
       - 'true'
       auto: PREDEFINED
-    - name: Should Include Deleted
+    - name: should_include_deleted
       isArray: false
       description: If deleted users are to be included while querying all users.
       required: true
@@ -1718,7 +1718,7 @@ script:
     description: This command gets simulations which are in running or queued state.
     name: safebreach-play-pause-simulations-tests
     arguments:
-    - name: Simulation/Test State
+    - name: simulation_or_test_state
       isArray: false
       description: State of tests/simulators to set to.
       required: true
@@ -1742,7 +1742,7 @@ script:
       required: false
       secret: false
       default: false
-    - name: enable feedback loop
+    - name: enable_feedback_loop
       isArray: false
       description: this argument is used to enable/disable feedback loop.
       required: false
@@ -1753,7 +1753,7 @@ script:
       - 'false'
       - 'true'
       auto: PREDEFINED
-    - name: retry simulation
+    - name: retry_simulation
       isArray: false
       description: this argument is used to retry according to retry policy                 mention in retry policy field.
       required: false
@@ -1764,7 +1764,7 @@ script:
       - 'false'
       - 'true'
       auto: PREDEFINED
-    - name: wait for retry
+    - name: wait_for_retry
       isArray: false
       description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
       required: false
@@ -1786,7 +1786,7 @@ script:
       - low
       - high
       auto: PREDEFINED
-    - name: simulation data
+    - name: simulation_data
       isArray: false
       description: simulation data for the given simulation.
       required: true
@@ -1833,7 +1833,7 @@ script:
       required: false
       secret: false
       default: false
-    - name: enable feedback loop
+    - name: enable_feedback_loop
       isArray: false
       description: this argument is used to enable/disable feedback loop.
       required: false
@@ -1844,7 +1844,7 @@ script:
       - 'false'
       - 'true'
       auto: PREDEFINED
-    - name: retry simulation
+    - name: retry_simulation
       isArray: false
       description: this argument is used to retry according to retry policy                 mention in retry policy field.
       required: false
@@ -1855,7 +1855,7 @@ script:
       - 'false'
       - 'true'
       auto: PREDEFINED
-    - name: wait for retry
+    - name: wait_for_retry
       isArray: false
       description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
       required: false
@@ -1877,7 +1877,7 @@ script:
       - low
       - high
       auto: PREDEFINED
-    - name: test data
+    - name: test_data
       isArray: false
       description: test data for the given test.
       required: true
@@ -1947,31 +1947,31 @@ script:
     description: This command updates a deployment with given data.
     name: safebreach-update-deployment
     arguments:
-    - name: Deployment ID
+    - name: deployment_id
       isArray: false
       description: ID of the deployment to update.
       required: false
       secret: false
       default: false
-    - name: Deployment Name
+    - name: deployment_name
       isArray: false
       description: Name of the deployment to update.
       required: true
       secret: false
       default: false
-    - name: Updated Nodes for Deployment
+    - name: updated_nodes_for_deployment
       isArray: false
       description: Comma separated ID of all nodes the deployment should be part of.
       required: false
       secret: false
       default: false
-    - name: Updated Deployment Name
+    - name: updated_deployment_name
       isArray: false
       description: Name of the deployment to update to.
       required: false
       secret: false
       default: false
-    - name: Updated deployment description.
+    - name: updated_deployment_description
       isArray: false
       description: name of the deployment to update to.
       required: false
@@ -2000,7 +2000,7 @@ script:
     description: This command updates simulator with given name with given details.
     name: safebreach-update-simulator-with-given-name
     arguments:
-    - name: Simulator/Node Name
+    - name: simulator_or_node_name
       isArray: false
       description: Name of simulator/node to search with.
       required: true
@@ -2028,13 +2028,13 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: connectionUrl
+    - name: connection_url
       isArray: false
       description: the given value will be set as connection string.
       required: false
       secret: false
       default: false
-    - name: cloudProxyUrl
+    - name: cloud_proxy_url
       isArray: false
       description: the given value will be set as cloud proxy url.
       required: false
@@ -2046,13 +2046,13 @@ script:
       required: false
       secret: false
       default: false
-    - name: preferredInterface
+    - name: preferred_interface
       isArray: false
       description: the given value will be set as preferred interface string.
       required: false
       secret: false
       default: false
-    - name: preferredIp
+    - name: preferred_ip
       isArray: false
       description: the given value will be set as Preferred IP.
       required: false
@@ -2168,31 +2168,31 @@ script:
     description: This command updates a user with given data.
     name: safebreach-update-user-details
     arguments:
-    - name: User ID
+    - name: user_id
       isArray: false
       description: user ID of user from safebreach to search.
       required: false
       secret: false
       default: false
-    - name: Email
+    - name: email
       isArray: false
       description: Email of the user to Search for updating user details.
       required: true
       secret: false
       default: false
-    - name: Name
+    - name: name
       isArray: false
       description: Update the user name to given string.
       required: false
       secret: false
       default: false
-    - name: User Description
+    - name: user_description
       isArray: false
       description: Update the user Description to given string.
       required: false
       secret: false
       default: false
-    - name: Is Active
+    - name: is_active
       isArray: false
       description: Update the user Status.
       required: false
@@ -2203,13 +2203,13 @@ script:
       - 'false'
       - ''
       auto: PREDEFINED
-    - name: Password
+    - name: password
       isArray: false
       description: Password of user to be updated with.
       required: false
       secret: false
       default: false
-    - name: User role
+    - name: user_role
       isArray: false
       description: Role of the user to be changed to.
       required: false
@@ -2222,13 +2222,13 @@ script:
       - contentDeveloper
       - operator
       auto: PREDEFINED
-    - name: Deployments
+    - name: deployments
       isArray: true
       description: Comma separated ID of all deployments the user should be part of.
       required: false
       secret: false
       default: false
-    - name: Should Include Details
+    - name: should_include_details
       isArray: false
       description: If Details of user are to be included while            querying all users.
       required: false
@@ -2239,7 +2239,7 @@ script:
       - 'true'
       - 'false'
       auto: PREDEFINED
-    - name: Should Include Deleted
+    - name: should_include_deleted
       isArray: false
       description: If deleted users are to be included while querying all users.
       required: true

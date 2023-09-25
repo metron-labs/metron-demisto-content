@@ -17,28 +17,28 @@ bool_map = {
 simulator_details_inputs = [
     InputArgument(name="secret", description="if secrets are to be included for search.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="shouldIncludeProxies", description="if proxies are to be included for search.", options=["true", "false"],
-                  required=False, is_array=False),
+    InputArgument(name="should_include_proxies", description="if proxies are to be included for search.",
+                  options=["true", "false"], required=False, is_array=False),
     InputArgument(name="hostname", description="if hostname to be included for search.",
                   required=False, is_array=False),
-    InputArgument(name="connectionType", description="if connectionType to be included for search.",
+    InputArgument(name="connection_type", description="if connectionType to be included for search.",
                   required=False, is_array=False),
-    InputArgument(name="externalIp", description="if external IP details to be included for search.",
+    InputArgument(name="external_ip", description="if external IP details to be included for search.",
                   required=False, is_array=False),
-    InputArgument(name="internalIp", description="if Internal IP are to be included for search.",
+    InputArgument(name="internal_ip", description="if Internal IP are to be included for search.",
                   required=False, is_array=False),
     InputArgument(name="os", description="if Operating system details to be included for search.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="sortDirection", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
+    InputArgument(name="sort_direction", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
                   default="asc", required=False, is_array=False),
-    InputArgument(name="pageSize", description="number of entries to search.", required=False, is_array=False),
-    InputArgument(name="isEnabled", description="if to search only enabled ones.", options=["true", "false"],
+    InputArgument(name="page_size", description="number of entries to search.", required=False, is_array=False),
+    InputArgument(name="is_enabled", description="if to search only enabled ones.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="isConnected", description="status of connection of nodes to search.", options=["true", "false"],
+    InputArgument(name="is_connected", description="status of connection of nodes to search.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="isCritical", description="whether to search only for critical nodes or not.", options=["true", "false"],
+    InputArgument(name="is_critical", description="whether to search only for critical nodes or not.", options=["true", "false"],
                   required=False, is_array=False),
-    InputArgument(name="additionalDetails", description="Whether to show additional details or not.",
+    InputArgument(name="additional_details", description="Whether to show additional details or not.",
                   options=["true", "false"], required=False, is_array=False),
     InputArgument(name="status", description="if simulator status are to be included for search.",
                   options=["APPROVED", "PENDING", "ALL"],
@@ -115,15 +115,15 @@ simulators_output_fields = [
 ]
 
 simulator_details_for_update_fields = [
-    InputArgument(name="connectionUrl", description="the given value will be set as connection string.",
+    InputArgument(name="connection_url", description="the given value will be set as connection string.",
                   required=False, is_array=False),
-    InputArgument(name="cloudProxyUrl", description="the given value will be set as cloud proxy url.",
+    InputArgument(name="cloud_proxy_url", description="the given value will be set as cloud proxy url.",
                   required=False, is_array=False),
     InputArgument(name="name", description="the given value will be set as name of simulator.",
                   required=False, is_array=False),
-    InputArgument(name="preferredInterface", description="the given value will be set as preferred interface string.",
+    InputArgument(name="preferred_interface", description="the given value will be set as preferred interface string.",
                   required=False, is_array=False),
-    InputArgument(name="preferredIp", description="the given value will be set as Preferred IP.",
+    InputArgument(name="preferred_ip", description="the given value will be set as Preferred IP.",
                   required=False, is_array=False),
     InputArgument(name="tunnel", description="the given value will be set as tunnel.",
                   required=False, is_array=False),
@@ -397,8 +397,8 @@ class Client(BaseClient):
         account_id = demisto.params().get("account_id", 0)
         url = f"/config/v1/accounts/{account_id}/users"
         params = {
-            "details": demisto.args().get("Should Include Details", "true"),
-            "deleted": demisto.args().get("Should Include Deleted", "true")
+            "details": demisto.args().get("should_include_details", "true"),
+            "deleted": demisto.args().get("should_include_deleted", "true")
         }
         response = self.get_response(url=url, request_params=params)
         user_data = response['data']
@@ -410,8 +410,8 @@ class Client(BaseClient):
         Returns:
             dict: user data related to the user who has been deleted
         """
-        user_id = demisto.args().get("User ID")
-        user_email = demisto.args().get("Email", "").strip()
+        user_id = demisto.args().get("user_id")
+        user_email = demisto.args().get("email", "").strip()
         # we are prioritizing email or ID when both are given by user
         if user_email and not user_id:
             # retrieve all users and filter with given details
@@ -493,9 +493,9 @@ class Client(BaseClient):
             dict: the data of deployment created
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name", "").strip()
-        description = demisto.args().get("Description", "").strip()
-        nodes = demisto.args().get("Nodes", "").replace('"', "").split(",")
+        name = demisto.args().get("name", "").strip()
+        description = demisto.args().get("description", "").strip()
+        nodes = demisto.args().get("nodes", "").replace('"', "").split(",")
         deployment_payload = {
             "nodes": nodes,
             "name": name,
@@ -518,8 +518,8 @@ class Client(BaseClient):
         """
 
         account_id = demisto.params().get("account_id", 0)
-        deployment_id = demisto.args().get("Deployment ID", None)
-        deployment_name = demisto.args().get("Deployment Name", "").strip()
+        deployment_id = demisto.args().get("deployment_id", None)
+        deployment_name = demisto.args().get("deployment_name", "").strip()
 
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
@@ -530,9 +530,9 @@ class Client(BaseClient):
             raise NotFoundError(f"Could not find Deployment with details Name:\
                 {deployment_name} and Deployment ID : {deployment_id}")
 
-        name = demisto.args().get("Updated Deployment Name", "").strip()
-        nodes = demisto.args().get("Updated Nodes for Deployment", None)
-        description = demisto.args().get("Updated deployment description.", "").strip()
+        name = demisto.args().get("updated_deployment_name", "").strip()
+        nodes = demisto.args().get("updated_nodes_for_deployment", None)
+        description = demisto.args().get("updated_deployment_description.", "").strip()
         deployment_payload = {}
         if name:
             deployment_payload["name"] = name
@@ -557,8 +557,8 @@ class Client(BaseClient):
             dict: deleted deployment data
         """
         account_id = demisto.params().get("account_id", 0)
-        deployment_id = demisto.args().get("Deployment ID", None)
-        deployment_name = demisto.args().get("Deployment Name", "").strip()
+        deployment_id = demisto.args().get("deployment_id", None)
+        deployment_name = demisto.args().get("deployment_name", "").strip()
 
         if deployment_name and not deployment_id:
             needed_deployment = self.get_deployment_id_by_name(deployment_name)
@@ -590,12 +590,12 @@ class Client(BaseClient):
         """
         account_id = demisto.params().get("account_id", 0)
 
-        include_archived = demisto.args().get("Include Archived")
-        size = demisto.args().get("Entries per Page")
-        status = demisto.args().get("Status")
-        plan_id = demisto.args().get("Plan ID")
-        simulation_id = demisto.args().get("Simulation ID")
-        sort_by = demisto.args().get("Sort By")
+        include_archived = demisto.args().get("include_archived")
+        size = demisto.args().get("entries_per_page")
+        status = demisto.args().get("status")
+        plan_id = demisto.args().get("plan_id")
+        simulation_id = demisto.args().get("simulation_id")
+        sort_by = demisto.args().get("sort_by")
 
         parameters = {}
         method = "GET"
@@ -704,8 +704,8 @@ class Client(BaseClient):
             dict: Deleted test data results
         """
         account_id = demisto.params().get("account_id", 0)
-        test_id = demisto.args().get("Test ID")
-        soft_delete = demisto.args().get("Soft Delete")
+        test_id = demisto.args().get("test_id")
+        soft_delete = demisto.args().get("soft_delete")
 
         method = "DELETE"
         url = f"/data/v1/accounts/{account_id}/tests/{test_id}"
@@ -754,7 +754,7 @@ class Client(BaseClient):
             dict: status stating whether its success and how many errors are remaining incase of failure to delete some
         """
         account_id = demisto.params().get("account_id", 0)
-        connector_id = demisto.args().get("Connector ID", "").strip()
+        connector_id = demisto.args().get("connector_id", "").strip()
         demisto.info(f"connector id for deleting integration errors is {connector_id}")
 
         method = "DELETE"
@@ -771,8 +771,8 @@ class Client(BaseClient):
                 API key and name along with additional details
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name", "").strip()
-        description = demisto.args().get("Description", "").strip()
+        name = demisto.args().get("name", "").strip()
+        description = demisto.args().get("description", "").strip()
         method = "POST"
         url = f"/config/v1/accounts/{account_id}/apikeys"
         data = {}
@@ -824,7 +824,7 @@ class Client(BaseClient):
         Returns:
             dict: Deleted API key data
         """
-        key_name = demisto.args().get("Key Name", "").strip()
+        key_name = demisto.args().get("key_name", "").strip()
         key_id = self.filter_api_key_with_key_name(key_name=key_name)
         account_id = demisto.params().get("account_id", 0)
         method = "DELETE"
@@ -947,7 +947,7 @@ class Client(BaseClient):
         Returns:
             dict: dict of request parameters
         """
-        name = demisto.args().get("Simulator/Node Name", "").strip()
+        name = demisto.args().get("simulator_or_node_name", "").strip()
         request_params = {
             "name": name,
             "deleted": demisto.args().get("deleted", "true"),
@@ -1006,7 +1006,7 @@ class Client(BaseClient):
         simulator_id = self.get_simulator_with_a_name_return_id()
         demisto.info(f"simulator id of given simulator is {simulator_id}")
 
-        force_delete = demisto.args().get("Should Force Delete")
+        force_delete = demisto.args().get("should_force_delete")
         result = self.delete_node_with_given_id(node_id=simulator_id, force=force_delete)
         return result
 
@@ -1018,14 +1018,14 @@ class Client(BaseClient):
             dict: Update Node payload
         """
         data_dict = {
-            "connectionUrl": demisto.args().get("connectionUrl", "").lower().strip(),
-            "cloudProxyUrl": demisto.args().get("cloudProxyUrl", "").strip(),
+            "connectionUrl": demisto.args().get("connection_url", "").lower().strip(),
+            "cloudProxyUrl": demisto.args().get("cloud_proxy_url", "").strip(),
             "name": demisto.args().get("name", "").strip(),
             "tunnel": demisto.args().get("tunnel", "").strip(),
-            "preferredInterface": demisto.args().get("preferredInterface", "").strip(),
-            "preferredIp": demisto.args().get("preferredIp", "").strip(),
+            "preferredInterface": demisto.args().get("preferred_interface", "").strip(),
+            "preferredIp": demisto.args().get("preferred_ip", "").strip(),
         }
-        demisto.info(f"update node payload beofre deletion of useless keys is {data_dict}")
+        demisto.info(f"update node payload before deletion of useless keys is {data_dict}")
         for (key, value) in tuple(data_dict.items()):
             if not value:
                 data_dict.pop(key)
@@ -1084,15 +1084,15 @@ class Client(BaseClient):
             dict: created user data
         """
         account_id = demisto.params().get("account_id", 0)
-        name = demisto.args().get("Name", "").strip()
-        email = demisto.args().get("Email", "").strip()
-        is_active = bool_map.get(demisto.args().get("Is Active"), "false")
-        send_email_post_creation = bool_map.get(demisto.args().get("Email Post Creation"), "false")
-        password = demisto.args().get("Password")
-        admin_name = demisto.args().get("Admin Name", "").strip()
-        change_password = bool_map.get(demisto.args().get("Change Password on create"), "false")
-        role = demisto.args().get("User role", "").strip()
-        deployment_list = demisto.args().get("Deployments", [])
+        name = demisto.args().get("name", "").strip()
+        email = demisto.args().get("email", "").strip()
+        is_active = bool_map.get(demisto.args().get("is_active"), "false")
+        send_email_post_creation = bool_map.get(demisto.args().get("email_post_creation"), "false")
+        password = demisto.args().get("password")
+        admin_name = demisto.args().get("admin_name", "").strip()
+        change_password = bool_map.get(demisto.args().get("change_password_on_create"), "false")
+        role = demisto.args().get("user_role", "").strip()
+        deployment_list = demisto.args().get("deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
 
         user_payload = {
@@ -1120,15 +1120,15 @@ class Client(BaseClient):
             dict: updated user data
         """
 
-        user_id = demisto.args().get("User ID")
-        user_email = demisto.args().get("Email", "").strip()
+        user_id = demisto.args().get("user_id")
+        user_email = demisto.args().get("email", "").strip()
 
-        name = demisto.args().get("Name", "").strip()
-        is_active = bool_map[demisto.args().get("Is Active", "False")]
-        description = demisto.args().get("User Description", "").strip()
-        role = demisto.args().get("User role", "").strip()
-        password = demisto.args().get("Password")
-        deployment_list = demisto.args().get("Deployments", [])
+        name = demisto.args().get("name", "").strip()
+        is_active = bool_map[demisto.args().get("is_active", "False")]
+        description = demisto.args().get("user_description", "").strip()
+        role = demisto.args().get("user_role", "").strip()
+        password = demisto.args().get("password")
+        deployment_list = demisto.args().get("deployments", [])
         deployment_list = list(deployment_list) if deployment_list else []
         # formatting the update user payload, we remove false values after passing to function which calls endpoint
         details = {
@@ -1182,7 +1182,7 @@ class Client(BaseClient):
         method = "PUT"
         url = f"orch/v3/accounts/{account_id}/queue/state"
         data = {
-            "status": demisto.args().get("Simulation/Test State", "").strip()
+            "status": demisto.args().get("simulation_or_test_state", "").strip()
         }
         simulations_details = self.get_response(url=url, method=method, body=data)
         return simulations_details
@@ -1201,7 +1201,7 @@ class Client(BaseClient):
 
     def delete_schedule(self):
         account_id = demisto.params().get("account_id", 0)
-        schedule_id = demisto.args().get("schedule ID")
+        schedule_id = demisto.args().get("schedule_id")
 
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/schedules/{schedule_id}"
@@ -1294,7 +1294,7 @@ class Client(BaseClient):
         method = "GET"
         url = f"/config/v2/accounts/{account_id}/plans"
         request_params = {
-            "details": demisto.args().get("schedule details", "").strip()
+            "details": demisto.args().get("schedule_details", "").strip()
         }
         scenarios = self.get_response(url=url, method=method, request_params=request_params)
         return scenarios
@@ -1317,7 +1317,7 @@ class Client(BaseClient):
     def rerun_test_or_simulation(self):
 
         account_id = demisto.params().get("account_id", 0)
-        test_data = demisto.args().get("test data") if demisto.args().get("test data") else demisto.args().get("simulation data")
+        test_data = demisto.args().get("test_data") if demisto.args().get("test_data") else demisto.args().get("simulation_data")
         demisto.info(f"unprocessed test_data given to command is {test_data}")
 
         if isinstance(test_data, dict):
@@ -1330,9 +1330,9 @@ class Client(BaseClient):
                     please validate and try again")
 
         position = demisto.args().get("position")
-        feedback_loop = demisto.args().get("enable feedback loop")
-        retry_simulations = demisto.args().get("retry simulation")
-        wait_for_retry = demisto.args().get("wait for retry")
+        feedback_loop = demisto.args().get("enable_feedback_loop")
+        retry_simulations = demisto.args().get("retry_simulation")
+        wait_for_retry = demisto.args().get("wait_for_retry")
         priority = demisto.args().get("priority")
         request_params = {
             "position": position,
@@ -1427,9 +1427,9 @@ def get_tests_summary(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-all-users",
     inputs_list=[
-        InputArgument(name="Should Include Details", description="If Details of user are to be included while querying all \
+        InputArgument(name="should_include_details", description="If Details of user are to be included while querying all \
             users.", default="true", options=["true", "false"], required=False, is_array=False),
-        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
                       default="true", options=["true", "false"], required=True, is_array=False),
     ],
     outputs_prefix="user_data",
@@ -1470,9 +1470,9 @@ def get_all_users(client: Client):
     inputs_list=[
         InputArgument(name="name", description="Name of the user to lookup.", required=False, is_array=False),
         InputArgument(name="email", description="Email of the user to lookup.", required=True, is_array=False),
-        InputArgument(name="Should Include Details", description="If Details of user are to be included while \
+        InputArgument(name="should_include_details", description="If Details of user are to be included while \
             querying all users.", default="true", options=["true"], required=True, is_array=False),
-        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
                       default="true", options=["true", "false"], required=True, is_array=False),
     ],
     outputs_prefix="filtered_users",
@@ -1527,23 +1527,23 @@ def get_user_id_by_name_or_email(client: Client):
 @metadata_collector.command(
     command_name="safebreach-create-user",
     inputs_list=[
-        InputArgument(name="Name", description="Name of the user to create.", required=False, is_array=False),
-        InputArgument(name="Email", description="Email of the user to Create.", required=True,
+        InputArgument(name="name", description="Name of the user to create.", required=False, is_array=False),
+        InputArgument(name="email", description="Email of the user to Create.", required=True,
                       is_array=False),
-        InputArgument(name="Is Active", description="Whether the user is active upon creation.",
+        InputArgument(name="is_active", description="Whether the user is active upon creation.",
                       required=False, is_array=False, options=["true", "false"], default="false"),
-        InputArgument(name="Email Post Creation", description="Should Email be sent to user on creation.",
+        InputArgument(name="email_post_creation", description="Should Email be sent to user on creation.",
                       required=False, is_array=False, options=["true", "false"], default="false"),
-        InputArgument(name="Password", description="Password of user being created.", required=True,
+        InputArgument(name="password", description="Password of user being created.", required=True,
                       is_array=False),
-        InputArgument(name="Admin Name", description="Name of the Admin creating user.", required=False,
+        InputArgument(name="admin_name", description="Name of the Admin creating user.", required=False,
                       is_array=False),
-        InputArgument(name="Change Password on create", description="Should user change password on creation.",
+        InputArgument(name="change_password_on_create", description="Should user change password on creation.",
                       required=False, is_array=False, options=["true", "false"], default="false"),
-        InputArgument(name="User role", description="Role of the user being Created.", required=False,
+        InputArgument(name="user_role", description="Role of the user being Created.", required=False,
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
-        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of.",
+        InputArgument(name="deployments", description="Comma separated ID of all deployments the user should be part of.",
                       required=False, is_array=True)
     ],
     outputs_prefix="created_user_data",
@@ -1598,26 +1598,26 @@ def create_user(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-user-details",
     inputs_list=[
-        InputArgument(name="User ID", description="user ID of user from safebreach to search.",
+        InputArgument(name="user_id", description="user ID of user from safebreach to search.",
                       required=False, is_array=False),
-        InputArgument(name="Email", description="Email of the user to Search for updating user details.", required=True,
+        InputArgument(name="email", description="Email of the user to Search for updating user details.", required=True,
                       is_array=False),
-        InputArgument(name="Name", description="Update the user name to given string.",
+        InputArgument(name="name", description="Update the user name to given string.",
                       required=False, is_array=False),
-        InputArgument(name="User Description", description="Update the user Description to given string.",
+        InputArgument(name="user_description", description="Update the user Description to given string.",
                       required=False, is_array=False),
-        InputArgument(name="Is Active", description="Update the user Status.",
+        InputArgument(name="is_active", description="Update the user Status.",
                       required=False, is_array=False, options=["true", "false", ""], default=""),
-        InputArgument(name="Password", description="Password of user to be updated with.", required=False,
+        InputArgument(name="password", description="Password of user to be updated with.", required=False,
                       is_array=False),
-        InputArgument(name="User role", description="Role of the user to be changed to.", required=False,
+        InputArgument(name="user_role", description="Role of the user to be changed to.", required=False,
                       is_array=False,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
-        InputArgument(name="Deployments", description="Comma separated ID of all deployments the user should be part of.",
+        InputArgument(name="deployments", description="Comma separated ID of all deployments the user should be part of.",
                       required=False, is_array=True),
-        InputArgument(name="Should Include Details", description="If Details of user are to be included while\
+        InputArgument(name="should_include_details", description="If Details of user are to be included while\
             querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
-        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
                       default="true", options=["true", "false"], required=True, is_array=False)
     ],
     outputs_prefix="updated_user_data",
@@ -1670,13 +1670,13 @@ def update_user_with_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-user",
     inputs_list=[
-        InputArgument(name="User ID", description="user ID of user from safebreach to search.",
+        InputArgument(name="user_id", description="user ID of user from safebreach to search.",
                       required=False, is_array=False),
-        InputArgument(name="Email", description="Email of the user to Search for updating user details.", required=True,
+        InputArgument(name="email", description="Email of the user to Search for updating user details.", required=True,
                       is_array=False),
-        InputArgument(name="Should Include Details", description="If Details of user are to be included while \
+        InputArgument(name="should_include_details", description="If Details of user are to be included while \
             querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
-        InputArgument(name="Should Include Deleted", description="If deleted users are to be included while querying all users.",
+        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
                       default="true", options=["true", "false"], required=True, is_array=False)
     ],
     outputs_prefix="deleted_user_data",
@@ -1729,9 +1729,9 @@ def delete_user_with_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-create-deployment",
     inputs_list=[
-        InputArgument(name="Name", description="Name of the deployment to create.", required=True, is_array=False),
-        InputArgument(name="Description", description="Description of the deployment to create.", required=False, is_array=False),
-        InputArgument(name="Nodes", description="Comma separated ID of all nodes the deployment should be part of.",
+        InputArgument(name="name", description="Name of the deployment to create.", required=True, is_array=False),
+        InputArgument(name="description", description="Description of the deployment to create.", required=False, is_array=False),
+        InputArgument(name="nodes", description="Comma separated ID of all nodes the deployment should be part of.",
                       required=False, is_array=True)
     ],
     outputs_prefix="created_deployment_data",
@@ -1777,14 +1777,14 @@ def create_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-deployment",
     inputs_list=[
-        InputArgument(name="Deployment ID", description="ID of the deployment to update.", required=False, is_array=False),
-        InputArgument(name="Deployment Name", description="Name of the deployment to update.",
+        InputArgument(name="deployment_id", description="ID of the deployment to update.", required=False, is_array=False),
+        InputArgument(name="deployment_name", description="Name of the deployment to update.",
                       required=True, is_array=False),
-        InputArgument(name="Updated Nodes for Deployment", required=False, is_array=False,
+        InputArgument(name="updated_nodes_for_deployment", required=False, is_array=False,
                       description="Comma separated ID of all nodes the deployment should be part of."),
-        InputArgument(name="Updated Deployment Name", description="Name of the deployment to update to.",
+        InputArgument(name="updated_deployment_name", description="Name of the deployment to update to.",
                       required=False, is_array=False),
-        InputArgument(name="Updated deployment description.", required=False, is_array=False,
+        InputArgument(name="updated_deployment_description", required=False, is_array=False,
                       description="name of the deployment to update to."),
     ],
     outputs_prefix="updated_deployment_data",
@@ -1831,8 +1831,8 @@ def update_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-deployment",
     inputs_list=[
-        InputArgument(name="Deployment ID", description="ID of the deployment to delete.", required=False, is_array=False),
-        InputArgument(name="Deployment Name", description="Name of the deployment to delete.",
+        InputArgument(name="deployment_id", description="ID of the deployment to delete.", required=False, is_array=False),
+        InputArgument(name="deployment_name", description="Name of the deployment to delete.",
                       required=True, is_array=False),
     ],
     outputs_prefix="deleted_deployment_data",
@@ -1879,15 +1879,15 @@ def delete_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-generate-api-key",
     inputs_list=[
-        InputArgument(name="Name", description="Name of the API Key to create.", required=True, is_array=False),
-        InputArgument(name="Description", description="Description of the API Key to create.", required=False, is_array=False),
+        InputArgument(name="name", description="Name of the API Key to create.", required=True, is_array=False),
+        InputArgument(name="description", description="Description of the API Key to create.", required=False, is_array=False),
     ],
     outputs_prefix="generated_api_key",
     outputs_list=[
         OutputArgument(name="name", description="The Name of API Key created.", prefix="generated_api_key", output_type=int),
         OutputArgument(name="description", description="The Description of API Key created.", prefix="generated_api_key",
                        output_type=str),
-        OutputArgument(name="createdBy", description="The User ID of API key creator.", prefix="generated_api_key",
+        OutputArgument(name="createdBy", description="The user_id of API key creator.", prefix="generated_api_key",
                        output_type=str),
         OutputArgument(name="createdAt", description="The creation time of API key.", prefix="generated_api_key",
                        output_type=str),
@@ -1928,14 +1928,14 @@ def create_api_key(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-api-key",
     inputs_list=[
-        InputArgument(name="Key Name", description="Name of the API Key to Delete.", required=True, is_array=False),
+        InputArgument(name="Key name", description="Name of the API Key to Delete.", required=True, is_array=False),
     ],
     outputs_prefix="deleted_api_key",
     outputs_list=[
         OutputArgument(name="name", description="The Name of API Key deleted.", prefix="deleted_api_key", output_type=int),
         OutputArgument(name="description", description="The Description of API Key deleted.", prefix="deleted_api_key",
                        output_type=str),
-        OutputArgument(name="createdBy", description="The User ID of API key creator.", prefix="deleted_api_key",
+        OutputArgument(name="createdBy", description="The user_id of API key creator.", prefix="deleted_api_key",
                        output_type=str),
         OutputArgument(name="createdAt", description="The creation time of API key.", prefix="deleted_api_key",
                        output_type=str),
@@ -2018,7 +2018,7 @@ def get_all_integration_error_logs(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-integration-errors",
     inputs_list=[
-        InputArgument(name="Connector ID", description="The connector ID of Integration connector to have its errors deleted.",
+        InputArgument(name="connector_id", description="The connector ID of Integration connector to have its errors deleted.",
                       required=True, is_array=False),
     ],
     outputs_prefix="errors_cleared",
@@ -2041,7 +2041,7 @@ def delete_integration_error_logs(client: Client):
     error_logs = client.delete_integration_error_logs()
 
     human_readable = tableToMarkdown(
-        name="Integration Connector errors Status",
+        name="Integration Connector errors status",
         t=error_logs,
         headers=["error", "result"])
     outputs = error_logs
@@ -2136,7 +2136,7 @@ def get_all_simulator_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-simulator-with-name",
     inputs_list=[
-        InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
+        InputArgument(name="simulator_or_node_name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
         InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
                       default="true", required=True, is_array=False),
@@ -2161,7 +2161,7 @@ def get_simulator_with_name(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-simulator-with-name",
     inputs_list=[
-        InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
+        InputArgument(name="simulator_or_node_name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
         InputArgument(name="Should Force Delete", description="Should we force delete the simulator.",
                       default="false", options=["true", "false"], required=True, is_array=False),
@@ -2203,7 +2203,7 @@ def delete_simulator_with_given_name(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-simulator-with-given-name",
     inputs_list=[
-        InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
+        InputArgument(name="simulator_or_node_name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
         InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
                       default="true", required=False, is_array=False),
@@ -2273,15 +2273,15 @@ def return_rotated_verification_token(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-test-summary",
     inputs_list=[
-        InputArgument(name="Include Archived", description="Should archived tests be included in search.",
+        InputArgument(name="include_archived", description="Should archived tests be included in search.",
                       options=["true", "false"], default="true", required=False, is_array=False),
-        InputArgument(name="Entries per Page", description="number of entries per page to be retrieved.",
+        InputArgument(name="entries_per_page", description="number of entries per page to be retrieved.",
                       required=False, is_array=False),
-        InputArgument(name="Plan ID", description="plan Id of test.", required=False, is_array=False),
-        InputArgument(name="Status", description="Status of simulation.", required=False, is_array=False,
+        InputArgument(name="plan_id", description="plan Id of test.", required=False, is_array=False),
+        InputArgument(name="status", description="Status of simulation.", required=False, is_array=False,
                       default="CANCELED", options=["CANCELED", "COMPLETED"]),
-        InputArgument(name="Simulation ID", description="Unique ID of the simulation.", required=False, is_array=False),
-        InputArgument(name="Sort By", description="sort by option.", required=False, is_array=False,
+        InputArgument(name="simulation_id", description="Unique ID of the simulation.", required=False, is_array=False),
+        InputArgument(name="sort_by", description="sort by option.", required=False, is_array=False,
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
@@ -2302,15 +2302,15 @@ def get_all_tests_summary(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-test-summary-with-plan-run-id",
     inputs_list=[
-        InputArgument(name="Include Archived", description="Should archived tests be included in search.",
+        InputArgument(name="include_archived", description="Should archived tests be included in search.",
                       options=["true", "false"], default="true", required=False, is_array=False),
-        InputArgument(name="Entries per Page", description="number of entries per page to be retrieved.",
+        InputArgument(name="entries_per_page", description="number of entries per page to be retrieved.",
                       required=False, is_array=False),
-        InputArgument(name="Plan ID", description="plan Id of test.", required=True, is_array=False),
-        InputArgument(name="Status", description="Status of simulation.", required=False, is_array=False,
+        InputArgument(name="plan_id", description="plan Id of test.", required=True, is_array=False),
+        InputArgument(name="status", description="Status of simulation.", required=False, is_array=False,
                       options=["CANCELED", "COMPLETED"]),
-        InputArgument(name="Simulation ID", description="Unique ID of the simulation.", required=False, is_array=False),
-        InputArgument(name="Sort By", description="sort by option.", required=False, is_array=False,
+        InputArgument(name="simulation_id", description="Unique ID of the simulation.", required=False, is_array=False),
+        InputArgument(name="sort_by", description="sort by option.", required=False, is_array=False,
                       options=["endTime", "startTime", "planRunId", "stepRunId"], default="endTime"),
     ],
     outputs_prefix="test_results",
@@ -2332,9 +2332,9 @@ def get_all_tests_summary_with_plan_id(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-test-summary-of-given-test",
     inputs_list=[
-        InputArgument(name="Test ID", description="number of entries per page to be retrieved.",
+        InputArgument(name="test_id", description="number of entries per page to be retrieved.",
                       required=False, is_array=False),
-        InputArgument(name="Soft Delete", description="Should archived tests be included in search.",
+        InputArgument(name="soft_delete", description="Should archived tests be included in search.",
                       options=["true", "false"], default="true", required=False, is_array=False),
     ],
     outputs_prefix="deleted_test_results",
@@ -2467,7 +2467,7 @@ def get_all_running_simulations_summary(client: Client):
 @metadata_collector.command(
     command_name="safebreach-play-pause-simulations-tests",
     inputs_list=[
-        InputArgument(name="Simulation/Test State", description="State of tests/simulators to set to",
+        InputArgument(name="simulation_or_test_state", description="State of tests/simulators to set to",
                       options=["resume", "pause"], required=True, is_array=False)],
     outputs_prefix="simulations_tests_status",
     outputs_list=[
@@ -2486,7 +2486,7 @@ def pause_resume_tests_and_simulations(client: Client):
     """
     simulations_status = client.set_simulations_status()
     human_readable = tableToMarkdown(
-        name="Simulations/tests Status",
+        name="Simulations/tests status",
         t=simulations_status.get("data"),
         headers=["status"])
 
@@ -2549,7 +2549,7 @@ def get_schedules(client: Client):
                "cronTimezone", "taskId", "description", "matrixId",
                "createdAt", "updatedAt", "deletedAt"
                ]
-    if demisto.args().get("schedule details") == "false":
+    if demisto.args().get("schedule_details") == "false":
         headers = ["id", "name"]
 
     schedules_data = client.get_schedules()
@@ -2572,7 +2572,7 @@ def get_schedules(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-schedule",
     inputs_list=[
-        InputArgument(name="schedule ID", description="schedule ID of schedule to delete",
+        InputArgument(name="schedule_id", description="schedule ID of schedule to delete",
                       required=True, is_array=False)
     ],
     outputs_prefix="deleted_Schedule",
@@ -2618,7 +2618,7 @@ def delete_schedules(client: Client):
                ]
 
     schedules_data = client.delete_schedule()
-    demisto.info(f"the delete_schedules function with id {demisto.args().get('schedule ID')} gave response {schedules_data}")
+    demisto.info(f"the delete_schedules function with id {demisto.args().get('schedule_id')} gave response {schedules_data}")
 
     human_readable = tableToMarkdown(
         name="Deleted Schedule",
@@ -2701,7 +2701,7 @@ def get_prebuilt_scenarios(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-custom-scenarios",
     inputs_list=[
-        InputArgument(name="schedule details", description="Whether to get details of custom scenarios,\
+        InputArgument(name="schedule_details", description="Whether to get details of custom scenarios,\
             set this to true every time unless you explicitly dont need details", default="true", options=["false", "true"],
                       required=False, is_array=False),
     ],
@@ -2744,9 +2744,9 @@ def get_custom_scenarios(client: Client):
     """
     custom_scenarios = client.get_custom_scenarios()
     demisto.info(f"output of get_custom_scenarios function for command {demisto.command()} with details input \
-        {demisto.args().get('schedule details')} is {custom_scenarios}")
+        {demisto.args().get('schedule_details')} is {custom_scenarios}")
 
-    if demisto.args().get("schedule details") == "true":
+    if demisto.args().get("schedule_details") == "true":
         flattened_simulations_data_for_table = client.extract_custom_scenario_fields(custom_scenarios.get("data", {}))
     else:
         flattened_simulations_data_for_table = custom_scenarios.get("data", {})
@@ -2844,15 +2844,15 @@ def get_verification_token(client):
     inputs_list=[
         InputArgument(name="position", description="position in queue to put the given test data at.",
                       required=False, is_array=False),
-        InputArgument(name="enable feedback loop", description="this argument is used to enable/disable feedback loop",
+        InputArgument(name="enable_feedback_loop", description="this argument is used to enable/disable feedback loop",
                       default="true", options=["false", "true"], required=False, is_array=False),
-        InputArgument(name="retry simulation", description="this argument is used to retry according to retry policy \
+        InputArgument(name="retry_simulation", description="this argument is used to retry according to retry policy \
                 mention in retry policy field", default="", options=["", "false", "true"], required=False, is_array=False),
-        InputArgument(name="wait for retry", description="this arguments tells flow to retry the adding to queue after the \
+        InputArgument(name="wait_for_retry", description="this arguments tells flow to retry the adding to queue after the \
                 current step execution is completed", default="", options=["", "false", "true"], required=False, is_array=False),
         InputArgument(name="priority", description="the priority of this test action",
                       default="low", options=["low", "high"], required=False, is_array=False),
-        InputArgument(name="test data", description="test data for the given test",
+        InputArgument(name="test_data", description="test data for the given test",
                       required=True, is_array=False),
     ],
     outputs_prefix="changed_data",
@@ -2923,15 +2923,15 @@ def rerun_test(client):
     inputs_list=[
         InputArgument(name="position", description="position in queue to put the given simulation data at.",
                       required=False, is_array=False),
-        InputArgument(name="enable feedback loop", description="this argument is used to enable/disable feedback loop",
+        InputArgument(name="enable_feedback_loop", description="this argument is used to enable/disable feedback loop",
                       default="true", options=["false", "true"], required=False, is_array=False),
-        InputArgument(name="retry simulation", description="this argument is used to retry according to retry policy \
+        InputArgument(name="retry_simulation", description="this argument is used to retry according to retry policy \
                 mention in retry policy field", default="", options=["", "false", "true"], required=False, is_array=False),
-        InputArgument(name="wait for retry", description="this arguments tells flow to retry the adding to queue after the \
+        InputArgument(name="wait_for_retry", description="this arguments tells flow to retry the adding to queue after the \
                 current step execution is completed", default="", options=["", "false", "true"], required=False, is_array=False),
         InputArgument(name="priority", description="the priority of this simulation action",
                       default="low", options=["low", "high"], required=False, is_array=False),
-        InputArgument(name="simulation data", description="simulation data for the given simulation",
+        InputArgument(name="simulation_data", description="simulation data for the given simulation",
                       required=True, is_array=False),
     ],
     outputs_prefix="changed_data",
