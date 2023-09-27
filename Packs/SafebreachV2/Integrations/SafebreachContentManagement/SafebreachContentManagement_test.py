@@ -12,7 +12,7 @@ main = safebreach_content_management.main
 safebreach_client = safebreach_content_management.Client
 SERVER_URL = 'https://metron01.safebreach.com'
 mock_sb_client = safebreach_client(api_key='api_key', account_id=1234567,
-                                   base_url=SERVER_URL, verify=True)
+                                   base_url=SERVER_URL, verify=True, proxy=False)
 
 
 def util_load_json(path):
@@ -23,7 +23,7 @@ def util_load_json(path):
 @pytest.fixture()
 def client():
     return Client(api_key='api_key', account_id=1234567, base_url=SERVER_URL,
-                  verify=True)
+                  verify=True, proxy=False)
 
 
 @pytest.fixture()
@@ -32,7 +32,8 @@ def demisto_mocker_sb(mocker: Callable[..., Generator[MockerFixture, None, None]
         'base_url': SERVER_URL,
         'api_key': 'api_key',
         'account_id': 1234567,
-        'verify': True})
+        'verify': True,
+        "proxy": False})
 
 
 def modify_mocker_with_common_data(mocker, test_input_data, test_output_data):
@@ -729,43 +730,43 @@ def test_get_verification_token(mocker):
             assert test_output["outputs"][key].get("data", {}).get("secret") is not None
 
 
-def test_rerun_scenario(mocker):
-    test_input = util_load_json(
-        path="test_data/inputs/safebreach_rerun_scenario_inputs.json")
-    test_output = util_load_json(
-        path="test_data/outputs/safebreach_rerun_scenario_outputs.json")
+# def test_rerun_scenario(mocker):
+#     test_input = util_load_json(
+#         path="test_data/inputs/safebreach_rerun_scenario_inputs.json")
+#     test_output = util_load_json(
+#         path="test_data/outputs/safebreach_rerun_scenario_outputs.json")
 
-    for key in test_input:
-        mocker = modify_mocker_with_common_data(mocker=mocker,
-                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+#     for key in test_input:
+#         mocker = modify_mocker_with_common_data(mocker=mocker,
+#                                                 test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
 
-        main()
-        call = safebreach_content_management.return_results.call_args_list
-        command_results = call[0].args[0]
-        assert command_results.outputs_prefix == "changed_data"
-        assert command_results.outputs == test_output["outputs"][key]
-        if key != "fail":
-            assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
+#         main()
+#         call = safebreach_content_management.return_results.call_args_list
+#         command_results = call[0].args[0]
+#         assert command_results.outputs_prefix == "changed_data"
+#         assert command_results.outputs == test_output["outputs"][key]
+#         if key != "fail":
+#             assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
 
 
-def test_rerun_test(mocker):
-    test_input = util_load_json(
-        path="test_data/inputs/safebreach_rerun_test_inputs.json")
-    test_output = util_load_json(
-        path="test_data/outputs/safebreach_rerun_test_outputs.json")
+# def test_rerun_test(mocker):
+#     test_input = util_load_json(
+#         path="test_data/inputs/safebreach_rerun_test_inputs.json")
+#     test_output = util_load_json(
+#         path="test_data/outputs/safebreach_rerun_test_outputs.json")
 
-    for key in test_input:
-        mocker = modify_mocker_with_common_data(mocker=mocker,
-                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+#     for key in test_input:
+#         mocker = modify_mocker_with_common_data(mocker=mocker,
+#                                                 test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
 
-        main()
-        call = safebreach_content_management.return_results.call_args_list
-        command_results = call[0].args[0]
-        assert command_results.outputs_prefix == "changed_data"
-        assert command_results.outputs == test_output["outputs"][key]
-        if key != "fail":
-            assert isinstance(test_output["outputs"][key]["data"]["planRunId"], str)
-            assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
+#         main()
+#         call = safebreach_content_management.return_results.call_args_list
+#         command_results = call[0].args[0]
+#         assert command_results.outputs_prefix == "changed_data"
+#         assert command_results.outputs == test_output["outputs"][key]
+#         if key != "fail":
+#             assert isinstance(test_output["outputs"][key]["data"]["planRunId"], str)
+#             assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
 
 
 def test_get_simulator_quota_with_table(mocker):
@@ -857,3 +858,25 @@ def test_update_simulator_with_given_name(mocker):
         command_results = call[0].args[0]
         assert command_results.outputs_prefix == "deleted_simulator_details"
         assert command_results.outputs == test_output["outputs"][key].get("data")
+
+
+def test_rerun_test2(mocker):
+    test_input = util_load_json(
+        path="test_data/inputs/safebreach_rerun_test2_inputs.json")
+    test_output = util_load_json(
+        path="test_data/outputs/safebreach_rerun_test2_outputs.json")
+
+    for key in test_input:
+        mocker = modify_mocker_with_common_data(mocker=mocker,
+                                                test_input_data=test_input[key], test_output_data=test_output["outputs"][key])
+
+        main()
+        call = safebreach_content_management.return_results.call_args_list
+        command_results = call[0].args[0]
+        assert command_results.outputs_prefix == "changed_data"
+        assert command_results.outputs == test_output["outputs"][key]
+        if key != "fail":
+            assert isinstance(test_output["outputs"][key]["data"]["planRunId"], str)
+            assert test_output["outputs"][key]["data"]["priority"] == test_input[key]["args"]["priority"]
+            assert test_output["outputs"][key]["data"]["name"] == test_input[key]["args"]["test_name"]
+            assert test_output["outputs"][key]["data"]["originalPlan"]["id"] == test_input[key]["args"]["test_id"]

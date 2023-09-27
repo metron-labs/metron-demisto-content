@@ -7,7 +7,7 @@
     4. Nodes get, update, delete.
     5. Get current tests/simulation status and/or queue them.
     
-This integration was integrated and tested with version 0.0.1 of Safebreach Content Management.
+This integration was integrated and tested with version xx of Safebreach Content Management.
 
 ## Configure Safebreach Content Management on Cortex XSOAR
 
@@ -21,6 +21,7 @@ This integration was integrated and tested with version 0.0.1 of Safebreach Cont
     | API Key | This is API key for your instance, this can be created in safebreach user                       administration&gt;APIkeys and then it must be saved as there is no way to view this again | True |
     | Account ID | This is account ID of account with which we want to get data from safebreach | True |
     | Verify SSL Certificate | This Field is useful for checking if the certificate of SSL for HTTPS is valid or not | False |
+    | Use system proxy settings | This Field is useful for asking integration to use default system proxy settings. | False |
 
 4. Click **Test** to validate the URLs, token, and connection.
 
@@ -436,11 +437,11 @@ This command gets tests which are in running or queued state.
 | active_tests.name | String | Name of the test being run. | 
 | active_tests.description | String | Details related to the test being run. | 
 | active_tests.successCriteria | String | Plan Run ID of the simulation. | 
-| active_tests.originalScenarioId | String | Original scenario ID of the running test. | 
-| active_tests.actions count | String | number of actions. | 
+| active_tests.originalScenarioId | String | Original scenario ID of the running test | 
+| active_tests.actions count | String | number of actions | 
 | active_tests.edges count | String | number of edges. | 
 | active_tests.createdAt | String | details related to when test is created. | 
-| active_tests.updatedAt | String | details related to when test is last updated/changed. | 
+| active_tests.updatedAt | String | details related to when test is last updated/changed | 
 | active_tests.steps count | String | number of steps in simulator. | 
 | active_tests.planId | String | planId of the test. | 
 | active_tests.originalPlan ID | String | original plan ID for reference. | 
@@ -449,20 +450,20 @@ This command gets tests which are in running or queued state.
 | active_tests.enableFeedbackLoop | String | Should feedback loop be enabled. | 
 | active_tests.planRunId | String | plan run id. | 
 | active_tests.priority | String | priority of tests. | 
-| active_tests.retrySimulations | String | Should simulations be retried. | 
-| active_tests.flowControl | String | Flow control of tests. | 
+| active_tests.retrySimulations | String | Should simulations be retried | 
+| active_tests.flowControl | String | Flow control of tests | 
 | active_tests.slot position | String | position in queue. | 
 | active_tests.slot status | Boolean | is the test paused. | 
-| active_tests.pauseDuration | String | is the test paused and if so till when. | 
-| active_tests.totalJobs | String | Total number of jobs for this test. | 
-| active_tests.pausedDate | String | when the test is paused. | 
-| active_tests.expectedSimulationsAmount | String | number of simulations expected. | 
-| active_tests.dispatchedSimulationsAmount | String | the number of simulations dispatched. | 
-| active_tests.blockedSimulationsAmount | String | The number of simulations blocked. | 
-| active_tests.unblockedSimulationsAmount | String | The number of simulations unblocked. | 
-| active_tests.skippedSimulationsAmount | String | The number of simulations skipped. | 
-| active_tests.failedSimulationsAmount | String | The number of simulations failed. | 
-| active_tests.isPrepared | String | Total number of simulations that have been prepared. | 
+| active_tests.pauseDuration | String | is the test paused and if so till when | 
+| active_tests.totalJobs | String | Total number of jobs for this test | 
+| active_tests.pausedDate | String | when the test is paused | 
+| active_tests.expectedSimulationsAmount | String | number of simulations expected | 
+| active_tests.dispatchedSimulationsAmount | String | the number of simulations dispatched | 
+| active_tests.blockedSimulationsAmount | String | The number of simulations blocked | 
+| active_tests.unblockedSimulationsAmount | String | The number of simulations unblocked | 
+| active_tests.skippedSimulationsAmount | String | The number of simulations skipped | 
+| active_tests.failedSimulationsAmount | String | The number of simulations failed | 
+| active_tests.isPrepared | String | Total number of simulations that have been prepared | 
 
 ### safebreach-get-available-simulator-details
 
@@ -709,7 +710,7 @@ This command gets simulations which are in running or queued state.
 | prebuilt_scenarios.categories | String | the category ids of the scenario. | 
 | prebuilt_scenarios.steps_order | String | the order of steps involved in the scenario. | 
 | prebuilt_scenarios.order | String | the order of the scenario. | 
-| prebuilt_scenarios.minApiVer | String | the minimum version of API required for scenario to be executed. | 
+| prebuilt_scenarios.minApiVer | String | the minimum version of API required for scenario to be executed | 
 
 ### safebreach-get-schedules
 
@@ -798,7 +799,7 @@ This command gives all details related to account, we are using this to find ass
 ### safebreach-get-simulator-with-name
 
 ***
-This command gives simulator with given name.
+This command gives simulator with given name
 
 #### Base Command
 
@@ -920,7 +921,7 @@ This command gets simulations which are in running or queued state.
 ### safebreach-rerun-scenario
 
 ***
-this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table.
+this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table 
 
 #### Base Command
 
@@ -955,7 +956,7 @@ this commands puts given simulation data at a given position, for this command t
 ### safebreach-rerun-test
 
 ***
-this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table.
+this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table 
 
 #### Base Command
 

@@ -106,4 +106,3 @@ Packs/**/ModelingRules/**/**/*_testdata.json
 .gitlab/ci/.gitlab-ci.on-push.yml
 .circleci/config.yml
 .gitignore
-Packs/SafebreachV2/Integrations/SafebreachContentManagement/SafebreachContentManagement.py

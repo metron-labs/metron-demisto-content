@@ -1,6 +1,6 @@
 {
     "name": "Safebreach Content Management",
-    "description": "This Integration aims to provide easy access to safebreach from XSOAR.",
+    "description": "This Integration aims to provide easy access to safebreach from XSOAR.\nFollowing are the things that user can get access through XSOAR command integration:\n1. User get, create, update and delete. \n2. Deployment create, update and delete.\n3. Tests get and delete.\n4. Nodes get, update, delete.\n5. Get current tests/simulation status and/or queue them.",
     "support": "partner",
     "currentVersion": "0.0.1",
     "author": "metron",

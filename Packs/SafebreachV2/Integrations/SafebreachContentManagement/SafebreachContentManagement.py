@@ -27,7 +27,7 @@ simulator_details_inputs = [
                   required=False, is_array=False),
     InputArgument(name="internal_ip", description="if Internal IP are to be included for search.",
                   required=False, is_array=False),
-    InputArgument(name="os", description="if Operating system details to be included for search.", options=["true", "false"],
+    InputArgument(name="os", description="operating system name to filter with, Eg: LINUX,WINDOWS etc",
                   required=False, is_array=False),
     InputArgument(name="sort_direction", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
                   default="asc", required=False, is_array=False),
@@ -237,6 +237,12 @@ metadata_collector = YMLMetadataCollector(
                   required=False,
                   default_value=False,
                   additional_info="This Field is useful for checking if the certificate of SSL for HTTPS is valid or not",
+                  key_type=ParameterTypes.BOOLEAN),
+          ConfKey(name="proxy",
+                  display="Use system proxy settings",
+                  required=False,
+                  default_value=False,
+                  additional_info="This Field is useful for asking integration to use default system proxy settings.",
                   key_type=ParameterTypes.BOOLEAN)
           ])
 
@@ -311,11 +317,12 @@ class Client(BaseClient):
     For this  implementation, no special attributes defined
     """
 
-    def __init__(self, api_key: str, account_id: int, base_url: str, verify: bool):
+    def __init__(self, api_key: str, account_id: int, base_url: str, verify: bool, proxy: bool):
         super().__init__(base_url=base_url, verify=verify)
 
         self.api_key = api_key
         self.account_id = account_id
+        self.proxies = handle_proxy()
 
     def get_response(self, url: str = "", method: str = "GET", request_params: dict = {}, body: dict = None):
         """_summary_
@@ -875,15 +882,30 @@ class Client(BaseClient):
         Returns:
             dict: parameters dictionary
         """
-        possible_inputs = [
-            "details", "deleted", "secret", "shouldIncludeProxies", "hostname", "connectionType", "externalIp", "internalIp",
-            "os", "status", "sortDirection", "pageSize", "isEnabled", "isConnected", "isCritical", "additionalDetails"]
+        possible_inputs = {
+            "details": "details",
+            "deleted": "deleted",
+            "secret": "secret",
+            "should_include_proxies": "shouldIncludeProxies",
+            "hostname": "hostname",
+            "connection_type": "connectionType",
+            "external_ip": "externalIp",
+            "internal_ip": "internalIp",
+            "os": "os",
+            "status": "status",
+            "sort_direction": "sortDirection",
+            "page_size": "pageSize",
+            "is_enabled": "isEnabled",
+            "is_connected": "isConnected",
+            "is_critical": "isCritical",
+            "additional_details": "additionalDetails"
+        }
         request_params = {}
         for parameter in possible_inputs:
             if demisto.args().get(parameter):
-                request_params[parameter] = bool_map[demisto.args().get(parameter)] \
+                request_params[possible_inputs[parameter]] = bool_map[demisto.args().get(parameter)] \
                     if (demisto.args().get(parameter) not in ["true", "false"] and parameter in ["details", "deleted",
-                        "isEnabled", "isConnected", "isCritical", "additionalDetails"]) else demisto.args().get(parameter)
+                        "is_enabled", "is_connected", "is_critical", "additional_details"]) else demisto.args().get(parameter)
         return request_params
 
     def flatten_node_details(self, nodes):
@@ -1033,7 +1055,7 @@ class Client(BaseClient):
         return data_dict
 
     def update_node(self, node_id, node_data):
-        """This function calls update node details API and returns updated datas
+        """This function calls update node details API and returns updated data
 
         Args:
             node_id (str): ID of node to update
@@ -1253,16 +1275,16 @@ class Client(BaseClient):
                     return_obj["edges_count"] = len(scenario[key])
                 return_obj[key] = scenario[key]
             # this part of code is for modifying test data that can be used for rerun test command
-            if demisto.command() != "safebreach-rerun-scenario":
-                custom_data_obj = deepcopy(return_obj)
-                custom_data_obj.pop("actions_list")
-                custom_data_obj.pop("steps_order")
-                custom_data_obj.pop("edges_count")
-                custom_data_obj.pop("createdAt")
-                custom_data_obj.pop("updatedAt")
-                custom_data_obj.pop("description")
-                custom_data_obj["successCriteria"] = custom_data_obj["successCriteria"] or {}
-                return_obj["custom_data_for_rerun_test"] = json.dumps(custom_data_obj)
+                # if demisto.command() != "safebreach-rerun-simulation":
+                #     custom_data_obj = deepcopy(return_obj)
+                #     custom_data_obj.pop("actions_list")
+                #     custom_data_obj.pop("steps_order")
+                #     custom_data_obj.pop("edges_count")
+                #     custom_data_obj.pop("createdAt")
+                #     custom_data_obj.pop("updatedAt")
+                #     custom_data_obj.pop("description")
+                #     custom_data_obj["successCriteria"] = custom_data_obj["successCriteria"] or {}
+                #     return_obj["custom_data_for_rerun_test"] = json.dumps(custom_data_obj)
             # this part of code is for modifying test data that can be used for rerun simulation command
             return_obj["custom_data_object_for_rerun_scenario"] = json.dumps({
                 "name": return_obj.get("name"),
@@ -1271,6 +1293,28 @@ class Client(BaseClient):
             return_list.append(return_obj)
 
         return return_list
+
+    def extract_test_fields(self, test):
+        return_obj = {
+            "actions_list": "",
+            "steps_order": "",
+            "edges_count": 0
+        }
+        for key in test:
+            if key == "actions" and test[key]:
+                actions_involved = ""
+                return_obj["actions_list"] = reduce(
+                    lambda actions_involved, action: f"{actions_involved}, {action.get('type')} with id:{action.get('id','')}",
+                    test[key], actions_involved)
+            elif key == "steps" and test[key]:
+                steps_involved = ""
+                return_obj["steps_order"] = reduce(
+                    lambda steps_involved, step: f"{steps_involved}, {step.get('name')}- with planRunId {step.get('planRunId')}",
+                    test[key], steps_involved)
+            elif key == "edges":
+                return_obj["edges_count"] = len(test[key])
+            return_obj[key] = test[key]
+        return return_obj
 
     def format_services_response(self, services):
         return_list = []
@@ -1318,17 +1362,29 @@ class Client(BaseClient):
     def rerun_test_or_simulation(self):
 
         account_id = demisto.params().get("account_id", 0)
-        test_data = demisto.args().get("test_data") if demisto.args().get("test_data") else demisto.args().get("simulation_data")
-        demisto.info(f"unprocessed test_data given to command is {test_data}")
+        if demisto.command() == "safebreach-rerun-test" or "safebreach-rerun-simulation":
+            test_data = demisto.args().get("test_data") if demisto.args().get("test_data") \
+                else demisto.args().get("simulation_data")
+            demisto.info(f"unprocessed test_data given to command is {test_data}")
 
-        if isinstance(test_data, dict):
-            pass
-        elif isinstance(test_data, str):
-            try:
-                test_data = json.loads(test_data)
-            except json.decoder.JSONDecodeError:
-                raise Exception("improper test data has been given for input,\
-                    please validate and try again")
+            if isinstance(test_data, dict):
+                pass
+            elif isinstance(test_data, str):
+                try:
+                    test_data = json.loads(test_data)
+                except json.decoder.JSONDecodeError:
+                    raise Exception("improper test data has been given for input,\
+                        please validate and try again")
+        if demisto.command() == "safebreach-rerun-test2":
+            test_data = {
+                "testId": demisto.args().get("test_id"),
+                "name": demisto.args().get("test_name", ""),
+            }
+        if demisto.command() == "safebreach-rerun-simulation2":
+            test_data = {
+                "id": int(demisto.args().get("simulation_id")),
+                "name": demisto.args().get("simulation_name", ""),
+            }
 
         position = demisto.args().get("position")
         feedback_loop = demisto.args().get("enable_feedback_loop")
@@ -1732,7 +1788,7 @@ def delete_user_with_details(client: Client):
     inputs_list=[
         InputArgument(name="name", description="Name of the deployment to create.", required=True, is_array=False),
         InputArgument(name="description", description="Description of the deployment to create.", required=False, is_array=False),
-        InputArgument(name="nodes", description="Comma separated ID of all nodes the deployment should be part of.",
+        InputArgument(name="nodes", description="Comma separated ID of all simulators that should be part of this deployment.",
                       required=False, is_array=True)
     ],
     outputs_prefix="created_deployment_data",
@@ -2760,7 +2816,7 @@ def get_custom_scenarios(client: Client):
         t=flattened_simulations_data_for_table,
         headers=["id", "name", "description", "successCriteria", "originalScenarioId",
                  "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt",
-                 "custom_data_object_for_rerun_scenario", "custom_data_for_rerun_test"])
+                 "custom_data_object_for_rerun_scenario"])
 
     demisto.info(f"json output of custom scenarios call is {custom_scenarios}")
     outputs = custom_scenarios
@@ -2843,8 +2899,86 @@ def get_verification_token(client):
     return result
 
 
+# @metadata_collector.command(
+#     command_name="safebreach-rerun-test",
+#     inputs_list=[
+#         InputArgument(name="position", description="position in queue to put the given test data at.",
+#                       required=False, is_array=False),
+#         InputArgument(name="enable_feedback_loop", description="this argument is used to enable/disable feedback loop",
+#                       default="true", options=["false", "true"], required=False, is_array=False),
+#         InputArgument(name="retry_simulation", description="this argument is used to retry according to retry policy \
+#                 mention in retry policy field", default="", options=["", "false", "true"], required=False, is_array=False),
+#         InputArgument(name="wait_for_retry", description="this arguments tells flow to retry the adding to queue after the \
+#                current step execution is completed", default="", options=["", "false", "true"], required=False, is_array=False),
+#         InputArgument(name="priority", description="the priority of this test action",
+#                       default="low", options=["low", "high"], required=False, is_array=False),
+#         InputArgument(name="test_data", description="test data for the given test",
+#                       required=True, is_array=False),
+#     ],
+#     outputs_prefix="changed_data",
+#     outputs_list=[
+#         OutputArgument(name="id", description="the Id of scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="name", description="the name of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="description", description="the description of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="successCriteria", description="success criteria the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="originalScenarioId", description="original scenario id of scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="actions_list", description="actions list of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="edges_count", description="edges count for the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="steps_order", description="the order of steps of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="createdAt", description="the creation datetime of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="updatedAt", description="the last updated time the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="planId", description="the plan id of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="ranBy", description="the user id of the user who ran the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="ranFrom", description="where the user ran the scenario from.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="enableFeedbackLoop", description="feedback loop status of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="planRunId", description="plan run id of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="priority", description="priority of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#         OutputArgument(name="retrySimulations", description="retry status of the scenario.",
+#                        prefix="changed_data", output_type=str),
+#     ],
+#     description="this commands puts given test data at a given position, for this command to get test data input,\
+#         run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table ")
+# def rerun_test(client):
+
+#     rerun_results = client.rerun_test_or_simulation()
+#     demisto.info(f"output of rerun_test function for command {demisto.command()} is {rerun_results}")
+
+#     flattened_simulations_data_for_table = client.extract_custom_scenario_fields([rerun_results.get("data", {})])
+#     human_readable = tableToMarkdown(
+#         name="Scenarios",
+#         t=flattened_simulations_data_for_table,
+#         headers=["id", "name", "description", "successCriteria", "originalScenarioId",
+#                  "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt",
+#                  "planId", "ranBy", "ranFrom", "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
+#     demisto.info(f"json output of rerun_scenario is {flattened_simulations_data_for_table}")
+
+#     outputs = rerun_results
+#     result = CommandResults(
+#         outputs_prefix="changed_data",
+#         outputs=outputs,
+#         readable_output=human_readable
+#     )
+
+#     return result
+
 @metadata_collector.command(
-    command_name="safebreach-rerun-test",
+    command_name="safebreach-rerun-test2",
     inputs_list=[
         InputArgument(name="position", description="position in queue to put the given test data at.",
                       required=False, is_array=False),
@@ -2856,7 +2990,9 @@ def get_verification_token(client):
                 current step execution is completed", default="", options=["", "false", "true"], required=False, is_array=False),
         InputArgument(name="priority", description="the priority of this test action",
                       default="low", options=["low", "high"], required=False, is_array=False),
-        InputArgument(name="test_data", description="test data for the given test",
+        InputArgument(name="test_id", description="test id for the given test, \
+            this is be planRunId field from get-all-tests-summary command", required=True, is_array=False),
+        InputArgument(name="test_name", description="test name for the given test",
                       required=True, is_array=False),
     ],
     outputs_prefix="changed_data",
@@ -2898,19 +3034,18 @@ def get_verification_token(client):
     ],
     description="this commands puts given test data at a given position, for this command to get test data input,\
         run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table ")
-def rerun_test(client):
+def rerun_test2(client):
 
     rerun_results = client.rerun_test_or_simulation()
     demisto.info(f"output of rerun_test function for command {demisto.command()} is {rerun_results}")
 
-    flattened_simulations_data_for_table = client.extract_custom_scenario_fields([rerun_results.get("data", {})])
+    flattened_simulations_data_for_table = client.extract_test_fields(rerun_results.get("data", {}))
     human_readable = tableToMarkdown(
-        name="Scenarios",
+        name="test",
         t=flattened_simulations_data_for_table,
-        headers=["id", "name", "description", "successCriteria", "originalScenarioId",
-                 "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt",
-                 "planId", "ranBy", "ranFrom", "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
-    demisto.info(f"json output of rerun_scenario is {flattened_simulations_data_for_table}")
+        headers=["name", "originalScenarioId", "actions_list", "edges_count", "steps_order",
+                 "planRunId", "ranBy", "ranFrom", "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
+    demisto.info(f"json output of rerun_test is {flattened_simulations_data_for_table}")
 
     outputs = rerun_results
     result = CommandResults(
@@ -2923,7 +3058,7 @@ def rerun_test(client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-rerun-scenario",
+    command_name="safebreach-rerun-simulation",
     inputs_list=[
         InputArgument(name="position", description="position in queue to put the given simulation data at.",
                       required=False, is_array=False),
@@ -2984,6 +3119,71 @@ def rerun_scenario(client):
     return result
 
 
+@metadata_collector.command(
+    command_name="safebreach-rerun-simulation2",
+    inputs_list=[
+        InputArgument(name="position", description="position in queue to put the given simulation data at.",
+                      required=False, is_array=False),
+        InputArgument(name="enable_feedback_loop", description="this argument is used to enable/disable feedback loop",
+                      default="true", options=["false", "true"], required=False, is_array=False),
+        InputArgument(name="retry_simulation", description="this argument is used to retry according to retry policy \
+                mention in retry policy field", default="", options=["", "false", "true"], required=False, is_array=False),
+        InputArgument(name="wait_for_retry", description="this arguments tells flow to retry the adding to queue after the \
+                current step execution is completed", default="", options=["", "false", "true"], required=False, is_array=False),
+        InputArgument(name="priority", description="the priority of this simulation action",
+                      default="low", options=["low", "high"], required=False, is_array=False),
+        InputArgument(name="simulation_id", required=True, is_array=False,
+                      description="simulation id for the given simulation, can be retrieved from running get prebuilt scenarios \
+                      or custom scenarios command and then getting id field from them"),
+        InputArgument(name="simulation_name", description="simulation name for the given simulation",
+                      required=True, is_array=False),
+    ],
+    outputs_prefix="changed_data",
+    outputs_list=[
+        OutputArgument(name="id", description="the Id of scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="name", description="the name of the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="description", description="the description of the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="successCriteria", description="success criteria the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="originalScenarioId", description="original scenario id of scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="actions_list", description="actions list of the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="edges_count", description="edges count for the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="steps_order", description="the order of steps of the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="createdAt", description="the creation datetime of the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+        OutputArgument(name="updatedAt", description="the last updated time the scenario.",
+                       prefix="custom_scenarios", output_type=str),
+    ],
+    description="this commands puts given simulation data at a given position, for this command to get test data input,\
+        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table ")
+def rerun_scenario2(client):
+
+    rerun_results = client.rerun_test_or_simulation()
+    demisto.info(f"output of rerun_scenario function for command {demisto.command()} is {rerun_results}")
+    flattened_simulations_data_for_table = client.extract_custom_scenario_fields([rerun_results.get("data", {})])
+    human_readable = tableToMarkdown(
+        name="Scenarios",
+        t=flattened_simulations_data_for_table,
+        headers=["name", "actions_list", "edges_count", "steps_order", "ranBy", "ranFrom",
+                 "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
+    demisto.info(f"json output of services rerun_scenario call is {flattened_simulations_data_for_table}")
+    outputs = rerun_results
+    result = CommandResults(
+        outputs_prefix="changed_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+
+    return result
+
+
 def main() -> None:
     """
     Execution starts here
@@ -2992,7 +3192,8 @@ def main() -> None:
         api_key=demisto.params().get("api_key"),
         account_id=demisto.params().get("account_id"),
         base_url=demisto.params().get("base_url"),
-        verify=demisto.params().get("verify"))
+        verify=demisto.params().get("verify"),
+        proxy=demisto.params().get("proxy"))
     demisto.debug(f'Command being called is {demisto.command()}')
     try:
 
@@ -3121,12 +3322,20 @@ def main() -> None:
             result = get_custom_scenarios(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-rerun-test":
-            result = rerun_test(client=client)
+        # elif demisto.command() == "safebreach-rerun-test":
+        #     result = rerun_test(client=client)
+        #     return_results(result)
+
+        elif demisto.command() == "safebreach-rerun-test2":
+            result = rerun_test2(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-rerun-scenario":
+        elif demisto.command() == "safebreach-rerun-simulation":
             result = rerun_scenario(client=client)
+            return_results(result)
+
+        elif demisto.command() == "safebreach-rerun-simulation2":
+            result = rerun_scenario2(client=client)
             return_results(result)
 
     except Exception as error:

@@ -26,6 +26,11 @@ configuration:
   type: 8
   required: false
   additionalinfo: This Field is useful for checking if the certificate of SSL for HTTPS is valid or not
+- display: Use system proxy settings
+  name: proxy
+  type: 8
+  required: false
+  additionalinfo: This Field is useful for asking integration to use default system proxy settings.
 script:
   commands:
   - deprecated: false
@@ -84,7 +89,7 @@ script:
       default: false
     - name: nodes
       isArray: true
-      description: Comma separated ID of all nodes the deployment should be part of.
+      description: Comma separated ID of all simulators that should be part of this deployment.
       required: false
       secret: false
       default: false
@@ -868,14 +873,10 @@ script:
       default: false
     - name: os
       isArray: false
-      description: if Operating system details to be included for search.
+      description: 'operating system name to filter with, Eg: LINUX,WINDOWS etc.'
       required: false
       secret: false
       default: false
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: sort_direction
       isArray: false
       description: direction in which secrets are to be sorted.
@@ -1734,7 +1735,7 @@ script:
       type: String
   - deprecated: false
     description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table."
-    name: safebreach-rerun-scenario
+    name: safebreach-rerun-simulation
     arguments:
     - name: position
       isArray: false
@@ -1824,8 +1825,105 @@ script:
       description: the last updated time the scenario.
       type: String
   - deprecated: false
+    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table."
+    name: safebreach-rerun-simulation2
+    arguments:
+    - name: position
+      isArray: false
+      description: position in queue to put the given simulation data at.
+      required: false
+      secret: false
+      default: false
+    - name: enable_feedback_loop
+      isArray: false
+      description: this argument is used to enable/disable feedback loop.
+      required: false
+      secret: false
+      default: false
+      defaultValue: 'true'
+      predefined:
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: retry_simulation
+      isArray: false
+      description: this argument is used to retry according to retry policy                 mention in retry policy field.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - ''
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: wait_for_retry
+      isArray: false
+      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - ''
+      - 'false'
+      - 'true'
+      auto: PREDEFINED
+    - name: priority
+      isArray: false
+      description: the priority of this simulation action.
+      required: false
+      secret: false
+      default: false
+      defaultValue: low
+      predefined:
+      - low
+      - high
+      auto: PREDEFINED
+    - name: simulation_id
+      isArray: false
+      description: simulation id for the given simulation, can be retrieved from running get prebuilt scenarios                       or custom scenarios command and then getting id field from them.
+      required: true
+      secret: false
+      default: false
+    - name: simulation_name
+      isArray: false
+      description: simulation name for the given simulation.
+      required: true
+      secret: false
+      default: false
+    outputs:
+    - contextPath: changed_data.id
+      description: the Id of scenario.
+      type: String
+    - contextPath: changed_data.name
+      description: the name of the scenario.
+      type: String
+    - contextPath: changed_data.description
+      description: the description of the scenario.
+      type: String
+    - contextPath: changed_data.successCriteria
+      description: success criteria the scenario.
+      type: String
+    - contextPath: changed_data.originalScenarioId
+      description: original scenario id of scenario.
+      type: String
+    - contextPath: changed_data.actions_list
+      description: actions list of the scenario.
+      type: String
+    - contextPath: changed_data.edges_count
+      description: edges count for the scenario.
+      type: String
+    - contextPath: changed_data.steps_order
+      description: the order of steps of the scenario.
+      type: String
+    - contextPath: changed_data.createdAt
+      description: the creation datetime of the scenario.
+      type: String
+    - contextPath: changed_data.updatedAt
+      description: the last updated time the scenario.
+      type: String
+  - deprecated: false
     description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table."
-    name: safebreach-rerun-test
+    name: safebreach-rerun-test2
     arguments:
     - name: position
       isArray: false
@@ -1877,9 +1975,15 @@ script:
       - low
       - high
       auto: PREDEFINED
-    - name: test_data
+    - name: test_id
       isArray: false
-      description: test data for the given test.
+      description: test id for the given test,             this is be planRunId field from get-all-tests-summary command.
+      required: true
+      secret: false
+      default: false
+    - name: test_name
+      isArray: false
+      description: test name for the given test.
       required: true
       secret: false
       default: false
