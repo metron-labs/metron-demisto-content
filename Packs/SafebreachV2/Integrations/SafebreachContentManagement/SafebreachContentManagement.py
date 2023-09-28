@@ -487,7 +487,8 @@ class Client(BaseClient):
         demisto.info(f"available deployments are {available_deployments}")
         if not available_deployments:
             raise NotFoundError(f"deployments with name: {deployment_name} not found as you dont have any deployments")
-        needed_deployments = list(filter(lambda deployment: deployment["name"] == deployment_name, available_deployments))
+        needed_deployments = list(filter(
+            lambda deployment: deployment["name"].lower() == deployment_name.lower(), available_deployments))
         if not needed_deployments:
             raise NotFoundError("related deployment with given name couldn't be found")
         return needed_deployments[0]
@@ -735,7 +736,7 @@ class Client(BaseClient):
         flattened_logs_list = []
 
         for connector in error_logs:
-            logs = error_logs[connector]["logs"] if error_logs[connector].get("status") == "error" else []
+            logs = error_logs[connector]["logs"] if error_logs[connector].get("status") != "ok" else []
             if logs:
                 for log in logs:
                     log["connector"] = connector
@@ -821,7 +822,8 @@ class Client(BaseClient):
         """
         active_keys = self.get_all_active_api_keys_with_details()
         demisto.info(f"active api keys count is {len(active_keys.get('data'))}")
-        required_key_object = list(filter(lambda key_obj: key_obj["name"] == key_name, active_keys.get("data")))
+        required_key_object = list(filter(
+            lambda key_obj: key_obj["name"].lower() == key_name.lower(), active_keys.get("data")))
         if not required_key_object:
             raise NotFoundError(f"couldn't find APi key with given name: {key_name}")
         return required_key_object[0]["id"]
@@ -1484,19 +1486,35 @@ def get_tests_summary(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-all-users",
     inputs_list=[
-        InputArgument(name="should_include_details", description="If Details of user are to be included while querying all \
-            users.", default="true", options=["true", "false"], required=False, is_array=False),
-        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
-                      default="true", options=["true", "false"], required=True, is_array=False),
+        InputArgument(name="should_include_details", default="true", options=["true", "false"], required=False, is_array=False,
+                      description="""
+                      This field when selected true will retrieve the details of users like name, email, role, whether the user 
+                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to
+                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining 
+                      commands like delete or update user, please set details to true.
+                      """),
+        InputArgument(name="should_include_deleted", default="true", options=["true", "false"], required=True, is_array=False,
+                      description="""
+                      If deleted users are to be included while querying all users. by default this is set to true because
+                      there might be cases where its preferable to see deleted users too. this can be set to false to see 
+                      only users who dont have their credentials deleted.
+                      """),
     ],
     outputs_prefix="user_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of User retrieved.",
-                       prefix="user_data", output_type=int),
-        OutputArgument(name="name", description="The name of User retrieved.",
-                       prefix="user_data", output_type=str),
-        OutputArgument(name="email", description="The email of User retrieved.",
-                       prefix="user_data", output_type=str),
+        OutputArgument(name="id", prefix="user_data", output_type=int,
+                       description="""
+                       The ID of User retrieved. this can be used to further link this user with user_id field of 
+                       safebreach-update-user or safebreach-delete-user commands
+                       """),
+        OutputArgument(name="name", prefix="user_data", output_type=str, description="""
+                       The name of User retrieved.
+                       """
+                       ),
+        OutputArgument(name="email", prefix="user_data", output_type=str, description="""
+                       The email of User retrieved. this can be used for updating user or deleting user 
+                       for input email of commands safebreach-update-user or safebreach-delete-user 
+                       """),
     ],
     description="This command gives all users depending on inputs given.")
 def get_all_users(client: Client):
@@ -1525,21 +1543,46 @@ def get_all_users(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-user-with-matching-name-or-email",
     inputs_list=[
-        InputArgument(name="name", description="Name of the user to lookup.", required=False, is_array=False),
-        InputArgument(name="email", description="Email of the user to lookup.", required=True, is_array=False),
-        InputArgument(name="should_include_details", description="If Details of user are to be included while \
-            querying all users.", default="true", options=["true"], required=True, is_array=False),
-        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
-                      default="true", options=["true", "false"], required=True, is_array=False),
+        InputArgument(name="name", required=False, is_array=False, description="""
+                      Name of the user to lookup. This will first retrieve all users and show details related to 
+                      name entered here. this name will be search of if name is part of name given to user and not 
+                      a perfect match. For example if actual name is 'demisto' but if input is 'dem', even then this
+                      will be shown as a valid match to name. This is so that command user need not know exact name of
+                      user and just searching first name or last name will work.
+                      """),
+        InputArgument(name="email", required=True, is_array=False, description="""
+                      Email of the user to lookup. This will be used to retrieve user with matching email that user entered
+                      partial email search doesn't work here.
+                      """),
+        InputArgument(name="should_include_details", default="true", options=["true", "false"], required=False, is_array=False,
+                      description="""
+                      This field when selected true will retrieve the details of users like name, email, role, whether the user 
+                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to
+                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining 
+                      commands like delete or update user, please set details to true.
+                      """),
+        InputArgument(name="should_include_deleted", default="true", options=["true", "false"], required=True, is_array=False,
+                      description="""
+                      If deleted users are to be included while querying all users. by default this is set to true because
+                      there might be cases where its preferable to see deleted users too. this can be set to false to see 
+                      only users who dont have their credentials deleted.
+                      """),
     ],
     outputs_prefix="filtered_users",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of User retrieved.",
-                       prefix="user_data", output_type=int),
-        OutputArgument(name="name", description="The name of User retrieved.",
-                       prefix="user_data", output_type=str),
-        OutputArgument(name="email", description="The email of User retrieved.",
-                       prefix="user_data", output_type=str),
+        OutputArgument(name="id", prefix="user_data", output_type=int,
+                       description="""
+                       The ID of User retrieved. this can be used to further link this user with user_id field of 
+                       safebreach-update-user or safebreach-delete-user commands
+                       """),
+        OutputArgument(name="name", prefix="user_data", output_type=str, description="""
+                       The name of User retrieved.
+                       """
+                       ),
+        OutputArgument(name="email", prefix="user_data", output_type=str, description="""
+                       The email of User retrieved. this can be used for updating user or deleting user 
+                       for input email of commands safebreach-update-user or safebreach-delete-user 
+                       """),
     ],
     description="This command gives all users depending on inputs given.")
 def get_user_id_by_name_or_email(client: Client):
@@ -1563,7 +1606,8 @@ def get_user_id_by_name_or_email(client: Client):
     demisto.info(f"retrieved user list which has {len(user_list)} users")
 
     filtered_user_list = list(
-        filter(lambda user_data: ((name in user_data['name'] if name else False) or (email in user_data['email'])), user_list))
+        filter(lambda user_data: ((name.lower() in user_data['name'].lower() if name else False) or
+                                  (email.lower() in user_data['email'].lower())), user_list))
     demisto.info(f"filtered user list which contains {len(filtered_user_list)}")
 
     if filtered_user_list:
@@ -1584,24 +1628,44 @@ def get_user_id_by_name_or_email(client: Client):
 @metadata_collector.command(
     command_name="safebreach-create-user",
     inputs_list=[
-        InputArgument(name="name", description="Name of the user to create.", required=True, is_array=False),
-        InputArgument(name="email", description="Email of the user to Create.", required=True,
-                      is_array=False),
-        InputArgument(name="is_active", description="Whether the user is active upon creation.",
-                      required=False, is_array=False, options=["true", "false"], default="false"),
-        InputArgument(name="email_post_creation", description="Should Email be sent to user on creation.",
-                      required=False, is_array=False, options=["true", "false"], default="false"),
-        InputArgument(name="password", description="Password of user being created.", required=True,
-                      is_array=False),
-        InputArgument(name="admin_name", description="Name of the Admin creating user.", required=False,
-                      is_array=False),
-        InputArgument(name="change_password_on_create", description="Should user change password on creation.",
-                      required=False, is_array=False, options=["true", "false"], default="false"),
-        InputArgument(name="user_role", description="Role of the user being Created.", required=False,
-                      is_array=False,
+        InputArgument(name="name", required=True, is_array=False, description="Name of the user to create."),
+        InputArgument(name="email", required=True, is_array=False, description="Email of the user to Create."),
+        InputArgument(name="is_active", description="""
+                      Whether the user is active upon creation. if this is set to true then user will be active as soon
+                      as this command succeeds but if set to false then the user has to activated and if user will have to
+                      do reset password process to become active. by default the user will be active.
+                      """,
+                      required=False, is_array=False, options=["true", "false"], default="true"),
+        InputArgument(name="email_post_creation", required=False, is_array=False, options=["true", "false"], default="true",
+                      description="""
+                      This field sends email to user post creation if this field is set to true, by default this field is set 
+                      to false. set this to true if user has to be sent email post creation else set this to false.
+                      """),
+        InputArgument(name="password", required=True, is_array=False, description="""
+                      This will be set as password for the created user. incase needed the flag change password can be set to
+                      true if its needed for user to change password on first login.
+                      """,),
+        InputArgument(name="admin_name", required=False, is_array=False, description="""
+                      Name of the Admin creating user. This will be populated in created by field of user page in safebreach.
+                      """),
+        InputArgument(name="change_password_on_create", required=False, is_array=False, options=["true", "false"],
+                      default="false", description="""
+                      Should user change password on creation. when this is set to true then user will have to reset password on
+                      the next login, this can be used if we want user to reset password as soon as they login.
+                      """,),
+        InputArgument(name="user_role", required=False, is_array=False, description="""
+                      Role of the user being Created. The user will have the permissions of role they are being assigned here.
+                      choices are viewer, administrator, content developer, operator.
+                      """,
                       options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
-        InputArgument(name="deployments", description="Comma separated ID of all deployments the user should be part of.",
-                      required=False, is_array=True)
+        InputArgument(name="deployments", required=False, is_array=True,
+                      description="""
+                      Comma separated ID of all deployments the user should be part of. The deployment IDs can be retrieved from
+                      get-deployments-list command or from UI directly but care should be noted that only deployment ids of 
+                      deployments which haven't been deleted will be shown here and after creation of user. for example
+                      if 1,2,3 are deployment ids given while creation but if 2 is deleted then when user is created , he will
+                      only have 1,3.
+                      """)
     ],
     outputs_prefix="created_user_data",
     outputs_list=[
@@ -1610,18 +1674,18 @@ def get_user_id_by_name_or_email(client: Client):
                        output_type=str),
         OutputArgument(name="email", description="The email of User created.", prefix="created_user_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of User created.", prefix="created_user_data",
-                       output_type=str),
-        OutputArgument(name="deletedAt", description="The Deletion time of User created.", prefix="created_user_data",
-                       output_type=str),
-        OutputArgument(name="roles", description="The roles of User created.", prefix="created_user_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of User created.", prefix="created_user_data",
-                       output_type=str),
-        OutputArgument(name="role", description="The role of User created.", prefix="created_user_data",
-                       output_type=str),
-        OutputArgument(name="deployments", description="The deployments user is part of.", prefix="created_user_data",
-                       output_type=str),
+        OutputArgument(name="createdAt", prefix="created_user_data", output_type=str,
+                       description="The creation time of User."),
+        OutputArgument(name="deletedAt", prefix="created_user_data", output_type=str,
+                       description="The Deletion time of User . This will be empty unless the user is deleted"),
+        OutputArgument(name="roles", prefix="created_user_data", output_type=str,
+                       description="The roles and permissions of User created.",),
+        OutputArgument(name="description", prefix="created_user_data", output_type=str,
+                       description="The description of User if any is given at creation time, it will be populated here.",),
+        OutputArgument(name="role", prefix="created_user_data",
+                       output_type=str, description="The role assigned to user during creation."),
+        OutputArgument(name="deployments", prefix="created_user_data", output_type=str,
+                       description="The deployments user is part of.",),
     ],
     description="This command creates a user with given data.")
 def create_user(client: Client):
@@ -1655,47 +1719,111 @@ def create_user(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-user-details",
     inputs_list=[
-        InputArgument(name="user_id", description="user ID of user from safebreach to search.",
-                      required=False, is_array=False),
-        InputArgument(name="email", description="Email of the user to Search for updating user details.", required=True,
-                      is_array=False),
-        InputArgument(name="name", description="Update the user name to given string.",
-                      required=False, is_array=False),
-        InputArgument(name="user_description", description="Update the user Description to given string.",
-                      required=False, is_array=False),
-        InputArgument(name="is_active", description="Update the user Status.",
-                      required=False, is_array=False, options=["true", "false", ""], default=""),
-        InputArgument(name="password", description="Password of user to be updated with.", required=False,
-                      is_array=False),
-        InputArgument(name="user_role", description="Role of the user to be changed to.", required=False,
-                      is_array=False,
-                      options=["viewer", "administrator", "contentDeveloper", "operator"], default="viewer"),
-        InputArgument(name="deployments", description="Comma separated ID of all deployments the user should be part of.",
-                      required=False, is_array=True),
-        InputArgument(name="should_include_details", description="If Details of user are to be included while\
-            querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
-        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
-                      default="true", options=["true", "false"], required=True, is_array=False)
+        InputArgument(name="user_id", required=False, is_array=False,
+                      description="""
+                      user ID of user from safebreach to search. this can be retrieved in 2 ways,
+                      1. run get-all-users command and then look for user id of user with matching criteria
+                      but to see details its required that details parameter to be set to true,
+                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email
+                      command and then search for user with required details in displayed results for ID.
+                      This field is not  required, meaning even if just email is given , we will internally search user
+                      id with the matching email and use the user for further process
+                      """),
+        InputArgument(name="email", required=True, is_array=False,
+                      description="""
+                      Email of the user to Search for updating user details. This is a required field.
+                      The user with matching email will be considered as user whose data will be updated
+                      """),
+        InputArgument(name="name", required=False, is_array=False, description="""
+                      Update the user name to given value of this field, 
+                      unless this field is left empty, whatever is present here will be updated to user details.
+                      user will be selected based on user_id or email fields mentioned above.
+                      """,),
+        InputArgument(name="user_description", required=False, is_array=False, description="""
+                      Update the user Description to given value in this field. This will be updated description of user
+                      unless this field is left empty, whatever is present here will be updated to user details.
+                      user will be selected based on user_id or email fields mentioned above.
+                      """),
+        InputArgument(name="is_active", required=False, is_array=False, options=["true", "false", ""], default="",
+                      description="""
+                      Update the user Status based on the input, if this is set to false then user will be deactivated.
+                      unless this field is left empty, whatever is present here will be updated to user details.
+                      user will be selected based on user_id or email fields mentioned above.
+                      """,),
+        InputArgument(name="password", required=False, is_array=False, description="""
+                      Password of user to be updated with. this will be used for changing password for user.
+                      unless this field is left empty, whatever is present here will be updated to user details.
+                      user will be selected based on user_id or email fields mentioned above.
+                      """),
+        InputArgument(name="user_role", required=False, is_array=False,
+                      options=["viewer", "administrator", "contentDeveloper", "operator"], default="", description="""
+                      Role of the user to be changed to. unless you want to change the user role and permissions, 
+                      dont select anything in this field, user will be selected based on user_id or email fields mentioned above.
+                      """),
+        InputArgument(name="deployments", required=False, is_array=True, description="""
+                        Comma separated ID of all deployments the user should be part of.
+                        unless this field is left empty, whatever is present here will be updated to user details.
+                        user will be selected based on user_id or email fields mentioned above.
+                      """,
+                      ),
+        InputArgument(name="should_include_details", default="true", options=["true", "false"], required=False, is_array=False,
+                      description="""
+                      This field when selected true will retrieve the details of users like name, email, role, whether the user 
+                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to
+                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining 
+                      commands like delete or update user, please set details to true.
+                      """),
+        InputArgument(name="should_include_deleted", default="true", options=["true", "false"], required=True, is_array=False,
+                      description="""
+                      If deleted users are to be included while querying all users. by default this is set to true because
+                      there might be cases where its preferable to see deleted users too. this can be set to false to see 
+                      only users who dont have their credentials deleted.
+                      """),
     ],
     outputs_prefix="updated_user_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of User updated.", prefix="updated_user_data", output_type=int),
-        OutputArgument(name="name", description="The name of User updated.", prefix="updated_user_data",
-                       output_type=str),
-        OutputArgument(name="email", description="The email of User updated.", prefix="updated_user_data",
-                       output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of User updated.", prefix="updated_user_data",
-                       output_type=str),
-        OutputArgument(name="deletedAt", description="The Deletion time of User updated.", prefix="updated_user_data",
-                       output_type=str),
-        OutputArgument(name="roles", description="The roles of User updated.", prefix="updated_user_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of User updated.", prefix="updated_user_data",
-                       output_type=str),
-        OutputArgument(name="role", description="The role of User updated.", prefix="updated_user_data",
-                       output_type=str),
-        OutputArgument(name="deployments", description="The deployments user is part of.", prefix="updated_user_data",
-                       output_type=str),
+        OutputArgument(name="id", prefix="updated_user_data", output_type=int,
+                       description="The ID of User whose data has been updated."),
+        OutputArgument(name="name", prefix="updated_user_data", output_type=str,
+                       description="""
+                            The name of User after running the update command according to safebreach records.
+                       """),
+        OutputArgument(name="email", prefix="updated_user_data", output_type=str,
+                       description="""
+                        the email of the user whose data has been updated by the command.
+                       """),
+        OutputArgument(name="createdAt", prefix="updated_user_data", output_type=str,
+                       description="""
+                        the time at which the user who has been selected has been created
+                       """),
+        OutputArgument(name="updatedAt", prefix="updated_user_data", output_type=str,
+                       description="""
+                       The last updated time of User selected for update. 
+                       this will be the execution time for the command or close to it.
+                       """),
+        OutputArgument(name="deletedAt", prefix="updated_user_data", output_type=str, description="""
+                       The Deletion time of User selected to update. Generally this is empty unless 
+                       user chosen to update is a deleted user
+                       """),
+        OutputArgument(name="roles", prefix="updated_user_data", output_type=str,
+                       description="""
+                       The roles of User updated. these will change if role has been updated during 
+                       updating user details else they will be same as pre update
+                       """),
+        OutputArgument(name="description", prefix="updated_user_data", output_type=str,
+                       description=""""
+                       The description of User after updating user, if description field has been given any new value during 
+                       update then its updated else this will be left unchanged from previous value.
+                       """),
+        OutputArgument(name="role", prefix="updated_user_data", output_type=str,
+                       description="""
+                       The roles and permissions related to user who has been selected for update.
+                       unless this field has been given a value , this will not be updated and 
+                       will stay the same as previous value.
+                       """),
+        OutputArgument(name="deployments", prefix="updated_user_data", output_type=str, description="""
+                       The deployments related to user, this will be comma separated values of deployment IDs
+                       """),
     ],
     description="This command updates a user with given data.")
 def update_user_with_details(client: Client):
@@ -1727,34 +1855,64 @@ def update_user_with_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-user",
     inputs_list=[
-        InputArgument(name="user_id", description="user ID of user from safebreach to search.",
-                      required=False, is_array=False),
-        InputArgument(name="email", description="Email of the user to Search for updating user details.", required=True,
-                      is_array=False),
-        InputArgument(name="should_include_details", description="If Details of user are to be included while \
-            querying all users.", default="true", options=["true", "false"], required=False, is_array=False),
-        InputArgument(name="should_include_deleted", description="If deleted users are to be included while querying all users.",
-                      default="true", options=["true", "false"], required=True, is_array=False)
+        InputArgument(name="user_id", required=False, is_array=False,
+                      description="""
+                      user ID of user from safebreach to search. this can be retrieved in 2 ways,
+                      1. run get-all-users command and then look for user id of user with matching criteria
+                      but to see details its required that details parameter to be set to true,
+                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email
+                      command and then search for user with required details in displayed results for ID.
+                      This field is not  required, meaning even if just email is given , we will internally search user
+                      id with the matching email and use the user for further process
+                      """),
+        InputArgument(name="email", required=True, is_array=False,
+                      description="""
+                      Email of the user to Search for updating user details. This is a required field.
+                      The user with matching email will be considered as user whose data will be updated
+                      """),
+        InputArgument(name="should_include_details", default="true", options=["true", "false"], required=False, is_array=False,
+                      description="""
+                      This field when selected true will retrieve the details of users like name, email, role, whether the user 
+                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to
+                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining 
+                      commands like delete or update user, please set details to true.
+                      """),
+        InputArgument(name="should_include_deleted", default="true", options=["true", "false"], required=True, is_array=False,
+                      description="""
+                      If deleted users are to be included while querying all users. by default this is set to true because
+                      there might be cases where its preferable to see deleted users too. this can be set to false to see 
+                      only users who dont have their credentials deleted.
+                      """),
     ],
     outputs_prefix="deleted_user_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of User deleted.", prefix="deleted_user_data", output_type=int),
-        OutputArgument(name="name", description="The name of User deleted.", prefix="deleted_user_data",
-                       output_type=str),
+        OutputArgument(name="id", prefix="deleted_user_data", output_type=int,
+                       description="The ID of User whose data has been deleted."),
+        OutputArgument(name="name", prefix="deleted_user_data", output_type=str,
+                       description="The name of User deleted.",),
         OutputArgument(name="email", description="The email of User deleted.", prefix="deleted_user_data",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of User deleted.", prefix="deleted_user_data",
+        OutputArgument(name="createdAt", prefix="deleted_user_data", output_type=str,
+                       description="""
+                        the time at which the user who has been selected has been created
+                       """),
+        OutputArgument(name="updatedAt", prefix="deleted_user_data", output_type=str,
+                       description="""
+                       The last updated time of User selected for delete.  
+                       this will be less than time choses to delete
+                       """),
+        OutputArgument(name="deletedAt", prefix="deleted_user_data", output_type=str, description="""
+                       The Deletion time of User selected to delete. 
+                       this will be the execution time for the command or close to it.
+                       """),
+        OutputArgument(name="roles", description="The roles of User before they were deleted.", prefix="deleted_user_data",
                        output_type=str),
-        OutputArgument(name="deletedAt", description="The Deletion time of User deleted.", prefix="deleted_user_data",
-                       output_type=str),
-        OutputArgument(name="roles", description="The roles of User deleted.", prefix="deleted_user_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of User deleted.", prefix="deleted_user_data",
-                       output_type=str),
-        OutputArgument(name="role", description="The role of User deleted.", prefix="deleted_user_data",
-                       output_type=str),
-        OutputArgument(name="deployments", description="The deployments user was part of.", prefix="deleted_user_data",
-                       output_type=str),
+        OutputArgument(name="description", description="The description of User who has been deleted.",
+                       prefix="deleted_user_data", output_type=str),
+        OutputArgument(name="role", description="The roles and permissions of User who has been deleted.",
+                       prefix="deleted_user_data", output_type=str),
+        OutputArgument(name="deployments", description="The deployments related to user before he was deleted.",
+                       prefix="deleted_user_data", output_type=str),
     ],
     description="This command deletes a user with given data.")
 def delete_user_with_details(client: Client):
@@ -1774,7 +1932,7 @@ def delete_user_with_details(client: Client):
                                               "description", "role", "deployments", "createdAt"])
     outputs = deleted_user.get("data", {})
 
-    demisto.info(f"json output for deete uer is {outputs}")
+    demisto.info(f"json output for delete uer is {outputs}")
     result = CommandResults(
         outputs_prefix="deleted_user_data",
         outputs=outputs,
@@ -1786,24 +1944,48 @@ def delete_user_with_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-create-deployment",
     inputs_list=[
-        InputArgument(name="name", description="Name of the deployment to create.", required=True, is_array=False),
-        InputArgument(name="description", description="Description of the deployment to create.", required=False, is_array=False),
-        InputArgument(name="nodes", description="Comma separated ID of all simulators that should be part of this deployment.",
-                      required=False, is_array=True)
+        InputArgument(name="name", required=True, is_array=False, description="""
+                      Name of the deployment to create. this will be shown as name in deployments page of safebreach
+                      """),
+        InputArgument(name="description", required=False, is_array=False,
+                      description="""
+                      Description of the deployment to create. 
+                      This will show as description of the deployment in your safebreach instance.
+                      It is generally preferable to give description while creating a deployment for easier identification
+                      """),
+        InputArgument(name="nodes", required=False, is_array=True, description="""
+                      A deployment is a group of simulators which work as a single group. this field needs
+                      Comma separated IDs of all simulators that should be part of this deployment.
+                      the ID can be retrieved from safebreach-get-all-simulator-details command with
+                      details input set to true so that the details can be seen. Care should be taken when giving 
+                      simulator IDs as comma separated values as if any simulator has been deleted then this deployment 
+                      wont contain that simulator on creation
+                      """)
     ],
     outputs_prefix="created_deployment_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of deployment created.", prefix="created_deployment_data", output_type=int),
-        OutputArgument(name="accountId", description="The account of deployment created.", prefix="created_deployment_data",
-                       output_type=str),
-        OutputArgument(name="name", description="The name of deployment created.", prefix="created_deployment_data",
-                       output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of deployment created.", prefix="created_deployment_data",
-                       output_type=str),
-        OutputArgument(name="description", description="The description of deployment created.", prefix="created_deployment_data",
-                       output_type=str),
-        OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="created_deployment_data",
-                       output_type=str),
+        OutputArgument(name="id", prefix="created_deployment_data", output_type=int, description="""
+                       The ID of deployment created. this Id can be used to update ,delete deployment as 
+                       deployment_id field of the deployment.
+                       """),
+        OutputArgument(name="accountId", prefix="created_deployment_data", output_type=str, description="""
+                       This field shows account ID of user who has created the account.
+                       """),
+        OutputArgument(name="name", prefix="created_deployment_data", output_type=str, description="""
+                       The name of deployment created. this will be name which will be shown on deployments page of safebreach
+                       and name that is given as input to the command.
+                       """),
+        OutputArgument(name="createdAt", prefix="created_deployment_data", output_type=str, description="""
+                       The creation date and time of deployment , this will be closer to 
+                       command execution time if the deployment creation is successful.
+                       """),
+        OutputArgument(name="description", prefix="created_deployment_data", output_type=str, description="""
+                       The description of the deployment created will be shown in description part of the table in safebreach.
+                       """),
+        OutputArgument(name="nodes", prefix="created_deployment_data", output_type=str, description="""
+                       The nodes that are part of deployment. In case any nodes are given during creation that are 
+                       deleted before the creation time then the deployment wont contain those nodes.
+                       """),
     ],
     description="This command creates a deployment with given data.")
 def create_deployment(client: Client):
@@ -1834,32 +2016,65 @@ def create_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-deployment",
     inputs_list=[
-        InputArgument(name="deployment_id", description="ID of the deployment to update.", required=False, is_array=False),
-        InputArgument(name="deployment_name", description="Name of the deployment to update.",
-                      required=True, is_array=False),
+        InputArgument(name="deployment_id", required=False, is_array=False, description="""
+                      ID of the deployment to update. this can be searched with list-deployments command or
+                      from UI. this will be taken as id of deployment whose properties we want to update.
+                      """),
+        InputArgument(name="deployment_name", required=True, is_array=False, description="""
+                      Name of the deployment to search whose data will be updated. This field is not the field whose
+                      data will be used to update name of given to the value instead this field is for searching deployment 
+                      with the value as name. This field will be used to search the existing deployment names and find a 
+                      deployment whose name matches this and that will be used as deployment whose data we are updating. 
+                      """),
         InputArgument(name="updated_nodes_for_deployment", required=False, is_array=False,
-                      description="Comma separated ID of all nodes the deployment should be part of."),
-        InputArgument(name="updated_deployment_name", description="Name of the deployment to update to.",
-                      required=False, is_array=False),
+                      description="""
+                      Comma separated ID of all nodes the deployment should be part of. These nodes can be
+                      retrieved by calling get-all-available-simulator-details command and that command will
+                      show the results of the all available simulators and the ids of those nodes can be used as
+                      comma separated values in this field for those nodes to act as a group.
+                      """),
+        InputArgument(name="updated_deployment_name", required=False, is_array=False,
+                      description="""
+                      This fields value will be the name which the deployment name will be updated to. 
+                      """),
         InputArgument(name="updated_deployment_description", required=False, is_array=False,
-                      description="name of the deployment to update to."),
+                      description="description of the deployment to which value this should be updated to."),
     ],
     outputs_prefix="updated_deployment_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of deployment to update.",
-                       prefix="updated_deployment_data", output_type=int),
-        OutputArgument(name="accountId", description="The account of deployment to update.", prefix="updated_deployment_data",
-                       output_type=str),
-        OutputArgument(name="name", description="The name of deployment to update.", prefix="updated_deployment_data",
-                       output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of deployment to update.",
-                       prefix="updated_deployment_data", output_type=str),
-        OutputArgument(name="description", description="The description of deployment to update.",
-                       prefix="updated_deployment_data", output_type=str),
-        OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="updated_deployment_data",
-                       output_type=str),
+        OutputArgument(name="id", prefix="updated_deployment_data", output_type=int,
+                       description="""
+                       The ID of deployment whose values have been updated. ID cant be changed so this wont be updated.
+                       """),
+        OutputArgument(name="accountId", prefix="updated_deployment_data", output_type=str,
+                       description="The accountId of user who created the deployment."),
+        OutputArgument(name="name", prefix="updated_deployment_data", output_type=str,
+                       description="""
+                        The name of deployment which has been updated to the name given in updated_deployment_name field.
+                        this will be the name shown in deployment name field of table in deployments page in safebreach UI
+                        """),
+        OutputArgument(name="createdAt", prefix="updated_deployment_data", output_type=str,
+                       description="The creation date and time of deployment whose data has been updated."),
+        OutputArgument(name="updatedAt", prefix="updated_deployment_data", output_type=str,
+                       description="""The last updated date and time of deployment whose data has been updated. 
+                       This will generally be closer to the update deployment command run time for reference"""),
+        OutputArgument(name="description", prefix="updated_deployment_data", output_type=str,
+                       description="""
+                       The updated description of deployment which is provided in updated_deployment_description 
+                       field of input . This will now be the description which is shown in description field of deployments 
+                       table of safebreach UI"""),
+        OutputArgument(name="nodes", prefix="updated_deployment_data", output_type=str,
+                       description="""
+                        The nodes that are part of deployment. unless any nodes are given as input this field wont be updated
+                        this field doesn't reflect changes if nodes given as input are deleted
+                        """),
     ],
-    description="This command updates a deployment with given data.")
+    description="""
+    This command updates a deployment with given data. The deployment_id field of this command can  be retrieved from 
+    get-all-deployments command. If the user wants to search with deployment ID then they can search it that way or 
+    if user just wants to search with name then they can just give name field and the command internally searches the deployment 
+    with given name and updates it.
+    """)
 def update_deployment(client: Client):
     """This function is executed on command "safebreach-update-deployment"
 
@@ -1888,26 +2103,36 @@ def update_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-deployment",
     inputs_list=[
-        InputArgument(name="deployment_id", description="ID of the deployment to delete.", required=False, is_array=False),
-        InputArgument(name="deployment_name", description="Name of the deployment to delete.",
-                      required=True, is_array=False),
+        InputArgument(name="deployment_id", required=False, is_array=False, description="""
+                      ID of the deployment to delete. this can be searched with list-deployments command or
+                      from UI. this will be taken as id of deployment which we want to delete.
+                      """),
+        InputArgument(name="deployment_name", required=True, is_array=False, description="""
+                      Name of the deployment to search whose data will be deleted. 
+                      This field will be used to search the existing deployment names and find a deployment 
+                      whose name matches this and that will be used as deployment whose data we are updating. 
+                      """),
     ],
     outputs_prefix="deleted_deployment_data",
     outputs_list=[
-        OutputArgument(name="id", description="The ID of deployment to be deleted.", prefix="deleted_deployment_data",
-                       output_type=int),
-        OutputArgument(name="accountId", description="The account of deployment to be deleted.", prefix="deleted_deployment_data",
-                       output_type=str),
-        OutputArgument(name="name", description="The name of deployment to be deleted.", prefix="deleted_deployment_data",
-                       output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of deployment to be deleted.",
-                       prefix="deleted_deployment_data", output_type=str),
-        OutputArgument(name="description", description="The description of deployment to be deleted.",
-                       prefix="deleted_deployment_data", output_type=str),
-        OutputArgument(name="nodes", description="The nodes that are part of deployment.", prefix="deleted_deployment_data",
-                       output_type=str),
+        OutputArgument(name="id", prefix="deleted_deployment_data", output_type=int,
+                       description="The ID of deployment which has been deleted.",),
+        OutputArgument(name="accountId", prefix="deleted_deployment_data", output_type=str,
+                       description="The account Id of user who deleted the deployment."),
+        OutputArgument(name="name", prefix="deleted_deployment_data", output_type=str,
+                       description="The name of deployment before the deployment was deleted.",),
+        OutputArgument(name="createdAt", prefix="deleted_deployment_data", output_type=str,
+                       description="The creation date and time of deployment which has been deleted."),
+        OutputArgument(name="description", prefix="deleted_deployment_data", output_type=str,
+                       description="The description of deployment before it was deleted."),
+        OutputArgument(name="nodes", prefix="deleted_deployment_data", output_type=str,
+                       description="The nodes that are part of deployment before it was deleted."),
     ],
-    description="This command deletes a deployment with given data.")
+    description="""
+    This command deletes a deployment with given data.The deployment_id field of this command can  be retrieved from 
+    get-all-deployments command. If the user wants to search with deployment ID then they can search it that way or 
+    if user just wants to search with name then they can just give name field and the command internally searches the deployment 
+    with given name and deletes it.""")
 def delete_deployment(client: Client):
     """This function is executed on command "safebreach-delete-deployment"
 
@@ -1936,26 +2161,41 @@ def delete_deployment(client: Client):
 @metadata_collector.command(
     command_name="safebreach-generate-api-key",
     inputs_list=[
-        InputArgument(name="name", description="Name of the API Key to create.", required=True, is_array=False),
-        InputArgument(name="description", description="Description of the API Key to create.", required=False, is_array=False),
+        InputArgument(name="name", required=True, is_array=False,
+                      description="""
+                      Name of the API Key to create. This will be the name shown in UI for API key under API keys section
+                      """,),
+        InputArgument(name="description", required=False, is_array=False, description="""
+                      Description of the API Key to create. This is not a required field but it is recommended to store a 
+                      description for easier identification if your use case requires using multiple API keys for multiple tasks.
+                      """),
     ],
     outputs_prefix="generated_api_key",
     outputs_list=[
-        OutputArgument(name="name", description="The Name of API Key created.", prefix="generated_api_key", output_type=int),
-        OutputArgument(name="description", description="The Description of API Key created.", prefix="generated_api_key",
-                       output_type=str),
-        OutputArgument(name="createdBy", description="The user_id of API key creator.", prefix="generated_api_key",
-                       output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of API key.", prefix="generated_api_key",
-                       output_type=str),
-        OutputArgument(name="key", description="The API key Value.", prefix="generated_api_key",
-                       output_type=str),
-        OutputArgument(name="roles", description="The roles allowed for this api key.", prefix="generated_api_key",
-                       output_type=str),
+        OutputArgument(name="name", prefix="generated_api_key", output_type=int, description="""
+                       The Name of API Key generated through this command, This will match the input name of the command.
+                       """,),
+        OutputArgument(name="description", prefix="generated_api_key", output_type=str, description="""
+                       The Description of API Key created. this will be same as input description given for the command.
+                       """),
+        OutputArgument(name="createdBy", prefix="generated_api_key", output_type=str,
+                       description="The id of user who generated this API key."),
+        OutputArgument(name="createdAt", prefix="generated_api_key", output_type=str, description="""
+                       The creation date and time of API key."""),
+        OutputArgument(name="key", prefix="generated_api_key", output_type=str,
+                       description="The value of API key generated. store this for further use as this will only be shown once"),
+        OutputArgument(name="roles", prefix="generated_api_key", output_type=str,
+                       description="""
+                       The roles allowed for this api key. This will generally be the roles assigned to user who created the key.
+                       """),
         OutputArgument(name="role", description="The role of API Key.", prefix="generated_api_key",
                        output_type=str),
     ],
-    description="This command creates a API Key with given data.")
+    description="""
+    This command creates a API Key with given data. The API key created will be shown in API keys section 
+    of safebreach UI with name and description as given in input fields "name" and "description". Name is a required value
+    but description isn't, The API key generated can be seen only once, so it is recommended to store/save it for further use.
+    """)
 def create_api_key(client: Client):
     """This function generates API key and returns API key, Executed for command 'safebreach-generate-api-key'
 
@@ -1985,21 +2225,30 @@ def create_api_key(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-api-key",
     inputs_list=[
-        InputArgument(name="key_name", description="Name of the API Key to Delete.", required=True, is_array=False),
+        InputArgument(name="key_name", required=True, is_array=False, description="""
+                      Name of the API Key to Delete. This will be used for searching key with given name
+                      and then once it matches, that API key will be deleted
+                      """),
     ],
     outputs_prefix="deleted_api_key",
     outputs_list=[
         OutputArgument(name="name", description="The Name of API Key deleted.", prefix="deleted_api_key", output_type=int),
-        OutputArgument(name="description", description="The Description of API Key deleted.", prefix="deleted_api_key",
+        OutputArgument(name="description", description="Description of API Key deleted.", prefix="deleted_api_key",
                        output_type=str),
-        OutputArgument(name="createdBy", description="The user_id of API key creator.", prefix="deleted_api_key",
+        OutputArgument(name="createdBy", description="The id of user who generated this API key.", prefix="deleted_api_key",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time of API key.", prefix="deleted_api_key",
+        OutputArgument(name="createdAt", description="The creation time and date of API key.", prefix="deleted_api_key",
                        output_type=str),
-        OutputArgument(name="deletedAt", description="The deletion time of API key.", prefix="deleted_api_key",
-                       output_type=str),
+        OutputArgument(name="deletedAt", prefix="deleted_api_key", output_type=str, description="""
+                       The deletion time and date of API key. The deletion date and time are generally close to the command
+                       execution time and date.
+                       """),
     ],
-    description="This command deletes a API key with given name.")
+    description="""
+    This command deletes a API key with given name. When given an input key name, it will internally retrieve all
+    active keys and then delete the one with name matching the name entered, the match is not case sensitive match
+    but its exact word match so please enter key name exactly as shown in UI to delete it.
+    """)
 def delete_api_key(client: Client):
     """This function deletes API key and returns API key, Executed for command 'safebreach-delete-api-key'
 
@@ -2027,22 +2276,38 @@ def delete_api_key(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-get-integration-errors",
+    command_name="safebreach-get-integration-issues",
     inputs_list=None,
     outputs_prefix="integration_errors",
     outputs_list=[
-        OutputArgument(name="connector", description="The connector ID of Integration connector retrieved.",
-                       prefix="integration_errors", output_type=int),
-        OutputArgument(name="action", description="The action of Integration connector error.",
-                       prefix="integration_errors", output_type=str),
-        OutputArgument(name="success", description="status of connector error.",
-                       prefix="integration_errors", output_type=str),
-        OutputArgument(name="error", description="Error description.",
-                       prefix="integration_errors", output_type=str),
-        OutputArgument(name="timestamp", description="Time of error.",
-                       prefix="integration_errors", output_type=str),
+        OutputArgument(name="connector", prefix="integration_errors", output_type=int,
+                       description="""
+                       The connector ID of Integration connector. A general notation that has been followed here is
+                       as follows, if the  id has _default at the end then its a default connector else its a custom connector
+                       """,),
+        OutputArgument(name="action", prefix="integration_errors", output_type=str, description="""
+                       The action of Integration connector error. This describes where exactly did the error occur, if its search,
+                       then it implies error/warning happened when connector was trying that process
+                       """,),
+        OutputArgument(name="success", prefix="integration_errors", output_type=str, description="""
+                       status of connector error. This implies whether the connector was able to 
+                       successfully perform the operation or if it failed partway. 
+                       So false implies it failed partway and true implies it was successfully completed
+                       """),
+        OutputArgument(name="error", prefix="integration_errors", output_type=str, description="""
+                        This is the exact error description shown on safebreach connector error/warning page.
+                        This description can be used for understanding of what exactly happened for the connector to fail.
+                        """),
+        OutputArgument(name="timestamp", prefix="integration_errors", output_type=str,
+                       description="""
+                       Time at which error/warning occurred. This can be used to pinpoint error which occurred 
+                       across connectors if time of origin was remembered
+                       """,),
     ],
-    description="This command gives all connector related errors.")
+    description="""
+    This command gives all connector related issues and warning. this will show the connector error and warnings which are 
+    generally displayed in installed integrations page.
+    """)
 def get_all_integration_error_logs(client: Client):
     """This function retrieves all error logs and shows them in form of table
 
@@ -2075,8 +2340,13 @@ def get_all_integration_error_logs(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-integration-errors",
     inputs_list=[
-        InputArgument(name="connector_id", description="The connector ID of Integration connector to have its errors deleted.",
-                      required=True, is_array=False),
+        InputArgument(name="connector_id", required=True, is_array=False,
+                      description="""
+                      The connector ID of Integration connector to have its errors/warnings deleted.
+                      this is used to search for integration connector which will have its logs cleared, there is no way to
+                      clear just errors or just warnings here and this connector with this will be having all errors and warnings
+                      cleared.
+                      """,),
     ],
     outputs_prefix="errors_cleared",
     outputs_list=[
@@ -2085,7 +2355,11 @@ def get_all_integration_error_logs(client: Client):
         OutputArgument(name="result", description="error deletion status whether true or false.",
                        prefix="integration_errors", output_type=str),
     ],
-    description="This command deleted connector related errors.")
+    description="""
+    This command deletes connector related errors and warnings. This command needs connector id as input which will be
+    used to delete the errors/warnings for the given connector id. the connector ids can be retrieved by using command
+    get-all-integration-issues and this command will give connector id which can be used for input. 
+    """)
 def delete_integration_error_logs(client: Client):
     """This function deletes integration errors of a given connector
 
@@ -2120,18 +2394,23 @@ def delete_integration_error_logs(client: Client):
     inputs_list=None,
     outputs_prefix="account_details",
     outputs_list=[
-        OutputArgument(name="id", description="The account ID of account.",
-                       prefix="account_details", output_type=int),
+        OutputArgument(name="id", prefix="account_details", output_type=int,
+                       description="The account ID which is being used by integration."),
         OutputArgument(name="name", description="The Account Name of account being queried.",
                        prefix="account_details", output_type=str),
         OutputArgument(name="contactName", description="Contact name for given account.",
                        prefix="account_details", output_type=str),
         OutputArgument(name="contactEmail", description="Email of the contact person.",
                        prefix="account_details", output_type=str),
-        OutputArgument(name="userQuota", description="User Quota for the given account, max number of users for this account.",
-                       prefix="account_details", output_type=str),
-        OutputArgument(name="nodesQuota", description="The simulator quota for the given account.",
-                       prefix="account_details", output_type=int),
+        OutputArgument(name="userQuota", prefix="account_details", output_type=str,
+                       description="""
+                       User Quota for the given account, the max number of users which are allowed for the account.
+                       """),
+        OutputArgument(name="nodesQuota", prefix="account_details", output_type=int,
+                       description="""
+                       The simulator quota for the given account. the maximum number of simulators 
+                       which are permitted for the account
+                       """),
         OutputArgument(name="registrationDate", description="The registration date of given account.",
                        prefix="account_details", output_type=int),
         OutputArgument(name="activationDate", description="The Activation date of given account.",
@@ -2173,14 +2452,25 @@ def get_simulator_quota_with_table(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-available-simulator-details",
     inputs_list=[
-        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                      default="true", required=True, is_array=False),
-        InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
-                      default="true", required=True, is_array=False),
+        InputArgument(name="details", options=["true", "false"], default="true", required=True, is_array=False,
+                      description="""
+                      If simulator details are to be retrieved while searching. this should be selected to true if the command is
+                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be 
+                      retrieved thus making search with name impossible.
+                      """),
+        InputArgument(name="deleted", options=["true", "false"], default="true", required=True, is_array=False,
+                      description="""
+                      if deleted simulators/nodes are to be included for search.
+                      """),
     ] + simulator_details_inputs,
     outputs_prefix="simulator_details",
     outputs_list=simulators_output_fields,
-    description="We are using this command to get all available simulators.")
+    description="""
+    This command to get all available simulators. if details is set to true then it retrieves simulator details like name, 
+    hostname, internal and external ips, types of targets and attacker configurations this simulator is associated with etc.
+    if its set to false then it retrieves just name, id, simulation users, proxies etc. if deleted is set to true then it
+    retrieves the data which has been deleted
+    """)
 def get_all_simulator_details(client: Client):
     """This function returns simulator details of all simulators
 
@@ -2196,10 +2486,16 @@ def get_all_simulator_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-get-simulator-with-name",
     inputs_list=[
-        InputArgument(name="simulator_or_node_name", description="Name of simulator/node to search with.",
-                      required=True, is_array=False),
-        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                      default="true", required=True, is_array=False),
+        InputArgument(name="simulator_or_node_name", required=True, is_array=False, description="""
+                      Name of simulator/node to search with. this is name which will be used to search the list of simulators 
+                      which will be retrieved and of which whose name matches this input value.
+                      """),
+        InputArgument(name="details", options=["true", "false"], default="true", required=True, is_array=False,
+                      description="""
+                      If simulator details are to be retrieved while searching. this should be selected to true if the command is
+                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be 
+                      retrieved thus making search with name impossible.
+                      """),
         InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
                       default="true", required=True, is_array=False),
     ],
@@ -2221,18 +2517,28 @@ def get_simulator_with_name(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-simulator-with-name",
     inputs_list=[
-        InputArgument(name="simulator_or_node_name", description="Name of simulator/node to search with.",
-                      required=True, is_array=False),
-        InputArgument(name="Should Force Delete", description="Should we force delete the simulator.",
-                      default="false", options=["true", "false"], required=True, is_array=False),
-        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                      default="true", required=False, is_array=False),
+        InputArgument(name="simulator_or_node_name", required=True, is_array=False, description="""
+                      Name of simulator/node to search with. this is name which will be used to search the list of simulators 
+                      which will be retrieved and of which whose name matches this input value.
+                      """),
+        InputArgument(name="Should Force Delete", default="false", options=["true", "false"], required=True, is_array=False,
+                      description="""
+                       setting this to false will evaluate the whether the simulator is connected or not and if its running a 
+                       simulation then the simulator wont be deleted. but if it is set to true then this will delete the 
+                       simulator irrespective of connection status
+                       """),
+        InputArgument(name="details", options=["true", "false"], default="true", required=True, is_array=False,
+                      description="""
+                      If simulator details are to be retrieved while searching. this should be selected to true if the command is
+                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be 
+                      retrieved thus making search with name impossible.
+                      """),
         InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
-                      default="true", required=False, is_array=False),
+                      default="true", required=True, is_array=False),
     ],
     outputs_prefix="deleted_simulator_details",
     outputs_list=simulators_output_fields,
-    description="This command deletes simulator with given name.")
+    description="This command deletes simulator with given name in simulator_or_node_name field.")
 def delete_simulator_with_given_name(client: Client):
     """This function deletes simulator with given name
 
@@ -2263,16 +2569,22 @@ def delete_simulator_with_given_name(client: Client):
 @metadata_collector.command(
     command_name="safebreach-update-simulator-with-given-name",
     inputs_list=[
-        InputArgument(name="simulator_or_node_name", description="Name of simulator/node to search with.",
-                      required=True, is_array=False),
-        InputArgument(name="details", description="if details are to be included for search.", options=["true", "false"],
-                      default="true", required=False, is_array=False),
+        InputArgument(name="simulator_or_node_name", required=True, is_array=False, description="""
+                      Name of simulator/node to search with. this is name which will be used to search the list of simulators 
+                      which will be retrieved and of which whose name matches this input value.
+                      """),
+        InputArgument(name="details", options=["true", "false"], default="true", required=True, is_array=False,
+                      description="""
+                      If simulator details are to be retrieved while searching. this should be selected to true if the command is
+                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be 
+                      retrieved thus making search with name impossible.
+                      """),
         InputArgument(name="deleted", description="if deleted are to be included for search.", options=["true", "false"],
-                      default="true", required=False, is_array=False),
+                      default="true", required=True, is_array=False),
     ] + simulator_details_for_update_fields,
     outputs_prefix="updated_simulator_details",
     outputs_list=simulators_output_fields,
-    description="This command updates simulator with given name with given details.")
+    description="This command updates simulator with given name with given details in simulator_or_node_name.")
 def update_simulator_with_given_name(client: Client):
     """This function updates simulator with given data having name as given input
 
@@ -3246,7 +3558,7 @@ def main() -> None:
             result = delete_api_key(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-get-integration-errors":
+        elif demisto.command() == "safebreach-get-integration-issues":
             result = get_all_integration_error_logs(client=client)
             return_results(result)
 
