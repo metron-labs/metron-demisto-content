@@ -4,13 +4,13 @@
             "test_id": 123456,
             "soft_delete":"true"
         },
-        "command":"safebreach-delete-test-summary-of-given-test"
+        "command":"safebreach-delete-test-with-id"
     },
     "fail":{
         "args":{
             "test_id": null,
             "soft_delete":"true"
         },
-        "command":"safebreach-delete-test-summary-of-given-test"
+        "command":"safebreach-delete-test-with-id"
     }
 }

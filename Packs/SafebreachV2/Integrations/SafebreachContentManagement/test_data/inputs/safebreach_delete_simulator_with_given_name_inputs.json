@@ -6,6 +6,6 @@
             "node_name":"DesktopXWindowsCrowd",
             "should_force_delete":"false"
         },
-        "command":"safebreach-delete-simulator-with-name"
+        "command":"safebreach-delete-simulator"
     }
 }

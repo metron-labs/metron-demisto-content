@@ -11,6 +11,6 @@
             "preferredInterface":"localhost",
             "preferredIp":"localhost"
         },
-        "command":"safebreach-delete-simulator-with-name"
+        "command":"safebreach-delete-simulator"
     }
 }

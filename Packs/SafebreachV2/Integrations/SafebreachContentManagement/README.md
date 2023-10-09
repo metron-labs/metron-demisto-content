@@ -4,7 +4,7 @@
     1. User get, create, update and delete. 
     2. Deployment create, update and delete.
     3. Tests get and delete.
-    4. Nodes get, update, delete.
+    4. Simulators get, update, delete.
     5. Get current tests/simulation status and/or queue them.
     
 This integration was integrated and tested with version 0.0.1 of Safebreach Content Management.
@@ -30,30 +30,28 @@ This integration was integrated and tested with version 0.0.1 of Safebreach Cont
 You can execute these commands from the Cortex XSOAR CLI, as part of an automation, or in a playbook.
 After you successfully execute a command, a DBot message appears in the War Room with the command details.
 
-### safebreach-approve-simulator-with-given-name
+### safebreach-approve-simulator
 
 ***
 
-    This command approves simulator with given name with given details in simulator_or_node_name.
+    This command approves simulator with given name with given id.
     
 
 #### Base Command
 
-`safebreach-approve-simulator-with-given-name`
+`safebreach-approve-simulator`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| simulator_or_node_name | <br/>                      Name of simulator/node to search with. this is name which will be used to search the list of simulators <br/>                      which will be retrieved and of which whose name matches this input value.<br/>                      . | Required | 
-| details | <br/>                      If simulator details are to be retrieved while searching. this should be selected to true if the command is<br/>                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be <br/>                      retrieved thus making search with name impossible.<br/>                      . Possible values are: true, false. Default is true. | Required | 
-| deleted | <br/>                      If deleted are to be included for search. Incase the simulator we are searching for is deleted one then<br/>                      set this to true and then search. else keep it as default and set to false.<br/>                      . Possible values are: true, false. Default is true. | Required | 
+| simulator_id | <br/>                      ID of simulator to approve, incase unsure then please call safebreach-get-all-simulators<br/>                      and search for simulator name.<br/>                      . | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| approved_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
+| approved_simulator_details.is_enabled | String | Whether the simulator is enabled or not. | 
 | approved_simulator_details.simulator_id | String | The Id of given simulator. | 
 | approved_simulator_details.name | String | name for given simulator. | 
 | approved_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
@@ -62,7 +60,7 @@ After you successfully execute a command, a DBot message appears in the War Room
 | approved_simulator_details.is_infiltration | String | If simulator is infiltration target. | 
 | approved_simulator_details.is_mail_target | String | If simulator is mail target. | 
 | approved_simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
-| approved_simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
+| approved_simulator_details.is_pre_executor | String | Whether the simulator is pre executor. | 
 | approved_simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
 | approved_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
 | approved_simulator_details.external_ip | String | external ip of given simulator. | 
@@ -73,11 +71,11 @@ After you successfully execute a command, a DBot message appears in the War Room
 | approved_simulator_details.hostname | String | Hostname of given simulator. | 
 | approved_simulator_details.connection_type | String | connection_type of given simulator. | 
 | approved_simulator_details.simulator_status | String | status of the simulator. | 
-| approved_simulator_details.connection_status | String | connection status of node/simulator. | 
+| approved_simulator_details.connection_status | String | connection status of simulator. | 
 | approved_simulator_details.simulator_framework_version | String | Framework version of simulator. | 
 | approved_simulator_details.operating_system_type | String | operating system type of given simulator. | 
 | approved_simulator_details.operating_system | String | Operating system of given simulator. | 
-| approved_simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| approved_simulator_details.execution_hostname | String | Execution Hostname of the given simulator. | 
 | approved_simulator_details.deployments | String | deployments simulator is part of. | 
 | approved_simulator_details.created_at | String | Creation datetime of simulator. | 
 | approved_simulator_details.updated_at | String | Update datetime of given simulator. | 
@@ -104,7 +102,7 @@ After you successfully execute a command, a DBot message appears in the War Room
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| name | Name of the API Key to create. This will be the name shown in UI for API key under API keys section. | Required | 
+| name | <br/>                      Name of the API Key to create. This will be the name shown in UI for API key under API keys section<br/>                      . | Required | 
 | description | <br/>                      Description of the API Key to create. This is not a required field but it is recommended to store a <br/>                      description for easier identification if your use case requires using multiple API keys for multiple tasks.<br/>                      . | Optional | 
 
 #### Context Output
@@ -115,7 +113,7 @@ After you successfully execute a command, a DBot message appears in the War Room
 | generated_api_key.description | String | The Description of API Key created.                            this will be same as input description given for the command. | 
 | generated_api_key.createdBy | String | The id of user who generated this API key. | 
 | generated_api_key.createdAt | String | The creation date and time of API key. | 
-| generated_api_key.key | String | The value of API key generated. store this for further use as this will only be shown once. | 
+| generated_api_key.key | String | The value of API key generated. store this for further use as this will only be shown once | 
 | generated_api_key.roles | String | The roles allowed for this api key.                            This will generally be the roles assigned to user who created the key. | 
 | generated_api_key.role | String | The role of API Key. | 
 
@@ -132,9 +130,9 @@ This command creates a deployment with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| name | Name of the deployment to create. this will be shown as name in deployments page of safebreach. | Required | 
-| description | Description of the deployment to create. <br/>                      This will show as description of the deployment in your safebreach instance.<br/>                      It is generally preferable to give description while creating a deployment for easier identification. | Optional | 
-| nodes | A deployment is a group of simulators which work as a single group. this field needs<br/>                      Comma separated IDs of all simulators that should be part of this deployment.<br/>                      the ID can be retrieved from safebreach-get-all-simulator-details command with<br/>                      details input set to true so that the details can be seen. Care should be taken when giving <br/>                      simulator IDs as comma separated values as if any simulator has been deleted then this deployment <br/>                      wont contain that simulator on creation. | Optional | 
+| name | <br/>                      Name of the deployment to create. this will be shown as name in deployments page of safebreach<br/>                      . | Required | 
+| description | <br/>                      Description of the deployment to create. <br/>                      This will show as description of the deployment in your safebreach instance.<br/>                      It is generally preferable to give description while creating a deployment for easier identification<br/>                      . | Optional | 
+| simulators | <br/>                      A deployment is a group of simulators which work as a single group. this field needs<br/>                      Comma separated IDs of all simulators that should be part of this deployment.<br/>                      the ID can be retrieved from safebreach-get-all-simulator-details command with<br/>                      details input set to true so that the details can be seen. Care should be taken when giving <br/>                      simulator IDs as comma separated values as if any simulator has been deleted then this deployment <br/>                      wont contain that simulator on creation<br/>                      . | Optional | 
 
 #### Context Output
 
@@ -145,7 +143,7 @@ This command creates a deployment with given data.
 | created_deployment_data.name | String | The name of deployment created. this will be name which will be shown on deployments page                       of safebreach and name that is given as input to the command. | 
 | created_deployment_data.createdAt | String | The creation date and time of deployment , this will be closer to                       command execution time if the deployment creation is successful. | 
 | created_deployment_data.description | String | The description of the deployment created will be shown in description                            part of the table in safebreach. | 
-| created_deployment_data.nodes | String | The nodes that are part of deployment. In case any nodes are given during                       creation that are deleted before the creation time then the deployment wont contain those nodes. | 
+| created_deployment_data.simulators | String | The simulators that are part of deployment. In case any simulators are given during                       creation that are deleted before the creation time then the deployment wont contain those simulators. | 
 
 ### safebreach-create-user
 
@@ -178,7 +176,7 @@ This command creates a user with given data.
 | created_user_data.name | String | The name of User created. | 
 | created_user_data.email | String | The email of User created. | 
 | created_user_data.createdAt | String | The creation time of User. | 
-| created_user_data.deletedAt | String | The Deletion time of User . This will be empty unless the user is deleted. | 
+| created_user_data.deletedAt | String | The Deletion time of User . This will be empty unless the user is deleted | 
 | created_user_data.roles | String | The roles and permissions of User created. | 
 | created_user_data.description | String | The description of User if any is given at creation time, it will be populated here. | 
 | created_user_data.role | String | The role assigned to user during creation. | 
@@ -201,7 +199,7 @@ This command creates a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| key_name | Name of the API Key to Delete. This will be used for searching key with given name<br/>                      and then once it matches, that API key will be deleted. | Required | 
+| key_name | <br/>                      Name of the API Key to Delete. This will be used for searching key with given name<br/>                      and then once it matches, that API key will be deleted<br/>                      . | Required | 
 
 #### Context Output
 
@@ -230,8 +228,7 @@ This command creates a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| deployment_id | <br/>                      ID of the deployment to delete. this can be searched with list-deployments command or<br/>                      from UI. this will be taken as id of deployment which we want to delete.<br/>                      . | Optional | 
-| deployment_name | <br/>                      Name of the deployment to search whose data will be deleted. <br/>                      This field will be used to search the existing deployment names and find a deployment <br/>                      whose name matches this and that will be used as deployment whose data we are updating. <br/>                      . | Required | 
+| deployment_id | <br/>                      ID of the deployment to delete. this can be searched with list-deployments command or<br/>                      from UI. this will be taken as id of deployment which we want to delete.<br/>                      . | Required | 
 
 #### Context Output
 
@@ -242,9 +239,9 @@ This command creates a user with given data.
 | deleted_deployment_data.name | String | The name of deployment before the deployment was deleted. | 
 | deleted_deployment_data.createdAt | String | The creation date and time of deployment which has been deleted. | 
 | deleted_deployment_data.description | String | The description of deployment before it was deleted. | 
-| deleted_deployment_data.nodes | String | The nodes that are part of deployment before it was deleted. | 
+| deleted_deployment_data.simulators | String | The simulators that are part of deployment before it was deleted. | 
 
-### safebreach-delete-integration-errors
+### safebreach-delete-integration-issues
 
 ***
 
@@ -255,13 +252,13 @@ This command creates a user with given data.
 
 #### Base Command
 
-`safebreach-delete-integration-errors`
+`safebreach-delete-integration-issues`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| connector_id | <br/>                      The connector ID of Integration connector to have its errors/warnings deleted.<br/>                      this is used to search for integration connector which will have its logs cleared, there is no way to<br/>                      clear just errors or just warnings here and this connector with this will be having all errors and warnings<br/>                      cleared.<br/>                      . | Required | 
+| integration_id | <br/>                      The connector ID of Integration to have its errors/warnings deleted. this is used to search for integration <br/>                      connector which will have its logs cleared, there is no way to clear just errors or just warnings here and <br/>                      this connector with this will be having all errors and warnings cleared.<br/>                      . | Required | 
 
 #### Context Output
 
@@ -291,40 +288,35 @@ This command gets simulations which are in running or queued state.
 | --- | --- | --- |
 | deleted_Schedule.id | String | the Id of the schedule. | 
 | deleted_Schedule.isEnabled | Boolean | if schedule is enabled. | 
-| deleted_Schedule.name | String | the name of the schedule. | 
-| deleted_Schedule.cronString | String | the cron expression the schedule. | 
+| deleted_Schedule.user_schedule | String | the user readable form of the schedule. | 
 | deleted_Schedule.runDate | String | the run date of the schedule. | 
 | deleted_Schedule.cronTimezone | String | the time zone of the schedule. | 
-| deleted_Schedule.taskId | String | the plan ID of the schedule. | 
 | deleted_Schedule.description | String | the description of the schedule. | 
-| deleted_Schedule.matrixId | String | the matrix ID of the schedule. | 
+| deleted_Schedule.plan_id | String | the plan ID of the schedule. | 
 | deleted_Schedule.createdAt | String | the creation datetime of the schedule. | 
 | deleted_Schedule.updatedAt | String | the updated datetime of the schedule. | 
 | deleted_Schedule.deletedAt | String | the deletion time of the schedule. | 
 
-### safebreach-delete-simulator-with-name
+### safebreach-delete-simulator
 
 ***
-This command deletes simulator with given name in simulator_or_node_name field.
+This command deletes simulator with given ID.to get simulator_id use safebreach-get-all-simulators command
 
 #### Base Command
 
-`safebreach-delete-simulator-with-name`
+`safebreach-delete-simulator`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| simulator_or_node_name | <br/>                      Name of simulator/node to search with. this is name which will be used to search the list of simulators <br/>                      which will be retrieved and of which whose name matches this input value.<br/>                      . | Required | 
-| should_force_delete | setting this to false will evaluate the whether the simulator is connected or not and if its running a <br/>                       simulation then the simulator wont be deleted. but if it is set to true then this will delete the <br/>                       simulator irrespective of connection status. Possible values are: true, false. Default is false. | Required | 
-| details | <br/>                      If simulator details are to be retrieved while searching. this should be selected to true if the command is<br/>                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be <br/>                      retrieved thus making search with name impossible.<br/>                      . Possible values are: true, false. Default is true. | Required | 
-| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
+| simulator_id | Id of the simulator we want to delete. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| deleted_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
+| deleted_simulator_details.is_enabled | String | Whether the simulator is enabled or not. | 
 | deleted_simulator_details.simulator_id | String | The Id of given simulator. | 
 | deleted_simulator_details.name | String | name for given simulator. | 
 | deleted_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
@@ -333,7 +325,7 @@ This command deletes simulator with given name in simulator_or_node_name field.
 | deleted_simulator_details.is_infiltration | String | If simulator is infiltration target. | 
 | deleted_simulator_details.is_mail_target | String | If simulator is mail target. | 
 | deleted_simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
-| deleted_simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
+| deleted_simulator_details.is_pre_executor | String | Whether the simulator is pre executor. | 
 | deleted_simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
 | deleted_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
 | deleted_simulator_details.external_ip | String | external ip of given simulator. | 
@@ -344,11 +336,11 @@ This command deletes simulator with given name in simulator_or_node_name field.
 | deleted_simulator_details.hostname | String | Hostname of given simulator. | 
 | deleted_simulator_details.connection_type | String | connection_type of given simulator. | 
 | deleted_simulator_details.simulator_status | String | status of the simulator. | 
-| deleted_simulator_details.connection_status | String | connection status of node/simulator. | 
+| deleted_simulator_details.connection_status | String | connection status of simulator. | 
 | deleted_simulator_details.simulator_framework_version | String | Framework version of simulator. | 
 | deleted_simulator_details.operating_system_type | String | operating system type of given simulator. | 
 | deleted_simulator_details.operating_system | String | Operating system of given simulator. | 
-| deleted_simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| deleted_simulator_details.execution_hostname | String | Execution Hostname of the given simulator. | 
 | deleted_simulator_details.deployments | String | deployments simulator is part of. | 
 | deleted_simulator_details.created_at | String | Creation datetime of simulator. | 
 | deleted_simulator_details.updated_at | String | Update datetime of given simulator. | 
@@ -358,21 +350,20 @@ This command deletes simulator with given name in simulator_or_node_name field.
 | deleted_simulator_details.proxies | String | Proxies of simulator. | 
 | deleted_simulator_details.advanced_actions | String | Advanced simulator details. | 
 
-### safebreach-delete-test-summary-of-given-test
+### safebreach-delete-test-with-id
 
 ***
-This command deletes tests with given plan ID.
+This command deletes tests with given test ID.
 
 #### Base Command
 
-`safebreach-delete-test-summary-of-given-test`
+`safebreach-delete-test-with-id`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | test_id | test id of the test summary which we want to search the test with. | Optional | 
-| soft_delete | <br/>                      This field when set to true will delete the test from database directly but when set to false<br/>                      this will just set the status of test to deleted.<br/>                      . Possible values are: true, false. Default is false. | Optional | 
 
 #### Context Output
 
@@ -412,10 +403,8 @@ This command deletes a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| user_id | user ID of user from safebreach to search. this can be retrieved in 2 ways,<br/>                      1. run get-all-users command and then look for user id of user with matching criteria<br/>                      but to see details its required that details parameter to be set to true,<br/>                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email<br/>                      command and then search for user with required details in displayed results for ID.<br/>                      This field is not  required, meaning even if just email is given , we will internally search user<br/>                      id with the matching email and use the user for further process. | Optional | 
-| email | Email of the user to Search for updating user details. This is a required field.<br/>                      The user with matching email will be considered as user whose data will be updated. | Required | 
-| should_include_details | <br/>                      This field when selected true will retrieve the details of users like name, email, role, whether the user <br/>                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to<br/>                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining <br/>                      commands like delete or update user, please set details to true.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
-| should_include_deleted | <br/>                      If deleted users are to be included while querying all users. by default this is set to true because<br/>                      there might be cases where its preferable to see deleted users too. this can be set to false to see <br/>                      only users who dont have their credentials deleted.<br/>                      . Possible values are: true, false. Default is true. | Required | 
+| user_id | <br/>                      user ID of user from safebreach to search. this can be retrieved in 2 ways,<br/>                      1. run get-all-users command and then look for user id of user with matching criteria<br/>                      but to see details its required that details parameter to be set to true,<br/>                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email<br/>                      command and then search for user with required details in displayed results for ID.<br/>                      This field is not  required, meaning even if just email is given , we will internally search user<br/>                      id with the matching email and use the user for further process<br/>                      . | Optional | 
+| email | <br/>                      Email of the user to Search for updating user details. This is a required field.<br/>                      The user with matching email will be considered as user whose data will be updated<br/>                      . | Required | 
 
 #### Context Output
 
@@ -424,8 +413,8 @@ This command deletes a user with given data.
 | deleted_user_data.id | Number | The ID of User whose data has been deleted. | 
 | deleted_user_data.name | String | The name of User deleted. | 
 | deleted_user_data.email | String | The email of User deleted. | 
-| deleted_user_data.createdAt | String | the time at which the user who has been selected has been created. | 
-| deleted_user_data.updatedAt | String | The last updated time of User selected for delete.                       this will be less than time choses to delete. | 
+| deleted_user_data.createdAt | String | the time at which the user who has been selected has been created | 
+| deleted_user_data.updatedAt | String | The last updated time of User selected for delete.                       this will be less than time choses to delete | 
 | deleted_user_data.deletedAt | String | The Deletion time of User selected to delete.                       this will be the execution time for the command or close to it. | 
 | deleted_user_data.roles | String | The roles of User before they were deleted. | 
 | deleted_user_data.description | String | The description of User who has been deleted. | 
@@ -453,20 +442,20 @@ This command deletes a user with given data.
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| integration_errors.connector | Number | The connector ID of Integration connector. A general notation that has been followed here is                       as follows, if the  id has _default at the end then its a default connector else its a custom connector. | 
-| integration_errors.action | String | The action of Integration connector error. This describes where exactly did the error occur,        		 if its search,then it implies error/warning happened when connector was trying that process. | 
-| integration_errors.success | String | status of connector error. This implies whether the connector was able to                        successfully perform the operation or if it failed partway.                        So false implies it failed partway and true implies it was successfully completed. | 
-| integration_errors.error | String | This is the exact error description shown on safebreach connector error/warning page.                        This description can be used for understanding of what exactly happened for the connector to fail. | 
-| integration_errors.timestamp | String | Time at which error/warning occurred. This can be used to pinpoint error which occurred                       across connectors if time of origin was remembered. | 
+| integration_errors.integration_id | Number | The connector ID of Integration connector. A general notation that has been followed here is                       as follows, if the  id has _default at the end then its a default connector else its a custom connector | 
+| integration_errors.action | String | The action of Integration connector error. This describes where exactly did the error occur,                        if its search,then it implies error/warning happened when connector was trying that process | 
+| integration_errors.success_state | String | status of connector error. This implies whether the connector was able to                        successfully perform the operation or if it failed partway.                        So false implies it failed partway and true implies it was successfully completed | 
+| integration_errors.error_description | String | This is the exact error description shown on safebreach connector error/warning page.                        This description can be used for understanding of what exactly happened for the connector to fail. | 
+| integration_errors.timestamp | String | Time at which error/warning occurred. This can be used to pinpoint error which occurred                       across connectors if time of origin was remembered | 
 
-### safebreach-get-active-running-simulations
+### safebreach-get-queued-running-simulations
 
 ***
 This command gets simulations which are in running or queued state.
 
 #### Base Command
 
-`safebreach-get-active-running-simulations`
+`safebreach-get-queued-running-simulations`
 
 #### Input
 
@@ -486,19 +475,19 @@ This command gets simulations which are in running or queued state.
 | active_simulations.taskId | String | the task ID of the simulation. | 
 | active_simulations.moveId | String | the move ID of the simulation. | 
 | active_simulations.moveRevision | String | the move revision of the simulation. | 
-| active_simulations.node_ids_involved | String | the nodes involved in the simulation. | 
-| active_simulations.node_names_involved | String | the names of nodes the simulation. | 
+| active_simulations.simulator_ids_involved | String | the simulators involved in the simulation. | 
+| active_simulations.simulator_names_involved | String | the names of simulators the simulation. | 
 | active_simulations.timeout | String | the timeout of the simulation if its failing etc. | 
 | active_simulations.packageId | String | the package ID of the simulation. | 
 
-### safebreach-get-active-running-tests
+### safebreach-get-queued-running-tests
 
 ***
 This command gets tests which are in running or queued state.
 
 #### Base Command
 
-`safebreach-get-active-running-tests`
+`safebreach-get-queued-running-tests`
 
 #### Input
 
@@ -513,11 +502,11 @@ This command gets tests which are in running or queued state.
 | active_tests.name | String | Name of the test being run. | 
 | active_tests.description | String | Details related to the test being run. | 
 | active_tests.successCriteria | String | Plan Run ID of the simulation. | 
-| active_tests.originalScenarioId | String | Original scenario ID of the running test. | 
-| active_tests.actions count | String | number of actions. | 
+| active_tests.originalScenarioId | String | Original scenario ID of the running test | 
+| active_tests.actions count | String | number of actions | 
 | active_tests.edges count | String | number of edges. | 
 | active_tests.createdAt | String | details related to when test is created. | 
-| active_tests.updatedAt | String | details related to when test is last updated/changed. | 
+| active_tests.updatedAt | String | details related to when test is last updated/changed | 
 | active_tests.steps count | String | number of steps in simulator. | 
 | active_tests.planId | String | planId of the test. | 
 | active_tests.originalPlan ID | String | original plan ID for reference. | 
@@ -526,28 +515,30 @@ This command gets tests which are in running or queued state.
 | active_tests.enableFeedbackLoop | String | Should feedback loop be enabled. | 
 | active_tests.testID | String | plan run id. | 
 | active_tests.priority | String | priority of tests. | 
-| active_tests.retrySimulations | String | Should simulations be retried. | 
-| active_tests.flowControl | String | Flow control of tests. | 
+| active_tests.retrySimulations | String | Should simulations be retried | 
+| active_tests.flowControl | String | Flow control of tests | 
 | active_tests.slot position | String | position in queue. | 
 | active_tests.slot status | Boolean | is the test paused. | 
-| active_tests.pauseDuration | String | is the test paused and if so till when. | 
-| active_tests.totalJobs | String | Total number of jobs for this test. | 
-| active_tests.pausedDate | String | when the test is paused. | 
-| active_tests.expectedSimulationsAmount | String | number of simulations expected. | 
-| active_tests.dispatchedSimulationsAmount | String | the number of simulations dispatched. | 
-| active_tests.blockedSimulationsAmount | String | The number of simulations blocked. | 
-| active_tests.unblockedSimulationsAmount | String | The number of simulations unblocked. | 
-| active_tests.skippedSimulationsAmount | String | The number of simulations skipped. | 
-| active_tests.failedSimulationsAmount | String | The number of simulations failed. | 
-| active_tests.isPrepared | String | Total number of simulations that have been prepared. | 
+| active_tests.pauseDuration | String | is the test paused and if so till when | 
+| active_tests.totalJobs | String | Total number of jobs for this test | 
+| active_tests.pausedDate | String | when the test is paused | 
+| active_tests.expectedSimulationsAmount | String | number of simulations expected | 
+| active_tests.dispatchedSimulationsAmount | String | the number of simulations dispatched | 
+| active_tests.blockedSimulationsAmount | String | The number of simulations blocked | 
+| active_tests.unblockedSimulationsAmount | String | The number of simulations unblocked | 
+| active_tests.skippedSimulationsAmount | String | The number of simulations skipped | 
+| active_tests.failedSimulationsAmount | String | The number of simulations failed | 
+| active_tests.isPrepared | String | Total number of simulations that have been prepared | 
 
 ### safebreach-get-available-simulator-details
 
 ***
-This command to get all available simulators. if details is set to true then it retrieves simulator details like name, 
+
+    This command to get all available simulators. if details is set to true then it retrieves simulator details like name, 
     hostname, internal and external ips, types of targets and attacker configurations this simulator is associated with etc.
     if its set to false then it retrieves just name, id, simulation users, proxies etc. if deleted is set to true then it
-    retrieves the data which has been deleted.
+    retrieves the data which has been deleted
+    
 
 #### Base Command
 
@@ -557,8 +548,6 @@ This command to get all available simulators. if details is set to true then it 
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| details | <br/>                      If simulator details are to be retrieved while searching. this should be selected to true if the command is<br/>                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be <br/>                      retrieved thus making search with name impossible.<br/>                      . Possible values are: true, false. Default is true. | Required | 
-| deleted | <br/>                      if deleted simulators/nodes are to be included for search.<br/>                      . Possible values are: true, false. Default is true. | Required | 
 | secret | if secrets are to be included for search. Possible values are: true, false. | Optional | 
 | should_include_proxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
 | hostname | if hostname to be included for search. | Optional | 
@@ -569,8 +558,8 @@ This command to get all available simulators. if details is set to true then it 
 | sort_direction | direction in which secrets are to be sorted. Possible values are: asc, desc. Default is asc. | Optional | 
 | page_size | number of entries to search. | Optional | 
 | is_enabled | if to search only enabled ones. Possible values are: true, false. | Optional | 
-| is_connected | status of connection of nodes to search. Possible values are: true, false. | Optional | 
-| is_critical | whether to search only for critical nodes or not. Possible values are: true, false. | Optional | 
+| is_connected | status of connection of simulators to search. Possible values are: true, false. | Optional | 
+| is_critical | whether to search only for critical simulators or not. Possible values are: true, false. | Optional | 
 | additional_details | Whether to show additional details or not. Possible values are: true, false. | Optional | 
 | status | if simulator status are to be included for search. Possible values are: APPROVED, PENDING, ALL. Default is ALL. | Optional | 
 
@@ -578,7 +567,7 @@ This command to get all available simulators. if details is set to true then it 
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| simulator_details.is_enabled | String | Whether the node is enabled or not. | 
+| simulator_details.is_enabled | String | Whether the simulator is enabled or not. | 
 | simulator_details.simulator_id | String | The Id of given simulator. | 
 | simulator_details.name | String | name for given simulator. | 
 | simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
@@ -587,7 +576,7 @@ This command to get all available simulators. if details is set to true then it 
 | simulator_details.is_infiltration | String | If simulator is infiltration target. | 
 | simulator_details.is_mail_target | String | If simulator is mail target. | 
 | simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
-| simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
+| simulator_details.is_pre_executor | String | Whether the simulator is pre executor. | 
 | simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
 | simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
 | simulator_details.external_ip | String | external ip of given simulator. | 
@@ -598,11 +587,11 @@ This command to get all available simulators. if details is set to true then it 
 | simulator_details.hostname | String | Hostname of given simulator. | 
 | simulator_details.connection_type | String | connection_type of given simulator. | 
 | simulator_details.simulator_status | String | status of the simulator. | 
-| simulator_details.connection_status | String | connection status of node/simulator. | 
+| simulator_details.connection_status | String | connection status of simulator. | 
 | simulator_details.simulator_framework_version | String | Framework version of simulator. | 
 | simulator_details.operating_system_type | String | operating system type of given simulator. | 
 | simulator_details.operating_system | String | Operating system of given simulator. | 
-| simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| simulator_details.execution_hostname | String | Execution Hostname of the given simulator. | 
 | simulator_details.deployments | String | deployments simulator is part of. | 
 | simulator_details.created_at | String | Creation datetime of simulator. | 
 | simulator_details.updated_at | String | Update datetime of given simulator. | 
@@ -612,25 +601,25 @@ This command to get all available simulators. if details is set to true then it 
 | simulator_details.proxies | String | Proxies of simulator. | 
 | simulator_details.advanced_actions | String | Advanced simulator details. | 
 
-### safebreach-get-test-summary
+### safebreach-get-tests
 
 ***
 This command gets tests with given modifiers.
 
 #### Base Command
 
-`safebreach-get-test-summary`
+`safebreach-get-tests`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| include_archived | Should archived tests be included in search. Possible values are: true, false. Default is true. | Optional | 
-| entries_per_page | number of entries per page to be retrieved. | Optional | 
-| plan_id | plan Id of test. | Optional | 
-| status | Status of simulation. Possible values are: CANCELED, COMPLETED. Default is CANCELED. | Optional | 
+| include_archived | <br/>                      Should archived tests be included in search. Archived tests are tests which have been <br/>                      set aside for further use in an inactive state. if this is set to false then archived tests<br/>                      wont be pulled but  if set to true then they will be pulled and shown.<br/>                      . Possible values are: true, false. Default is false. | Optional | 
+| entries_per_page | <br/>                      number of entries to be retrieved. for viewing, this will work in combination with sort_by field and<br/>                      things will be sorted in decreasing order so if you chose 100 entries here and if endTime is chosen as sort<br/>                      then it will show last 100 executions with latest end time.<br/>                      . | Optional | 
+| plan_id | <br/>                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests <br/>                      instead of this with same parameters as inputs.<br/>                      . | Optional | 
+| status | tests with this status will be searched and filtered. Possible values are: CANCELED, COMPLETED. | Optional | 
 | simulation_id | Unique ID of the simulation. | Optional | 
-| sort_by | sort by option. Possible values are: endTime, startTime, testID, stepRunId. Default is endTime. | Optional | 
+| sort_by | <br/>                      how to sort the results retrieved, there are 4 options:<br/>                      1. sorting by endTime will show results in terms of decreasing order of simulations end time.<br/>                      2. sorting by start time will show results in terms of the decreasing order of simulation start time.<br/>                      3. testID - this is test id and sorting by this will be decreasing order of test id.<br/>                      4. stepRunId -<br/>                      . Possible values are: endTime, startTime, testID, stepRunId. Default is endTime. | Optional | 
 
 #### Context Output
 
@@ -657,7 +646,7 @@ This command gets tests with given modifiers.
 | test_results.finalStatus.not_drifted | String | not drifted count of simulation. | 
 | test_results.finalStatus.baseline | String | baseline count of simulation. | 
 
-### safebreach-get-test-summary-with-plan-run-id
+### safebreach-get-test-with-plan-id
 
 ***
 
@@ -666,18 +655,13 @@ This command gets tests with given modifiers.
 
 #### Base Command
 
-`safebreach-get-test-summary-with-plan-run-id`
+`safebreach-get-test-with-plan-id`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| include_archived | <br/>                      Should archived tests be included in search. Archived tests are tests which have been <br/>                      set aside for further use in an inactive state. if this is set to false then archived tests<br/>                      wont be pulled but  if set to true then they will be pulled and shown.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
-| entries_per_page | <br/>                      number of entries to be retrieved. for viewing, this will work in combination with sort_by field and<br/>                      things will be sorted in decreasing order so if you chose 100 entries here and if endtime is chosen as sort<br/>                      then it will show last 100 executions with latest end time.<br/>                      . | Optional | 
-| plan_id | <br/>                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-test-summary <br/>                      instead of this with same parameters as inputs.<br/>                      . | Required | 
-| status | tests with this status will be searched and filtered. Possible values are: CANCELED, COMPLETED. | Optional | 
-| simulation_id | Unique ID of the simulation. | Optional | 
-| sort_by | how to sort the results retrieved, there are 4 options:<br/>                      1. sorting by endTime will show results in terms of decreasing order of simulations end time.<br/>                      2. sorting by start time will show results in terms of the decreasing order of simulation start time.<br/>                      3. testID - this is test id and sorting by this will be decreasing order of test id.<br/>                      4. stepRunId -. Possible values are: endTime, startTime, testID, stepRunId. Default is endTime. | Optional | 
+| plan_id | <br/>                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests <br/>                      instead of this with same parameters as inputs.<br/>                      . | Required | 
 
 #### Context Output
 
@@ -707,7 +691,7 @@ This command gets tests with given modifiers.
 ### safebreach-get-all-users
 
 ***
-This command gives all users depending on inputs given.
+This command gives all users who are not deleted.
 
 #### Base Command
 
@@ -717,16 +701,14 @@ This command gives all users depending on inputs given.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| should_include_details | <br/>                      This field when selected true will retrieve the details of users like name, email, role, whether the user <br/>                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to<br/>                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining <br/>                      commands like delete or update user, please set details to true.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
-| should_include_deleted | <br/>                      If deleted users are to be included while querying all users. by default this is set to true because<br/>                      there might be cases where its preferable to see deleted users too. this can be set to false to see <br/>                      only users who dont have their credentials deleted.<br/>                      . Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| user_data.id | Number | The ID of User retrieved. this can be used to further link this user with                       user_id field of safebreach-update-user or safebreach-delete-user commands. | 
+| user_data.id | Number | The ID of User retrieved. this can be used to further link this user with                       user_id field of safebreach-update-user or safebreach-delete-user commands | 
 | user_data.name | String | The name of User retrieved. | 
-| user_data.email | String | The email of User retrieved. this can be used for updating user or                       deleting user for input email of commands safebreach-update-user or safebreach-delete-user. | 
+| user_data.email | String | The email of User retrieved. this can be used for updating user or                       deleting user for input email of commands safebreach-update-user or safebreach-delete-user  | 
 
 ### safebreach-get-custom-scenarios
 
@@ -745,7 +727,7 @@ This command gives all users depending on inputs given.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| schedule_details | Whether to get details of custom scenarios, <br/>                      set this to true every time unless you explicitly dont need details. Possible values are: false, true. Default is true. | Optional | 
+| schedule_details | <br/>                      Whether to get details of custom scenarios, <br/>                      set this to true every time unless you explicitly dont need details<br/>                      . Possible values are: false, true. Default is true. | Optional | 
 
 #### Context Output
 
@@ -761,7 +743,7 @@ This command gives all users depending on inputs given.
 | custom_scenarios.steps_order | String | the order of steps of the scenario. | 
 | custom_scenarios.createdAt | String | the creation datetime of the scenario. | 
 | custom_scenarios.updatedAt | String | the last updated time the scenario. | 
-| custom_scenarios.custom_data_object_for_rerun_scenario | String | the data which can be used for             rerun-simulation command. | 
+| custom_scenarios.custom_data_object_for_rerun_simulation | String | the data which can be used for             rerun-simulation command. | 
 | custom_scenarios.custom_data_for_rerun_test | String | the data which can be used for rerun-test command. | 
 
 ### safebreach-get-prebuilt-scenarios
@@ -796,12 +778,12 @@ This command gives all users depending on inputs given.
 | prebuilt_scenarios.categories | String | the category ids of the scenario. | 
 | prebuilt_scenarios.steps_order | String | the order of steps involved in the scenario. | 
 | prebuilt_scenarios.order | String | the order of execution related to the scenario. | 
-| prebuilt_scenarios.minApiVer | String | the minimum version of API required for scenario to be executed. | 
+| prebuilt_scenarios.minApiVer | String | the minimum version of API required for scenario to be executed | 
 
 ### safebreach-get-schedules
 
 ***
-This command retrieves schedules from safebreach which user has set and they will display it to user.
+This command retrieves schedules from safebreach which user has set and they will display it to user
 
 #### Base Command
 
@@ -811,8 +793,6 @@ This command retrieves schedules from safebreach which user has set and they wil
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| deleted | <br/>                      If this field is set to true then deleted schedules will be retrieved too for information, <br/>                      Unless it is required to search old and deleted schedules, keep this selection as false.<br/>                      . Possible values are: true, false. Default is false. | Optional | 
-| details | <br/>                      Should details tests be included in result, if this field is not selected to true then only name <br/>                      and id will be retrieved and anything else is ignored, so if we want information on detailed schedule<br/>                      structure and planning , keep this selected to true. else keep this false.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
 
 #### Context Output
 
@@ -820,14 +800,11 @@ This command retrieves schedules from safebreach which user has set and they wil
 | --- | --- | --- |
 | schedules.id | String | the Id of the schedule. | 
 | schedules.isEnabled | Boolean | if simulation is enabled. | 
-| schedules.name | String | the name of the schedule. | 
-| schedules.cronString | String | the cron expression the schedule. | 
 | schedules.user_schedule | String | the user readable form of the schedule. | 
 | schedules.runDate | String | the run date of the schedule. | 
 | schedules.cronTimezone | String | the time zone of the schedule. | 
-| schedules.taskId | String | the plan ID of the schedule. | 
 | schedules.description | String | the description of the schedule. | 
-| schedules.matrixId | String | the matrix ID of the schedule. | 
+| schedules.plan_id | String | the matrix ID of the schedule. | 
 | schedules.createdAt | String | the creation datetime of the schedule. | 
 | schedules.updatedAt | String | the updated datetime of the schedule. | 
 | schedules.deletedAt | String | the deletion time of the schedule. | 
@@ -858,6 +835,39 @@ This command retrieves schedules from safebreach which user has set and they wil
 | services_status.connection status | String | connection status of service. | 
 | services_status.error | String | error status of service. | 
 
+### safebreach-get-simulation-results
+
+***
+
+    this command is used to get simulations and their data related to a given test, 
+    this can be used as predecessor command to rerun-simulations command for easier queueing of simulations.
+    This command does not have any limiters with pagination implemented so there might be huge data retrieved.
+    
+
+#### Base Command
+
+`safebreach-get-simulation-results`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+| test_id | This is test of of the test whose simulations we will retrieve with this command. | Optional | 
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| simulation_details.simulation_id | String | the id of the simulation. | 
+| simulation_details.plan_name | String | name of the plan to which this simulation belongs to. | 
+| simulation_details.attacker_node_name | String | Name of attacker node of simulation. | 
+| simulation_details.target_node_name | String | name of target of simulation. | 
+| simulation_details.dest_node_name | String | name of destination of simulation. | 
+| simulation_details.status | String | final status of simulation. | 
+| simulation_details.result | String | result of simulation. | 
+| simulation_details.security_action | String | security action of simulation. | 
+| simulation_details.attacks_involved | String | attack types involved in of simulation. | 
+
 ### safebreach-get-available-simulator-count
 
 ***
@@ -878,73 +888,71 @@ This command gives all details related to account, we are using this to find ass
 | --- | --- | --- |
 | account_details.id | Number | The account ID which is being used by integration. | 
 | account_details.name | String | The Account Name of account being queried. | 
-| account_details.contactName | String | Contact name for given account. | 
-| account_details.contactEmail | String | Email of the contact person. | 
-| account_details.userQuota | String | User Quota for the given account, the max number of users which are allowed for the account. | 
-| account_details.nodesQuota | Number | The simulator quota for the given account. the maximum number of simulators                        which are permitted for the account. | 
-| account_details.registrationDate | Number | The registration date of given account. | 
-| account_details.activationDate | String | The Activation date of given account. | 
-| account_details.expirationDate | String | Account expiration date. | 
+| account_details.contact_name | String | Contact name for given account. | 
+| account_details.contact_email | String | Email of the contact person. | 
+| account_details.user_quota | String | User Quota for the given account, maximum users which are allowed for the account. | 
+| account_details.simulators_quota | Number | The simulator quota for the given account. the maximum number of simulators                        which are permitted for the account. | 
+| account_details.registration_date | Number | The registration date of given account. | 
+| account_details.activation_date | String | The Activation date of given account. | 
+| account_details.expiration_date | String | Account expiration date. | 
 
-### safebreach-get-simulator-with-name
+### safebreach-get-simulator-with-id
 
 ***
-This command gives simulator with given name.
+This command gives simulator with given name
 
 #### Base Command
 
-`safebreach-get-simulator-with-name`
+`safebreach-get-simulator-with-id`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| simulator_or_node_name | <br/>                      Name of simulator/node to search with. this is name which will be used to search the list of simulators <br/>                      which will be retrieved and of which whose name matches this input value.<br/>                      . | Required | 
-| details | <br/>                      If simulator details are to be retrieved while searching. this should be selected to true if the command is<br/>                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be <br/>                      retrieved thus making search with name impossible.<br/>                      . Possible values are: true, false. Default is true. | Required | 
-| deleted | if deleted are to be included for search. Possible values are: true, false. Default is true. | Required | 
+| simulator_id | This is simulator ID of simulator we want to search. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| simulator_details_with_name.is_enabled | String | Whether the node is enabled or not. | 
-| simulator_details_with_name.simulator_id | String | The Id of given simulator. | 
-| simulator_details_with_name.name | String | name for given simulator. | 
-| simulator_details_with_name.account_id | String | Account Id of account Hosting given simulator. | 
-| simulator_details_with_name.is_critical | String | Whether the simulator is critical. | 
-| simulator_details_with_name.is_exfiltration | String | If Simulator is exfiltration target. | 
-| simulator_details_with_name.is_infiltration | String | If simulator is infiltration target. | 
-| simulator_details_with_name.is_mail_target | String | If simulator is mail target. | 
-| simulator_details_with_name.is_mail_attacker | String | If simulator is mail attacker. | 
-| simulator_details_with_name.is_pre_executor | String | Whether the node is pre executor. | 
-| simulator_details_with_name.is_aws_attacker | String | if the given simulator is aws attacker. | 
-| simulator_details_with_name.is_azure_attacker | String | If the given simulator is azure attacker. | 
-| simulator_details_with_name.external_ip | String | external ip of given simulator. | 
-| simulator_details_with_name.internal_ip | String | internal ip of given simulator. | 
-| simulator_details_with_name.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
-| simulator_details_with_name.preferred_interface | String | Preferred simulator interface. | 
-| simulator_details_with_name.preferred_ip | String | Preferred Ip of simulator. | 
-| simulator_details_with_name.hostname | String | Hostname of given simulator. | 
-| simulator_details_with_name.connection_type | String | connection_type of given simulator. | 
-| simulator_details_with_name.simulator_status | String | status of the simulator. | 
-| simulator_details_with_name.connection_status | String | connection status of node/simulator. | 
-| simulator_details_with_name.simulator_framework_version | String | Framework version of simulator. | 
-| simulator_details_with_name.operating_system_type | String | operating system type of given simulator. | 
-| simulator_details_with_name.operating_system | String | Operating system of given simulator. | 
-| simulator_details_with_name.execution_hostname | String | Execution Hostname of the given node. | 
-| simulator_details_with_name.deployments | String | deployments simulator is part of. | 
-| simulator_details_with_name.created_at | String | Creation datetime of simulator. | 
-| simulator_details_with_name.updated_at | String | Update datetime of given simulator. | 
-| simulator_details_with_name.deleted_at | String | deletion datetime of given simulator. | 
-| simulator_details_with_name.assets | String | Assets of given simulator. | 
-| simulator_details_with_name.simulation_users | String | simulator users list. | 
-| simulator_details_with_name.proxies | String | Proxies of simulator. | 
-| simulator_details_with_name.advanced_actions | String | Advanced simulator details. | 
+| simulator_details_with_id.is_enabled | String | Whether the simulator is enabled or not. | 
+| simulator_details_with_id.simulator_id | String | The Id of given simulator. | 
+| simulator_details_with_id.name | String | name for given simulator. | 
+| simulator_details_with_id.account_id | String | Account Id of account Hosting given simulator. | 
+| simulator_details_with_id.is_critical | String | Whether the simulator is critical. | 
+| simulator_details_with_id.is_exfiltration | String | If Simulator is exfiltration target. | 
+| simulator_details_with_id.is_infiltration | String | If simulator is infiltration target. | 
+| simulator_details_with_id.is_mail_target | String | If simulator is mail target. | 
+| simulator_details_with_id.is_mail_attacker | String | If simulator is mail attacker. | 
+| simulator_details_with_id.is_pre_executor | String | Whether the simulator is pre executor. | 
+| simulator_details_with_id.is_aws_attacker | String | if the given simulator is aws attacker. | 
+| simulator_details_with_id.is_azure_attacker | String | If the given simulator is azure attacker. | 
+| simulator_details_with_id.external_ip | String | external ip of given simulator. | 
+| simulator_details_with_id.internal_ip | String | internal ip of given simulator. | 
+| simulator_details_with_id.is_web_application_attacker | String | Whether the simulator is Web application attacker. | 
+| simulator_details_with_id.preferred_interface | String | Preferred simulator interface. | 
+| simulator_details_with_id.preferred_ip | String | Preferred Ip of simulator. | 
+| simulator_details_with_id.hostname | String | Hostname of given simulator. | 
+| simulator_details_with_id.connection_type | String | connection_type of given simulator. | 
+| simulator_details_with_id.simulator_status | String | status of the simulator. | 
+| simulator_details_with_id.connection_status | String | connection status of simulator. | 
+| simulator_details_with_id.simulator_framework_version | String | Framework version of simulator. | 
+| simulator_details_with_id.operating_system_type | String | operating system type of given simulator. | 
+| simulator_details_with_id.operating_system | String | Operating system of given simulator. | 
+| simulator_details_with_id.execution_hostname | String | Execution Hostname of the given simulator. | 
+| simulator_details_with_id.deployments | String | deployments simulator is part of. | 
+| simulator_details_with_id.created_at | String | Creation datetime of simulator. | 
+| simulator_details_with_id.updated_at | String | Update datetime of given simulator. | 
+| simulator_details_with_id.deleted_at | String | deletion datetime of given simulator. | 
+| simulator_details_with_id.assets | String | Assets of given simulator. | 
+| simulator_details_with_id.simulation_users | String | simulator users list. | 
+| simulator_details_with_id.proxies | String | Proxies of simulator. | 
+| simulator_details_with_id.advanced_actions | String | Advanced simulator details. | 
 
 ### safebreach-get-user-with-matching-name-or-email
 
 ***
-This command gives all users depending on inputs given.
+This command gives all users which match the inputs given, Since email is a unique field we only get one user if            email matches but if name is given as input then care should be taken to see name matches exactly.            else there is a chance that multiple users are retrieved, please not that either name or email are to            be populated and if neither of them are given as input then it results in error
 
 #### Base Command
 
@@ -955,17 +963,15 @@ This command gives all users depending on inputs given.
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
 | name | <br/>                      Name of the user to lookup. This will first retrieve all users and show details related to <br/>                      name entered here. this name will be search of if name is part of name given to user and not <br/>                      a perfect match. For example if actual name is 'demisto' but if input is 'dem', even then this<br/>                      will be shown as a valid match to name. This is so that command user need not know exact name of<br/>                      user and just searching first name or last name will work.<br/>                      . | Optional | 
-| email | <br/>                      Email of the user to lookup. This will be used to retrieve user with matching email that user entered<br/>                      partial email search doesn't work here.<br/>                      . | Required | 
-| should_include_details | <br/>                      This field when selected true will retrieve the details of users like name, email, role, whether the user <br/>                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to<br/>                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining <br/>                      commands like delete or update user, please set details to true.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
-| should_include_deleted | <br/>                      If deleted users are to be included while querying all users. by default this is set to true because<br/>                      there might be cases where its preferable to see deleted users too. this can be set to false to see <br/>                      only users who dont have their credentials deleted.<br/>                      . Possible values are: true, false. Default is true. | Required | 
+| email | <br/>                      Email of the user to lookup. This will be used to retrieve user with matching email that user entered<br/>                      partial email search doesn't work here.<br/>                      . | Optional | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| filtered_users.id | Number | The ID of User retrieved. this can be used to further link this user with user_id field of                        safebreach-update-user or safebreach-delete-user commands. | 
+| filtered_users.id | Number | The ID of User retrieved. this can be used to further link this user with user_id field of                        safebreach-update-user or safebreach-delete-user commands | 
 | filtered_users.name | String | The name of User retrieved. | 
-| filtered_users.email | String | The email of User retrieved. this can be used for updating user or deleting user                        for input email of commands safebreach-update-user or safebreach-delete-user. | 
+| filtered_users.email | String | The email of User retrieved. this can be used for updating user or deleting user                        for input email of commands safebreach-update-user or safebreach-delete-user | 
 
 ### safebreach-get-verification-token
 
@@ -1016,7 +1022,7 @@ This command gives all users depending on inputs given.
 ### safebreach-rerun-simulation
 
 ***
-this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table.
+this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table 
 
 #### Base Command
 
@@ -1031,67 +1037,32 @@ this commands puts given simulation data at a given position, for this command t
 | retry_simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
 | wait_for_retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
 | priority | the priority of this simulation action. Possible values are: low, high. Default is low. | Optional | 
-| simulation_data | simulation data for the given simulation. | Required | 
-
-#### Context Output
-
-| **Path** | **Type** | **Description** |
-| --- | --- | --- |
-| changed_data.id | String | the Id of scenario. | 
-| changed_data.name | String | the name of the scenario. | 
-| changed_data.description | String | the description of the scenario. | 
-| changed_data.successCriteria | String | success criteria the scenario. | 
-| changed_data.originalScenarioId | String | original scenario id of scenario. | 
-| changed_data.actions_list | String | actions list of the scenario. | 
-| changed_data.edges_count | String | edges count for the scenario. | 
-| changed_data.steps_order | String | the order of steps of the scenario. | 
-| changed_data.createdAt | String | the creation datetime of the scenario. | 
-| changed_data.updatedAt | String | the last updated time the scenario. | 
-
-### safebreach-rerun-simulation2
-
-***
-this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table.
-
-#### Base Command
-
-`safebreach-rerun-simulation2`
-
-#### Input
-
-| **Argument Name** | **Description** | **Required** |
-| --- | --- | --- |
-| position | position in queue to put the given simulation data at. | Optional | 
-| enable_feedback_loop | this argument is used to enable/disable feedback loop. Possible values are: false, true. Default is true. | Optional | 
-| retry_simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
-| wait_for_retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
-| priority | the priority of this simulation action. Possible values are: low, high. Default is low. | Optional | 
-| simulation_id | simulation id for the given simulation, can be retrieved from running get prebuilt scenarios                       or custom scenarios command and then getting id field from them. | Required | 
 | simulation_name | simulation name for the given simulation. | Required | 
+| simulation_ids | ids of simulation we want to queue,                          please give ids of simulations as comma separated numbers. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| changed_data.id | String | the Id of scenario. | 
-| changed_data.name | String | the name of the scenario. | 
-| changed_data.description | String | the description of the scenario. | 
-| changed_data.successCriteria | String | success criteria the scenario. | 
-| changed_data.originalScenarioId | String | original scenario id of scenario. | 
-| changed_data.actions_list | String | actions list of the scenario. | 
-| changed_data.edges_count | String | edges count for the scenario. | 
-| changed_data.steps_order | String | the order of steps of the scenario. | 
-| changed_data.createdAt | String | the creation datetime of the scenario. | 
-| changed_data.updatedAt | String | the last updated time the scenario. | 
+| changed_data.id | String | the Id of simulation. | 
+| changed_data.name | String | the name of the simulation. | 
+| changed_data.description | String | the description of the simulation. | 
+| changed_data.successCriteria | String | success criteria the simulation. | 
+| changed_data.originalScenarioId | String | original simulation id of simulation. | 
+| changed_data.actions_list | String | actions list of the simulation. | 
+| changed_data.edges_count | String | edges count for the simulation. | 
+| changed_data.steps_order | String | the order of steps of the simulation. | 
+| changed_data.createdAt | String | the creation datetime of the simulation. | 
+| changed_data.updatedAt | String | the last updated time the simulation. | 
 
-### safebreach-rerun-test2
+### safebreach-rerun-test
 
 ***
-this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table.
+this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table 
 
 #### Base Command
 
-`safebreach-rerun-test2`
+`safebreach-rerun-test`
 
 #### Input
 
@@ -1102,7 +1073,7 @@ this commands puts given test data at a given position, for this command to get 
 | retry_simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
 | wait_for_retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
 | priority | the priority of this test action. Possible values are: low, high. Default is low. | Optional | 
-| retry_policy | the retry policy of test. | Optional | 
+| retry_policy | <br/>                      the retry policy of test <br/>                      . | Optional | 
 | test_id | test id for the given test,             this is be planRunId field from get-all-tests-summary command. | Required | 
 | test_name | test name for the given test. | Required | 
 
@@ -1149,7 +1120,7 @@ this commands puts given test data at a given position, for this command to get 
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| Safebreach Content Management.new_token | String | new Token which has been generated due to the api call. | 
+| Safebreach Content Management.new_token | String | new Token which has been generated due to the api call | 
 
 ### safebreach-update-deployment
 
@@ -1169,9 +1140,8 @@ this commands puts given test data at a given position, for this command to get 
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| deployment_id | <br/>                      ID of the deployment to update. this can be searched with list-deployments command or<br/>                      from UI. this will be taken as id of deployment whose properties we want to update.<br/>                      . | Optional | 
-| deployment_name | <br/>                      Name of the deployment to search whose data will be updated. This field is not the field whose<br/>                      data will be used to update name of given to the value instead this field is for searching deployment <br/>                      with the value as name. This field will be used to search the existing deployment names and find a <br/>                      deployment whose name matches this and that will be used as deployment whose data we are updating. <br/>                      . | Required | 
-| updated_nodes_for_deployment | <br/>                      Comma separated ID of all nodes the deployment should be part of. These nodes can be<br/>                      retrieved by calling get-all-available-simulator-details command and that command will<br/>                      show the results of the all available simulators and the ids of those nodes can be used as<br/>                      comma separated values in this field for those nodes to act as a group.<br/>                      . | Optional | 
+| deployment_id | <br/>                      ID of the deployment to update. this can be searched with list-deployments command or<br/>                      from UI. this will be taken as id of deployment whose properties we want to update.<br/>                      . | Required | 
+| updated_simulators_for_deployment | <br/>                      Comma separated ID of all simulators the deployment should be part of. These simulators can be<br/>                      retrieved by calling get-all-available-simulator-details command and that command will<br/>                      show the results of the all available simulators and the ids of those simulators can be used as<br/>                      comma separated values in this field for those simulators to act as a group.<br/>                      . | Optional | 
 | updated_deployment_name | <br/>                      This fields value will be the name which the deployment name will be updated to. <br/>                      . | Optional | 
 | updated_deployment_description | description of the deployment to which value this should be updated to. | Optional | 
 
@@ -1181,31 +1151,29 @@ this commands puts given test data at a given position, for this command to get 
 | --- | --- | --- |
 | updated_deployment_data.id | Number | The ID of deployment whose values have been updated.                           ID cant be changed so this wont be updated. | 
 | updated_deployment_data.accountId | String | The accountId of user who created the deployment. | 
-| updated_deployment_data.name | String | The name of deployment which has been updated to the name given in updated_deployment_name.                        this will be the name shown in deployment name field of table in deployments page in safebreach UI. | 
+| updated_deployment_data.name | String | The name of deployment which has been updated to the name given in updated_deployment_name.                        this will be the name shown in deployment name field of table in deployments page in safebreach UI | 
 | updated_deployment_data.createdAt | String | The creation date and time of deployment whose data has been updated. | 
-| updated_deployment_data.updatedAt | String | The last updated date and time of deployment whose data has been updated.                       This will generally be closer to the update deployment command run time for reference. | 
-| updated_deployment_data.description | String | The updated description of deployment which is provided in updated_deployment_description                       field of input . This will now be the description which is shown in description field of deployments                       table of safebreach UI. | 
-| updated_deployment_data.nodes | String | The nodes that are part of deployment. unless any nodes are given as input this field wont                       be updated this field doesn't reflect changes if nodes given as input are deleted. | 
+| updated_deployment_data.updatedAt | String | The last updated date and time of deployment whose data has been updated.                       This will generally be closer to the update deployment command run time for reference | 
+| updated_deployment_data.description | String | The updated description of deployment which is provided in updated_deployment_description                       field of input . This will now be the description which is shown in description field of deployments                       table of safebreach UI | 
+| updated_deployment_data.simulators | String | The simulators that are part of deployment. unless any simulators are given as input this                            field won't be updated this field doesn't reflect changes if simulators given as input are deleted | 
 
-### safebreach-update-simulator-with-given-name
+### safebreach-update-simulator
 
 ***
 
-    This command updates simulator with given name with given details in simulator_or_node_name. then the given inputs for update
+    This command updates simulator with given id. the given inputs for update
     fields will be updated to the selected filed values will be updated to given value.
     
 
 #### Base Command
 
-`safebreach-update-simulator-with-given-name`
+`safebreach-update-simulator`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| simulator_or_node_name | <br/>                      Name of simulator/node to search with. this is name which will be used to search the list of simulators <br/>                      which will be retrieved and of which whose name matches this input value.<br/>                      . | Required | 
-| details | <br/>                      If simulator details are to be retrieved while searching. this should be selected to true if the command is<br/>                      "safebreach-get-simulator-with-name" and if its false then only very small number of fields will be <br/>                      retrieved thus making search with name impossible.<br/>                      . Possible values are: true, false. Default is true. | Required | 
-| deleted | <br/>                      If deleted are to be included for search. Incase the simulator we are searching for is deleted one then<br/>                      set this to true and then search. else keep it as default and set to false.<br/>                      . Possible values are: true, false. Default is true. | Required | 
+| simulator_id | <br/>                      simulator id tells which simulator are we updating, if you want to know the simulator id <br/>                      with given name then run safebreach-get-all-simulator-details command.<br/>                      . | Required | 
 | connection_url | <br/>                  the given value will be set as connection string, meaning this can be used to connect to<br/>                  this URL.<br/>                  . | Optional | 
 | cloud_proxy_url | the given value will be set as cloud proxy url. | Optional | 
 | name | <br/>                  the given value will be set as name of simulator. this will be the name of simulator once the command runs.<br/>                  . | Optional | 
@@ -1217,7 +1185,7 @@ this commands puts given test data at a given position, for this command to get 
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| updated_simulator_details.is_enabled | String | Whether the node is enabled or not. | 
+| updated_simulator_details.is_enabled | String | Whether the simulator is enabled or not. | 
 | updated_simulator_details.simulator_id | String | The Id of given simulator. | 
 | updated_simulator_details.name | String | name for given simulator. | 
 | updated_simulator_details.account_id | String | Account Id of account Hosting given simulator. | 
@@ -1226,7 +1194,7 @@ this commands puts given test data at a given position, for this command to get 
 | updated_simulator_details.is_infiltration | String | If simulator is infiltration target. | 
 | updated_simulator_details.is_mail_target | String | If simulator is mail target. | 
 | updated_simulator_details.is_mail_attacker | String | If simulator is mail attacker. | 
-| updated_simulator_details.is_pre_executor | String | Whether the node is pre executor. | 
+| updated_simulator_details.is_pre_executor | String | Whether the simulator is pre executor. | 
 | updated_simulator_details.is_aws_attacker | String | if the given simulator is aws attacker. | 
 | updated_simulator_details.is_azure_attacker | String | If the given simulator is azure attacker. | 
 | updated_simulator_details.external_ip | String | external ip of given simulator. | 
@@ -1237,11 +1205,11 @@ this commands puts given test data at a given position, for this command to get 
 | updated_simulator_details.hostname | String | Hostname of given simulator. | 
 | updated_simulator_details.connection_type | String | connection_type of given simulator. | 
 | updated_simulator_details.simulator_status | String | status of the simulator. | 
-| updated_simulator_details.connection_status | String | connection status of node/simulator. | 
+| updated_simulator_details.connection_status | String | connection status of simulator. | 
 | updated_simulator_details.simulator_framework_version | String | Framework version of simulator. | 
 | updated_simulator_details.operating_system_type | String | operating system type of given simulator. | 
 | updated_simulator_details.operating_system | String | Operating system of given simulator. | 
-| updated_simulator_details.execution_hostname | String | Execution Hostname of the given node. | 
+| updated_simulator_details.execution_hostname | String | Execution Hostname of the given simulator. | 
 | updated_simulator_details.deployments | String | deployments simulator is part of. | 
 | updated_simulator_details.created_at | String | Creation datetime of simulator. | 
 | updated_simulator_details.updated_at | String | Update datetime of given simulator. | 
@@ -1264,16 +1232,14 @@ This command updates a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| user_id | user ID of user from safebreach to search. this can be retrieved in 2 ways,<br/>                      1. run get-all-users command and then look for user id of user with matching criteria<br/>                      but to see details its required that details parameter to be set to true,<br/>                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email<br/>                      command and then search for user with required details in displayed results for ID.<br/>                      This field is not  required, meaning even if just email is given , we will internally search user<br/>                      id with the matching email and use the user for further process. | Optional | 
-| email | Email of the user to Search for updating user details. This is a required field.<br/>                      The user with matching email will be considered as user whose data will be updated. | Required | 
+| user_id | <br/>                      user ID of user from safebreach to search. this can be retrieved in 2 ways,<br/>                      1. run get-all-users command and then look for user id of user with matching criteria<br/>                      but to see details its required that details parameter to be set to true,<br/>                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email<br/>                      command and then search for user with required details in displayed results for ID.<br/>                      This field is not  required, meaning even if just email is given , we will internally search user<br/>                      id with the matching email and use the user for further process<br/>                      . | Optional | 
+| email | <br/>                      Email of the user to Search for updating user details. This is a required field.<br/>                      The user with matching email will be considered as user whose data will be updated<br/>                      . | Optional | 
 | name | <br/>                      Update the user name to given value of this field, <br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
 | user_description | <br/>                      Update the user Description to given value in this field. This will be updated description of user<br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
 | is_active | <br/>                      Update the user Status based on the input, if this is set to false then user will be deactivated.<br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . Possible values are: true, false, . | Optional | 
 | password | <br/>                      Password of user to be updated with. this will be used for changing password for user.<br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
 | user_role | <br/>                      Role of the user to be changed to. unless you want to change the user role and permissions, <br/>                      dont select anything in this field, user will be selected based on user_id or email fields mentioned above.<br/>                      . Possible values are: viewer, administrator, contentDeveloper, operator. | Optional | 
 | deployments | <br/>                        Comma separated ID of all deployments the user should be part of.<br/>                        unless this field is left empty, whatever is present here will be updated to user details.<br/>                        user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
-| should_include_details | <br/>                      This field when selected true will retrieve the details of users like name, email, role, whether the user <br/>                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to<br/>                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining <br/>                      commands like delete or update user, please set details to true.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
-| should_include_deleted | <br/>                      If deleted users are to be included while querying all users. by default this is set to true because<br/>                      there might be cases where its preferable to see deleted users too. this can be set to false to see <br/>                      only users who dont have their credentials deleted.<br/>                      . Possible values are: true, false. Default is true. | Required | 
 
 #### Context Output
 
@@ -1282,10 +1248,10 @@ This command updates a user with given data.
 | updated_user_data.id | Number | The ID of User whose data has been updated. | 
 | updated_user_data.name | String | The name of User after running the update command according to safebreach records. | 
 | updated_user_data.email | String | the email of the user whose data has been updated by the command. | 
-| updated_user_data.createdAt | String | the time at which the user who has been selected has been created. | 
+| updated_user_data.createdAt | String | the time at which the user who has been selected has been created | 
 | updated_user_data.updatedAt | String | The last updated time of User selected for update.                        this will be the execution time for the command or close to it. | 
-| updated_user_data.deletedAt | String | The Deletion time of User selected to update. Generally this is empty unless                       user chosen to update is a deleted user. | 
+| updated_user_data.deletedAt | String | The Deletion time of User selected to update. Generally this is empty unless                       user chosen to update is a deleted user | 
 | updated_user_data.roles | String | The roles of User updated. these will change if role has been updated during                       updating user details else they will be same as pre update. | 
 | updated_user_data.description | String | The description of User after updating user, if description field has been given any                       new value during update then its updated else this will be left unchanged from previous value. | 
 | updated_user_data.role | String | The roles and permissions related to user who has been selected for update.unless this field                       has been given a value , this will not be updated and will stay the same as previous value. | 
-| updated_user_data.deployments | String | The deployments related to user, this will be comma separated values of deployment IDs. | 
+| updated_user_data.deployments | String | The deployments related to user, this will be comma separated values of deployment IDs | 

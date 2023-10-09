@@ -1,5 +1,5 @@
 category: Deception & Breach Simulation
-description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Nodes get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
+description: "\n    This Integration aims to provide easy access to safebreach from XSOAR.\n    Following are the things that user can get access through XSOAR command integration:\n    1. User get, create, update and delete. \n    2. Deployment create, update and delete.\n    3. Tests get and delete.\n    4. Simulators get, update, delete.\n    5. Get current tests/simulation status and/or queue them.\n    "
 commonfields:
   id: Safebreach Content Management
   version: -1
@@ -34,40 +34,18 @@ configuration:
 script:
   commands:
   - deprecated: false
-    description: "\n    This command approves simulator with given name with given details in simulator_or_node_name.\n    "
-    name: safebreach-approve-simulator-with-given-name
+    description: "\n    This command approves simulator with given name with given id.\n    "
+    name: safebreach-approve-simulator
     arguments:
-    - name: simulator_or_node_name
+    - name: simulator_id
       isArray: false
-      description: "\n                      Name of simulator/node to search with. this is name which will be used to search the list of simulators \n                      which will be retrieved and of which whose name matches this input value.\n                      "
+      description: "\n                      ID of simulator to approve, incase unsure then please call safebreach-get-all-simulators\n                      and search for simulator name.\n                      "
       required: true
       secret: false
       default: false
-    - name: details
-      isArray: false
-      description: "\n                      If simulator details are to be retrieved while searching. this should be selected to true if the command is\n                      \"safebreach-get-simulator-with-name\" and if its false then only very small number of fields will be \n                      retrieved thus making search with name impossible.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: deleted
-      isArray: false
-      description: "\n                      If deleted are to be included for search. Incase the simulator we are searching for is deleted one then\n                      set this to true and then search. else keep it as default and set to false.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     outputs:
     - contextPath: approved_simulator_details.is_enabled
-      description: Whether the node is enabled or not.
+      description: Whether the simulator is enabled or not.
       type: String
     - contextPath: approved_simulator_details.simulator_id
       description: The Id of given simulator.
@@ -94,7 +72,7 @@ script:
       description: If simulator is mail attacker.
       type: String
     - contextPath: approved_simulator_details.is_pre_executor
-      description: Whether the node is pre executor.
+      description: Whether the simulator is pre executor.
       type: String
     - contextPath: approved_simulator_details.is_aws_attacker
       description: if the given simulator is aws attacker.
@@ -127,7 +105,7 @@ script:
       description: status of the simulator.
       type: String
     - contextPath: approved_simulator_details.connection_status
-      description: connection status of node/simulator.
+      description: connection status of simulator.
       type: String
     - contextPath: approved_simulator_details.simulator_framework_version
       description: Framework version of simulator.
@@ -139,7 +117,7 @@ script:
       description: Operating system of given simulator.
       type: String
     - contextPath: approved_simulator_details.execution_hostname
-      description: Execution Hostname of the given node.
+      description: Execution Hostname of the given simulator.
       type: String
     - contextPath: approved_simulator_details.deployments
       description: deployments simulator is part of.
@@ -219,7 +197,7 @@ script:
       required: false
       secret: false
       default: false
-    - name: nodes
+    - name: simulators
       isArray: true
       description: "A deployment is a group of simulators which work as a single group. this field needs\n                      Comma separated IDs of all simulators that should be part of this deployment.\n                      the ID can be retrieved from safebreach-get-all-simulator-details command with\n                      details input set to true so that the details can be seen. Care should be taken when giving \n                      simulator IDs as comma separated values as if any simulator has been deleted then this deployment \n                      wont contain that simulator on creation."
       required: false
@@ -241,8 +219,8 @@ script:
     - contextPath: created_deployment_data.description
       description: The description of the deployment created will be shown in description                            part of the table in safebreach.
       type: String
-    - contextPath: created_deployment_data.nodes
-      description: The nodes that are part of deployment. In case any nodes are given during                       creation that are deleted before the creation time then the deployment wont contain those nodes.
+    - contextPath: created_deployment_data.simulators
+      description: The simulators that are part of deployment. In case any simulators are given during                       creation that are deleted before the creation time then the deployment wont contain those simulators.
       type: String
   - deprecated: false
     description: This command creates a user with given data.
@@ -385,12 +363,6 @@ script:
     - name: deployment_id
       isArray: false
       description: "\n                      ID of the deployment to delete. this can be searched with list-deployments command or\n                      from UI. this will be taken as id of deployment which we want to delete.\n                      "
-      required: false
-      secret: false
-      default: false
-    - name: deployment_name
-      isArray: false
-      description: "\n                      Name of the deployment to search whose data will be deleted. \n                      This field will be used to search the existing deployment names and find a deployment \n                      whose name matches this and that will be used as deployment whose data we are updating. \n                      "
       required: true
       secret: false
       default: false
@@ -410,16 +382,16 @@ script:
     - contextPath: deleted_deployment_data.description
       description: The description of deployment before it was deleted.
       type: String
-    - contextPath: deleted_deployment_data.nodes
-      description: The nodes that are part of deployment before it was deleted.
+    - contextPath: deleted_deployment_data.simulators
+      description: The simulators that are part of deployment before it was deleted.
       type: String
   - deprecated: false
     description: "\n    This command deletes connector related errors and warnings. This command needs connector id as input which will be\n    used to delete the errors/warnings for the given connector id. the connector ids can be retrieved by using command\n    get-all-integration-issues and this command will give connector id which can be used for input. \n    "
-    name: safebreach-delete-integration-errors
+    name: safebreach-delete-integration-issues
     arguments:
-    - name: connector_id
+    - name: integration_id
       isArray: false
-      description: "\n                      The connector ID of Integration connector to have its errors/warnings deleted.\n                      this is used to search for integration connector which will have its logs cleared, there is no way to\n                      clear just errors or just warnings here and this connector with this will be having all errors and warnings\n                      cleared.\n                      "
+      description: "\n                      The connector ID of Integration to have its errors/warnings deleted. this is used to search for integration \n                      connector which will have its logs cleared, there is no way to clear just errors or just warnings here and \n                      this connector with this will be having all errors and warnings cleared.\n                      "
       required: true
       secret: false
       default: false
@@ -447,11 +419,8 @@ script:
     - contextPath: deleted_Schedule.isEnabled
       description: if schedule is enabled.
       type: Boolean
-    - contextPath: deleted_Schedule.name
-      description: the name of the schedule.
-      type: String
-    - contextPath: deleted_Schedule.cronString
-      description: the cron expression the schedule.
+    - contextPath: deleted_Schedule.user_schedule
+      description: the user readable form of the schedule.
       type: String
     - contextPath: deleted_Schedule.runDate
       description: the run date of the schedule.
@@ -459,14 +428,11 @@ script:
     - contextPath: deleted_Schedule.cronTimezone
       description: the time zone of the schedule.
       type: String
-    - contextPath: deleted_Schedule.taskId
-      description: the plan ID of the schedule.
-      type: String
     - contextPath: deleted_Schedule.description
       description: the description of the schedule.
       type: String
-    - contextPath: deleted_Schedule.matrixId
-      description: the matrix ID of the schedule.
+    - contextPath: deleted_Schedule.plan_id
+      description: the plan ID of the schedule.
       type: String
     - contextPath: deleted_Schedule.createdAt
       description: the creation datetime of the schedule.
@@ -478,51 +444,18 @@ script:
       description: the deletion time of the schedule.
       type: String
   - deprecated: false
-    description: This command deletes simulator with given name in simulator_or_node_name field.
-    name: safebreach-delete-simulator-with-name
+    description: This command deletes simulator with given ID.to get simulator_id use safebreach-get-all-simulators command.
+    name: safebreach-delete-simulator
     arguments:
-    - name: simulator_or_node_name
+    - name: simulator_id
       isArray: false
-      description: "\n                      Name of simulator/node to search with. this is name which will be used to search the list of simulators \n                      which will be retrieved and of which whose name matches this input value.\n                      "
+      description: Id of the simulator we want to delete.
       required: true
       secret: false
       default: false
-    - name: should_force_delete
-      isArray: false
-      description: "setting this to false will evaluate the whether the simulator is connected or not and if its running a \n                       simulation then the simulator wont be deleted. but if it is set to true then this will delete the \n                       simulator irrespective of connection status."
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'false'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: details
-      isArray: false
-      description: "\n                      If simulator details are to be retrieved while searching. this should be selected to true if the command is\n                      \"safebreach-get-simulator-with-name\" and if its false then only very small number of fields will be \n                      retrieved thus making search with name impossible.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: deleted
-      isArray: false
-      description: if deleted are to be included for search.
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     outputs:
     - contextPath: deleted_simulator_details.is_enabled
-      description: Whether the node is enabled or not.
+      description: Whether the simulator is enabled or not.
       type: String
     - contextPath: deleted_simulator_details.simulator_id
       description: The Id of given simulator.
@@ -549,7 +482,7 @@ script:
       description: If simulator is mail attacker.
       type: String
     - contextPath: deleted_simulator_details.is_pre_executor
-      description: Whether the node is pre executor.
+      description: Whether the simulator is pre executor.
       type: String
     - contextPath: deleted_simulator_details.is_aws_attacker
       description: if the given simulator is aws attacker.
@@ -582,7 +515,7 @@ script:
       description: status of the simulator.
       type: String
     - contextPath: deleted_simulator_details.connection_status
-      description: connection status of node/simulator.
+      description: connection status of simulator.
       type: String
     - contextPath: deleted_simulator_details.simulator_framework_version
       description: Framework version of simulator.
@@ -594,7 +527,7 @@ script:
       description: Operating system of given simulator.
       type: String
     - contextPath: deleted_simulator_details.execution_hostname
-      description: Execution Hostname of the given node.
+      description: Execution Hostname of the given simulator.
       type: String
     - contextPath: deleted_simulator_details.deployments
       description: deployments simulator is part of.
@@ -621,8 +554,8 @@ script:
       description: Advanced simulator details.
       type: String
   - deprecated: false
-    description: This command deletes tests with given plan ID.
-    name: safebreach-delete-test-summary-of-given-test
+    description: This command deletes tests with given test ID.
+    name: safebreach-delete-test-with-id
     arguments:
     - name: test_id
       isArray: false
@@ -630,17 +563,6 @@ script:
       required: false
       secret: false
       default: false
-    - name: soft_delete
-      isArray: false
-      description: "\n                      This field when set to true will delete the test from database directly but when set to false\n                      this will just set the status of test to deleted.\n                      "
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'false'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     outputs:
     - contextPath: deleted_test_results.planId
       description: Plan ID of the simulation.
@@ -718,28 +640,6 @@ script:
       required: true
       secret: false
       default: false
-    - name: should_include_details
-      isArray: false
-      description: "\n                      This field when selected true will retrieve the details of users like name, email, role, whether the user \n                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to\n                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining \n                      commands like delete or update user, please set details to true.\n                      "
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: should_include_deleted
-      isArray: false
-      description: "\n                      If deleted users are to be included while querying all users. by default this is set to true because\n                      there might be cases where its preferable to see deleted users too. this can be set to false to see \n                      only users who dont have their credentials deleted.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     outputs:
     - contextPath: deleted_user_data.id
       description: The ID of User whose data has been deleted.
@@ -776,16 +676,16 @@ script:
     name: safebreach-get-integration-issues
     arguments: []
     outputs:
-    - contextPath: integration_errors.connector
+    - contextPath: integration_errors.integration_id
       description: The connector ID of Integration connector. A general notation that has been followed here is                       as follows, if the  id has _default at the end then its a default connector else its a custom connector.
       type: Number
     - contextPath: integration_errors.action
-      description: "The action of Integration connector error. This describes where exactly did the error occur,        \t\t if its search,then it implies error/warning happened when connector was trying that process."
+      description: The action of Integration connector error. This describes where exactly did the error occur,                        if its search,then it implies error/warning happened when connector was trying that process.
       type: String
-    - contextPath: integration_errors.success
+    - contextPath: integration_errors.success_state
       description: status of connector error. This implies whether the connector was able to                        successfully perform the operation or if it failed partway.                        So false implies it failed partway and true implies it was successfully completed.
       type: String
-    - contextPath: integration_errors.error
+    - contextPath: integration_errors.error_description
       description: This is the exact error description shown on safebreach connector error/warning page.                        This description can be used for understanding of what exactly happened for the connector to fail.
       type: String
     - contextPath: integration_errors.timestamp
@@ -793,7 +693,7 @@ script:
       type: String
   - deprecated: false
     description: This command gets simulations which are in running or queued state.
-    name: safebreach-get-active-running-simulations
+    name: safebreach-get-queued-running-simulations
     arguments: []
     outputs:
     - contextPath: active_simulations.status
@@ -823,11 +723,11 @@ script:
     - contextPath: active_simulations.moveRevision
       description: the move revision of the simulation.
       type: String
-    - contextPath: active_simulations.node_ids_involved
-      description: the nodes involved in the simulation.
+    - contextPath: active_simulations.simulator_ids_involved
+      description: the simulators involved in the simulation.
       type: String
-    - contextPath: active_simulations.node_names_involved
-      description: the names of nodes the simulation.
+    - contextPath: active_simulations.simulator_names_involved
+      description: the names of simulators the simulation.
       type: String
     - contextPath: active_simulations.timeout
       description: the timeout of the simulation if its failing etc.
@@ -837,7 +737,7 @@ script:
       type: String
   - deprecated: false
     description: This command gets tests which are in running or queued state.
-    name: safebreach-get-active-running-tests
+    name: safebreach-get-queued-running-tests
     arguments: []
     outputs:
     - contextPath: active_tests.id
@@ -937,28 +837,6 @@ script:
     description: "This command to get all available simulators. if details is set to true then it retrieves simulator details like name, \n    hostname, internal and external ips, types of targets and attacker configurations this simulator is associated with etc.\n    if its set to false then it retrieves just name, id, simulation users, proxies etc. if deleted is set to true then it\n    retrieves the data which has been deleted."
     name: safebreach-get-available-simulator-details
     arguments:
-    - name: details
-      isArray: false
-      description: "\n                      If simulator details are to be retrieved while searching. this should be selected to true if the command is\n                      \"safebreach-get-simulator-with-name\" and if its false then only very small number of fields will be \n                      retrieved thus making search with name impossible.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: deleted
-      isArray: false
-      description: "\n                      if deleted simulators/nodes are to be included for search.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: secret
       isArray: false
       description: if secrets are to be included for search.
@@ -1038,7 +916,7 @@ script:
       auto: PREDEFINED
     - name: is_connected
       isArray: false
-      description: status of connection of nodes to search.
+      description: status of connection of simulators to search.
       required: false
       secret: false
       default: false
@@ -1048,7 +926,7 @@ script:
       auto: PREDEFINED
     - name: is_critical
       isArray: false
-      description: whether to search only for critical nodes or not.
+      description: whether to search only for critical simulators or not.
       required: false
       secret: false
       default: false
@@ -1080,7 +958,7 @@ script:
       auto: PREDEFINED
     outputs:
     - contextPath: simulator_details.is_enabled
-      description: Whether the node is enabled or not.
+      description: Whether the simulator is enabled or not.
       type: String
     - contextPath: simulator_details.simulator_id
       description: The Id of given simulator.
@@ -1107,7 +985,7 @@ script:
       description: If simulator is mail attacker.
       type: String
     - contextPath: simulator_details.is_pre_executor
-      description: Whether the node is pre executor.
+      description: Whether the simulator is pre executor.
       type: String
     - contextPath: simulator_details.is_aws_attacker
       description: if the given simulator is aws attacker.
@@ -1140,7 +1018,7 @@ script:
       description: status of the simulator.
       type: String
     - contextPath: simulator_details.connection_status
-      description: connection status of node/simulator.
+      description: connection status of simulator.
       type: String
     - contextPath: simulator_details.simulator_framework_version
       description: Framework version of simulator.
@@ -1152,7 +1030,7 @@ script:
       description: Operating system of given simulator.
       type: String
     - contextPath: simulator_details.execution_hostname
-      description: Execution Hostname of the given node.
+      description: Execution Hostname of the given simulator.
       type: String
     - contextPath: simulator_details.deployments
       description: deployments simulator is part of.
@@ -1180,125 +1058,7 @@ script:
       type: String
   - deprecated: false
     description: This command gets tests with given modifiers.
-    name: safebreach-get-test-summary
-    arguments:
-    - name: include_archived
-      isArray: false
-      description: Should archived tests be included in search.
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: entries_per_page
-      isArray: false
-      description: number of entries per page to be retrieved.
-      required: false
-      secret: false
-      default: false
-    - name: plan_id
-      isArray: false
-      description: plan Id of test.
-      required: false
-      secret: false
-      default: false
-    - name: status
-      isArray: false
-      description: Status of simulation.
-      required: false
-      secret: false
-      default: false
-      defaultValue: CANCELED
-      predefined:
-      - CANCELED
-      - COMPLETED
-      auto: PREDEFINED
-    - name: simulation_id
-      isArray: false
-      description: Unique ID of the simulation.
-      required: false
-      secret: false
-      default: false
-    - name: sort_by
-      isArray: false
-      description: sort by option.
-      required: false
-      secret: false
-      default: false
-      defaultValue: endTime
-      predefined:
-      - endTime
-      - startTime
-      - testID
-      - stepRunId
-      auto: PREDEFINED
-    outputs:
-    - contextPath: test_results.planId
-      description: Plan ID of the simulation.
-      type: String
-    - contextPath: test_results.planName
-      description: Test Name of the simulation.
-      type: String
-    - contextPath: test_results.securityActionPerControl
-      description: Security Actions of the simulation.
-      type: String
-    - contextPath: test_results.planRunId
-      description: Test id of the simulation.
-      type: String
-    - contextPath: test_results.status
-      description: status of the simulation.
-      type: String
-    - contextPath: test_results.plannedSimulationsAmount
-      description: Planned simulations amount of the simulation.
-      type: String
-    - contextPath: test_results.simulatorExecutions
-      description: simulator executions of the simulation.
-      type: String
-    - contextPath: test_results.ranBy
-      description: user who started the simulation.
-      type: String
-    - contextPath: test_results.simulatorCount
-      description: simulators count of simulation.
-      type: String
-    - contextPath: test_results.endTime
-      description: End Time of the simulation.
-      type: String
-    - contextPath: test_results.startTime
-      description: start time of the simulation.
-      type: String
-    - contextPath: test_results.finalStatus.stopped
-      description: stopped count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.missed
-      description: missed count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.logged
-      description: logged count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.detected
-      description: detected count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.prevented
-      description: prevented count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.inconsistent
-      description: inconsistent count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.drifted
-      description: drifted count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.not_drifted
-      description: not drifted count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.baseline
-      description: baseline count of simulation.
-      type: String
-  - deprecated: false
-    description: "\n    This command gets tests with given plan ID and the order is based on sort by column.\n    "
-    name: safebreach-get-test-summary-with-plan-run-id
+    name: safebreach-get-tests
     arguments:
     - name: include_archived
       isArray: false
@@ -1306,21 +1066,21 @@ script:
       required: false
       secret: false
       default: false
-      defaultValue: 'true'
+      defaultValue: 'false'
       predefined:
       - 'true'
       - 'false'
       auto: PREDEFINED
     - name: entries_per_page
       isArray: false
-      description: "\n                      number of entries to be retrieved. for viewing, this will work in combination with sort_by field and\n                      things will be sorted in decreasing order so if you chose 100 entries here and if endtime is chosen as sort\n                      then it will show last 100 executions with latest end time.\n                      "
+      description: "\n                      number of entries to be retrieved. for viewing, this will work in combination with sort_by field and\n                      things will be sorted in decreasing order so if you chose 100 entries here and if endTime is chosen as sort\n                      then it will show last 100 executions with latest end time.\n                      "
       required: false
       secret: false
       default: false
     - name: plan_id
       isArray: false
-      description: "\n                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-test-summary \n                      instead of this with same parameters as inputs.\n                      "
-      required: true
+      description: "\n                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests \n                      instead of this with same parameters as inputs.\n                      "
+      required: false
       secret: false
       default: false
     - name: status
@@ -1414,31 +1174,80 @@ script:
       description: baseline count of simulation.
       type: String
   - deprecated: false
-    description: This command gives all users depending on inputs given.
-    name: safebreach-get-all-users
+    description: "\n    This command gets tests with given plan ID and the order is based on sort by column.\n    "
+    name: safebreach-get-test-with-plan-id
     arguments:
-    - name: should_include_details
+    - name: plan_id
       isArray: false
-      description: "\n                      This field when selected true will retrieve the details of users like name, email, role, whether the user \n                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to\n                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining \n                      commands like delete or update user, please set details to true.\n                      "
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: should_include_deleted
-      isArray: false
-      description: "\n                      If deleted users are to be included while querying all users. by default this is set to true because\n                      there might be cases where its preferable to see deleted users too. this can be set to false to see \n                      only users who dont have their credentials deleted.\n                      "
+      description: "\n                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests \n                      instead of this with same parameters as inputs.\n                      "
       required: true
       secret: false
       default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
+    outputs:
+    - contextPath: test_results.planId
+      description: Plan ID of the simulation.
+      type: String
+    - contextPath: test_results.planName
+      description: Test Name of the simulation.
+      type: String
+    - contextPath: test_results.securityActionPerControl
+      description: Security Actions of the simulation.
+      type: String
+    - contextPath: test_results.planRunId
+      description: Test id of the simulation.
+      type: String
+    - contextPath: test_results.status
+      description: status of the simulation.
+      type: String
+    - contextPath: test_results.plannedSimulationsAmount
+      description: Planned simulations amount of the simulation.
+      type: String
+    - contextPath: test_results.simulatorExecutions
+      description: simulator executions of the simulation.
+      type: String
+    - contextPath: test_results.ranBy
+      description: user who started the simulation.
+      type: String
+    - contextPath: test_results.simulatorCount
+      description: simulators count of simulation.
+      type: String
+    - contextPath: test_results.endTime
+      description: End Time of the simulation.
+      type: String
+    - contextPath: test_results.startTime
+      description: start time of the simulation.
+      type: String
+    - contextPath: test_results.finalStatus.stopped
+      description: stopped count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.missed
+      description: missed count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.logged
+      description: logged count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.detected
+      description: detected count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.prevented
+      description: prevented count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.inconsistent
+      description: inconsistent count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.drifted
+      description: drifted count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.not_drifted
+      description: not drifted count of simulation.
+      type: String
+    - contextPath: test_results.finalStatus.baseline
+      description: baseline count of simulation.
+      type: String
+  - deprecated: false
+    description: This command gives all users who are not deleted.
+    name: safebreach-get-all-users
+    arguments: []
     outputs:
     - contextPath: user_data.id
       description: The ID of User retrieved. this can be used to further link this user with                       user_id field of safebreach-update-user or safebreach-delete-user commands.
@@ -1495,7 +1304,7 @@ script:
     - contextPath: custom_scenarios.updatedAt
       description: the last updated time the scenario.
       type: String
-    - contextPath: custom_scenarios.custom_data_object_for_rerun_scenario
+    - contextPath: custom_scenarios.custom_data_object_for_rerun_simulation
       description: the data which can be used for             rerun-simulation command.
       type: String
     - contextPath: custom_scenarios.custom_data_for_rerun_test
@@ -1545,29 +1354,7 @@ script:
   - deprecated: false
     description: This command retrieves schedules from safebreach which user has set and they will display it to user.
     name: safebreach-get-schedules
-    arguments:
-    - name: deleted
-      isArray: false
-      description: "\n                      If this field is set to true then deleted schedules will be retrieved too for information, \n                      Unless it is required to search old and deleted schedules, keep this selection as false.\n                      "
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'false'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: details
-      isArray: false
-      description: "\n                      Should details tests be included in result, if this field is not selected to true then only name \n                      and id will be retrieved and anything else is ignored, so if we want information on detailed schedule\n                      structure and planning , keep this selected to true. else keep this false.\n                      "
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
+    arguments: []
     outputs:
     - contextPath: schedules.id
       description: the Id of the schedule.
@@ -1575,12 +1362,6 @@ script:
     - contextPath: schedules.isEnabled
       description: if simulation is enabled.
       type: Boolean
-    - contextPath: schedules.name
-      description: the name of the schedule.
-      type: String
-    - contextPath: schedules.cronString
-      description: the cron expression the schedule.
-      type: String
     - contextPath: schedules.user_schedule
       description: the user readable form of the schedule.
       type: String
@@ -1590,13 +1371,10 @@ script:
     - contextPath: schedules.cronTimezone
       description: the time zone of the schedule.
       type: String
-    - contextPath: schedules.taskId
-      description: the plan ID of the schedule.
-      type: String
     - contextPath: schedules.description
       description: the description of the schedule.
       type: String
-    - contextPath: schedules.matrixId
+    - contextPath: schedules.plan_id
       description: the matrix ID of the schedule.
       type: String
     - contextPath: schedules.createdAt
@@ -1626,6 +1404,44 @@ script:
       description: error status of service.
       type: String
   - deprecated: false
+    description: "\n    this command is used to get simulations and their data related to a given test, \n    this can be used as predecessor command to rerun-simulations command for easier queueing of simulations.\n    This command does not have any limiters with pagination implemented so there might be huge data retrieved.\n    "
+    name: safebreach-get-simulation-results
+    arguments:
+    - name: test_id
+      isArray: false
+      description: This is test of of the test whose simulations we will retrieve with this command.
+      required: false
+      secret: false
+      default: false
+    outputs:
+    - contextPath: simulation_details.simulation_id
+      description: the id of the simulation.
+      type: String
+    - contextPath: simulation_details.plan_name
+      description: name of the plan to which this simulation belongs to.
+      type: String
+    - contextPath: simulation_details.attacker_node_name
+      description: Name of attacker node of simulation.
+      type: String
+    - contextPath: simulation_details.target_node_name
+      description: name of target of simulation.
+      type: String
+    - contextPath: simulation_details.dest_node_name
+      description: name of destination of simulation.
+      type: String
+    - contextPath: simulation_details.status
+      description: final status of simulation.
+      type: String
+    - contextPath: simulation_details.result
+      description: result of simulation.
+      type: String
+    - contextPath: simulation_details.security_action
+      description: security action of simulation.
+      type: String
+    - contextPath: simulation_details.attacks_involved
+      description: attack types involved in of simulation.
+      type: String
+  - deprecated: false
     description: This command gives all details related to account, we are using this to find assigned simulator quota.
     name: safebreach-get-available-simulator-count
     arguments: []
@@ -1636,161 +1452,139 @@ script:
     - contextPath: account_details.name
       description: The Account Name of account being queried.
       type: String
-    - contextPath: account_details.contactName
+    - contextPath: account_details.contact_name
       description: Contact name for given account.
       type: String
-    - contextPath: account_details.contactEmail
+    - contextPath: account_details.contact_email
       description: Email of the contact person.
       type: String
-    - contextPath: account_details.userQuota
-      description: User Quota for the given account, the max number of users which are allowed for the account.
+    - contextPath: account_details.user_quota
+      description: User Quota for the given account, maximum users which are allowed for the account.
       type: String
-    - contextPath: account_details.nodesQuota
+    - contextPath: account_details.simulators_quota
       description: The simulator quota for the given account. the maximum number of simulators                        which are permitted for the account.
       type: Number
-    - contextPath: account_details.registrationDate
+    - contextPath: account_details.registration_date
       description: The registration date of given account.
       type: Number
-    - contextPath: account_details.activationDate
+    - contextPath: account_details.activation_date
       description: The Activation date of given account.
       type: String
-    - contextPath: account_details.expirationDate
+    - contextPath: account_details.expiration_date
       description: Account expiration date.
       type: String
   - deprecated: false
     description: This command gives simulator with given name.
-    name: safebreach-get-simulator-with-name
+    name: safebreach-get-simulator-with-id
     arguments:
-    - name: simulator_or_node_name
+    - name: simulator_id
       isArray: false
-      description: "\n                      Name of simulator/node to search with. this is name which will be used to search the list of simulators \n                      which will be retrieved and of which whose name matches this input value.\n                      "
+      description: This is simulator ID of simulator we want to search.
       required: true
       secret: false
       default: false
-    - name: details
-      isArray: false
-      description: "\n                      If simulator details are to be retrieved while searching. this should be selected to true if the command is\n                      \"safebreach-get-simulator-with-name\" and if its false then only very small number of fields will be \n                      retrieved thus making search with name impossible.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: deleted
-      isArray: false
-      description: if deleted are to be included for search.
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     outputs:
-    - contextPath: simulator_details_with_name.is_enabled
-      description: Whether the node is enabled or not.
+    - contextPath: simulator_details_with_id.is_enabled
+      description: Whether the simulator is enabled or not.
       type: String
-    - contextPath: simulator_details_with_name.simulator_id
+    - contextPath: simulator_details_with_id.simulator_id
       description: The Id of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.name
+    - contextPath: simulator_details_with_id.name
       description: name for given simulator.
       type: String
-    - contextPath: simulator_details_with_name.account_id
+    - contextPath: simulator_details_with_id.account_id
       description: Account Id of account Hosting given simulator.
       type: String
-    - contextPath: simulator_details_with_name.is_critical
+    - contextPath: simulator_details_with_id.is_critical
       description: Whether the simulator is critical.
       type: String
-    - contextPath: simulator_details_with_name.is_exfiltration
+    - contextPath: simulator_details_with_id.is_exfiltration
       description: If Simulator is exfiltration target.
       type: String
-    - contextPath: simulator_details_with_name.is_infiltration
+    - contextPath: simulator_details_with_id.is_infiltration
       description: If simulator is infiltration target.
       type: String
-    - contextPath: simulator_details_with_name.is_mail_target
+    - contextPath: simulator_details_with_id.is_mail_target
       description: If simulator is mail target.
       type: String
-    - contextPath: simulator_details_with_name.is_mail_attacker
+    - contextPath: simulator_details_with_id.is_mail_attacker
       description: If simulator is mail attacker.
       type: String
-    - contextPath: simulator_details_with_name.is_pre_executor
-      description: Whether the node is pre executor.
+    - contextPath: simulator_details_with_id.is_pre_executor
+      description: Whether the simulator is pre executor.
       type: String
-    - contextPath: simulator_details_with_name.is_aws_attacker
+    - contextPath: simulator_details_with_id.is_aws_attacker
       description: if the given simulator is aws attacker.
       type: String
-    - contextPath: simulator_details_with_name.is_azure_attacker
+    - contextPath: simulator_details_with_id.is_azure_attacker
       description: If the given simulator is azure attacker.
       type: String
-    - contextPath: simulator_details_with_name.external_ip
+    - contextPath: simulator_details_with_id.external_ip
       description: external ip of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.internal_ip
+    - contextPath: simulator_details_with_id.internal_ip
       description: internal ip of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.is_web_application_attacker
+    - contextPath: simulator_details_with_id.is_web_application_attacker
       description: Whether the simulator is Web application attacker.
       type: String
-    - contextPath: simulator_details_with_name.preferred_interface
+    - contextPath: simulator_details_with_id.preferred_interface
       description: Preferred simulator interface.
       type: String
-    - contextPath: simulator_details_with_name.preferred_ip
+    - contextPath: simulator_details_with_id.preferred_ip
       description: Preferred Ip of simulator.
       type: String
-    - contextPath: simulator_details_with_name.hostname
+    - contextPath: simulator_details_with_id.hostname
       description: Hostname of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.connection_type
+    - contextPath: simulator_details_with_id.connection_type
       description: connection_type of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.simulator_status
+    - contextPath: simulator_details_with_id.simulator_status
       description: status of the simulator.
       type: String
-    - contextPath: simulator_details_with_name.connection_status
-      description: connection status of node/simulator.
+    - contextPath: simulator_details_with_id.connection_status
+      description: connection status of simulator.
       type: String
-    - contextPath: simulator_details_with_name.simulator_framework_version
+    - contextPath: simulator_details_with_id.simulator_framework_version
       description: Framework version of simulator.
       type: String
-    - contextPath: simulator_details_with_name.operating_system_type
+    - contextPath: simulator_details_with_id.operating_system_type
       description: operating system type of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.operating_system
+    - contextPath: simulator_details_with_id.operating_system
       description: Operating system of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.execution_hostname
-      description: Execution Hostname of the given node.
+    - contextPath: simulator_details_with_id.execution_hostname
+      description: Execution Hostname of the given simulator.
       type: String
-    - contextPath: simulator_details_with_name.deployments
+    - contextPath: simulator_details_with_id.deployments
       description: deployments simulator is part of.
       type: String
-    - contextPath: simulator_details_with_name.created_at
+    - contextPath: simulator_details_with_id.created_at
       description: Creation datetime of simulator.
       type: String
-    - contextPath: simulator_details_with_name.updated_at
+    - contextPath: simulator_details_with_id.updated_at
       description: Update datetime of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.deleted_at
+    - contextPath: simulator_details_with_id.deleted_at
       description: deletion datetime of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.assets
+    - contextPath: simulator_details_with_id.assets
       description: Assets of given simulator.
       type: String
-    - contextPath: simulator_details_with_name.simulation_users
+    - contextPath: simulator_details_with_id.simulation_users
       description: simulator users list.
       type: String
-    - contextPath: simulator_details_with_name.proxies
+    - contextPath: simulator_details_with_id.proxies
       description: Proxies of simulator.
       type: String
-    - contextPath: simulator_details_with_name.advanced_actions
+    - contextPath: simulator_details_with_id.advanced_actions
       description: Advanced simulator details.
       type: String
   - deprecated: false
-    description: This command gives all users depending on inputs given.
+    description: This command gives all users which match the inputs given, Since email is a unique field we only get one user if            email matches but if name is given as input then care should be taken to see name matches exactly.            else there is a chance that multiple users are retrieved, please not that either name or email are to            be populated and if neither of them are given as input then it results in error.
     name: safebreach-get-user-with-matching-name-or-email
     arguments:
     - name: name
@@ -1802,31 +1596,9 @@ script:
     - name: email
       isArray: false
       description: "\n                      Email of the user to lookup. This will be used to retrieve user with matching email that user entered\n                      partial email search doesn't work here.\n                      "
-      required: true
-      secret: false
-      default: false
-    - name: should_include_details
-      isArray: false
-      description: "\n                      This field when selected true will retrieve the details of users like name, email, role, whether the user \n                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to\n                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining \n                      commands like delete or update user, please set details to true.\n                      "
       required: false
       secret: false
       default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: should_include_deleted
-      isArray: false
-      description: "\n                      If deleted users are to be included while querying all users. by default this is set to true because\n                      there might be cases where its preferable to see deleted users too. this can be set to false to see \n                      only users who dont have their credentials deleted.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     outputs:
     - contextPath: filtered_users.id
       description: The ID of User retrieved. this can be used to further link this user with user_id field of                        safebreach-update-user or safebreach-delete-user commands.
@@ -1917,143 +1689,52 @@ script:
       - low
       - high
       auto: PREDEFINED
-    - name: simulation_data
-      isArray: false
-      description: simulation data for the given simulation.
-      required: true
-      secret: false
-      default: false
-    outputs:
-    - contextPath: changed_data.id
-      description: the Id of scenario.
-      type: String
-    - contextPath: changed_data.name
-      description: the name of the scenario.
-      type: String
-    - contextPath: changed_data.description
-      description: the description of the scenario.
-      type: String
-    - contextPath: changed_data.successCriteria
-      description: success criteria the scenario.
-      type: String
-    - contextPath: changed_data.originalScenarioId
-      description: original scenario id of scenario.
-      type: String
-    - contextPath: changed_data.actions_list
-      description: actions list of the scenario.
-      type: String
-    - contextPath: changed_data.edges_count
-      description: edges count for the scenario.
-      type: String
-    - contextPath: changed_data.steps_order
-      description: the order of steps of the scenario.
-      type: String
-    - contextPath: changed_data.createdAt
-      description: the creation datetime of the scenario.
-      type: String
-    - contextPath: changed_data.updatedAt
-      description: the last updated time the scenario.
-      type: String
-  - deprecated: false
-    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table."
-    name: safebreach-rerun-simulation2
-    arguments:
-    - name: position
-      isArray: false
-      description: position in queue to put the given simulation data at.
-      required: false
-      secret: false
-      default: false
-    - name: enable_feedback_loop
-      isArray: false
-      description: this argument is used to enable/disable feedback loop.
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: retry_simulation
-      isArray: false
-      description: this argument is used to retry according to retry policy                 mention in retry policy field.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - ''
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: wait_for_retry
-      isArray: false
-      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - ''
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: priority
-      isArray: false
-      description: the priority of this simulation action.
-      required: false
-      secret: false
-      default: false
-      defaultValue: low
-      predefined:
-      - low
-      - high
-      auto: PREDEFINED
-    - name: simulation_id
-      isArray: false
-      description: simulation id for the given simulation, can be retrieved from running get prebuilt scenarios                       or custom scenarios command and then getting id field from them.
-      required: true
-      secret: false
-      default: false
     - name: simulation_name
       isArray: false
       description: simulation name for the given simulation.
       required: true
       secret: false
       default: false
+    - name: simulation_ids
+      isArray: false
+      description: ids of simulation we want to queue,                          please give ids of simulations as comma separated numbers.
+      required: true
+      secret: false
+      default: false
     outputs:
     - contextPath: changed_data.id
-      description: the Id of scenario.
+      description: the Id of simulation.
       type: String
     - contextPath: changed_data.name
-      description: the name of the scenario.
+      description: the name of the simulation.
       type: String
     - contextPath: changed_data.description
-      description: the description of the scenario.
+      description: the description of the simulation.
       type: String
     - contextPath: changed_data.successCriteria
-      description: success criteria the scenario.
+      description: success criteria the simulation.
       type: String
     - contextPath: changed_data.originalScenarioId
-      description: original scenario id of scenario.
+      description: original simulation id of simulation.
       type: String
     - contextPath: changed_data.actions_list
-      description: actions list of the scenario.
+      description: actions list of the simulation.
       type: String
     - contextPath: changed_data.edges_count
-      description: edges count for the scenario.
+      description: edges count for the simulation.
       type: String
     - contextPath: changed_data.steps_order
-      description: the order of steps of the scenario.
+      description: the order of steps of the simulation.
       type: String
     - contextPath: changed_data.createdAt
-      description: the creation datetime of the scenario.
+      description: the creation datetime of the simulation.
       type: String
     - contextPath: changed_data.updatedAt
-      description: the last updated time the scenario.
+      description: the last updated time the simulation.
       type: String
   - deprecated: false
     description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table."
-    name: safebreach-rerun-test2
+    name: safebreach-rerun-test
     arguments:
     - name: position
       isArray: false
@@ -2190,18 +1871,12 @@ script:
     - name: deployment_id
       isArray: false
       description: "\n                      ID of the deployment to update. this can be searched with list-deployments command or\n                      from UI. this will be taken as id of deployment whose properties we want to update.\n                      "
-      required: false
-      secret: false
-      default: false
-    - name: deployment_name
-      isArray: false
-      description: "\n                      Name of the deployment to search whose data will be updated. This field is not the field whose\n                      data will be used to update name of given to the value instead this field is for searching deployment \n                      with the value as name. This field will be used to search the existing deployment names and find a \n                      deployment whose name matches this and that will be used as deployment whose data we are updating. \n                      "
       required: true
       secret: false
       default: false
-    - name: updated_nodes_for_deployment
+    - name: updated_simulators_for_deployment
       isArray: false
-      description: "\n                      Comma separated ID of all nodes the deployment should be part of. These nodes can be\n                      retrieved by calling get-all-available-simulator-details command and that command will\n                      show the results of the all available simulators and the ids of those nodes can be used as\n                      comma separated values in this field for those nodes to act as a group.\n                      "
+      description: "\n                      Comma separated ID of all simulators the deployment should be part of. These simulators can be\n                      retrieved by calling get-all-available-simulator-details command and that command will\n                      show the results of the all available simulators and the ids of those simulators can be used as\n                      comma separated values in this field for those simulators to act as a group.\n                      "
       required: false
       secret: false
       default: false
@@ -2236,41 +1911,19 @@ script:
     - contextPath: updated_deployment_data.description
       description: The updated description of deployment which is provided in updated_deployment_description                       field of input . This will now be the description which is shown in description field of deployments                       table of safebreach UI.
       type: String
-    - contextPath: updated_deployment_data.nodes
-      description: The nodes that are part of deployment. unless any nodes are given as input this field wont                       be updated this field doesn't reflect changes if nodes given as input are deleted.
+    - contextPath: updated_deployment_data.simulators
+      description: The simulators that are part of deployment. unless any simulators are given as input this                            field won't be updated this field doesn't reflect changes if simulators given as input are deleted.
       type: String
   - deprecated: false
-    description: "\n    This command updates simulator with given name with given details in simulator_or_node_name. then the given inputs for update\n    fields will be updated to the selected filed values will be updated to given value.\n    "
-    name: safebreach-update-simulator-with-given-name
+    description: "\n    This command updates simulator with given id. the given inputs for update\n    fields will be updated to the selected filed values will be updated to given value.\n    "
+    name: safebreach-update-simulator
     arguments:
-    - name: simulator_or_node_name
+    - name: simulator_id
       isArray: false
-      description: "\n                      Name of simulator/node to search with. this is name which will be used to search the list of simulators \n                      which will be retrieved and of which whose name matches this input value.\n                      "
+      description: "\n                      simulator id tells which simulator are we updating, if you want to know the simulator id \n                      with given name then run safebreach-get-all-simulator-details command.\n                      "
       required: true
       secret: false
       default: false
-    - name: details
-      isArray: false
-      description: "\n                      If simulator details are to be retrieved while searching. this should be selected to true if the command is\n                      \"safebreach-get-simulator-with-name\" and if its false then only very small number of fields will be \n                      retrieved thus making search with name impossible.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: deleted
-      isArray: false
-      description: "\n                      If deleted are to be included for search. Incase the simulator we are searching for is deleted one then\n                      set this to true and then search. else keep it as default and set to false.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: connection_url
       isArray: false
       description: "\n                  the given value will be set as connection string, meaning this can be used to connect to\n                  this URL.\n                  "
@@ -2309,7 +1962,7 @@ script:
       default: false
     outputs:
     - contextPath: updated_simulator_details.is_enabled
-      description: Whether the node is enabled or not.
+      description: Whether the simulator is enabled or not.
       type: String
     - contextPath: updated_simulator_details.simulator_id
       description: The Id of given simulator.
@@ -2336,7 +1989,7 @@ script:
       description: If simulator is mail attacker.
       type: String
     - contextPath: updated_simulator_details.is_pre_executor
-      description: Whether the node is pre executor.
+      description: Whether the simulator is pre executor.
       type: String
     - contextPath: updated_simulator_details.is_aws_attacker
       description: if the given simulator is aws attacker.
@@ -2369,7 +2022,7 @@ script:
       description: status of the simulator.
       type: String
     - contextPath: updated_simulator_details.connection_status
-      description: connection status of node/simulator.
+      description: connection status of simulator.
       type: String
     - contextPath: updated_simulator_details.simulator_framework_version
       description: Framework version of simulator.
@@ -2381,7 +2034,7 @@ script:
       description: Operating system of given simulator.
       type: String
     - contextPath: updated_simulator_details.execution_hostname
-      description: Execution Hostname of the given node.
+      description: Execution Hostname of the given simulator.
       type: String
     - contextPath: updated_simulator_details.deployments
       description: deployments simulator is part of.
@@ -2420,7 +2073,7 @@ script:
     - name: email
       isArray: false
       description: "Email of the user to Search for updating user details. This is a required field.\n                      The user with matching email will be considered as user whose data will be updated."
-      required: true
+      required: false
       secret: false
       default: false
     - name: name
@@ -2470,28 +2123,6 @@ script:
       required: false
       secret: false
       default: false
-    - name: should_include_details
-      isArray: false
-      description: "\n                      This field when selected true will retrieve the details of users like name, email, role, whether the user \n                      is active, when the user is created, updated and when user is deleted if deleted and deployments related to\n                      user etc. if this field is set to false then we only retrieve name and id of user, thus when chaining \n                      commands like delete or update user, please set details to true.\n                      "
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: should_include_deleted
-      isArray: false
-      description: "\n                      If deleted users are to be included while querying all users. by default this is set to true because\n                      there might be cases where its preferable to see deleted users too. this can be set to false to see \n                      only users who dont have their credentials deleted.\n                      "
-      required: true
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     outputs:
     - contextPath: updated_user_data.id
       description: The ID of User whose data has been updated.

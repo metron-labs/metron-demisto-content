@@ -8,6 +8,6 @@
             "simulation_id": "",
             "sort_by":"endTime"
         },
-        "command":"safebreach-get-test-summary"
+        "command":"safebreach-get-tests"
     }
 }

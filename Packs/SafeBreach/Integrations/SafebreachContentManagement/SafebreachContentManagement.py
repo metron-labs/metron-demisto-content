@@ -699,7 +699,7 @@ class Client(BaseClient):
         result = self.delete_node_with_given_id(node_id=simulator_id, force=force_delete)
         return result
 
-    def make_update_node_payload(self):
+    def make_update_simulator_payload(self):
         # this is created under assumption that only these fields will be  chosen to be updated by user
         data_dict = {
             "isEnabled": demisto.args().get("isEnabled", "").lower(),
@@ -727,7 +727,7 @@ class Client(BaseClient):
                 data_dict.pop(key)
         return data_dict
 
-    def update_node(self, node_id, node_data):
+    def update_simulator(self, node_id, node_data):
         method = "PUT"
         account_id = demisto.params().get("account_id")
         request_url = f"/config/v1/accounts/{account_id}/nodes/{node_id}"
@@ -735,10 +735,10 @@ class Client(BaseClient):
         updated_node = self.get_response(url=request_url, method=method, body=node_data)
         return updated_node
 
-    def update_simulator_with_given_name(self):
+    def update_simulator(self):
         simulator_id = self.get_simulator_with_a_name_return_id()
-        payload = self.make_update_node_payload()
-        updated_node = self.update_node(node_id=simulator_id, node_data=payload)
+        payload = self.make_update_simulator_payload()
+        updated_node = self.update_simulator(node_id=simulator_id, node_data=payload)
         return updated_node
 
     def rotate_verification_token(self):
@@ -1422,7 +1422,7 @@ def get_simulator_with_name(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-delete-simulator-with-name",
+    command_name="safebreach-delete-simulator",
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
@@ -1453,7 +1453,7 @@ def delete_simulator_with_given_name(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-update-simulator-with-given-name",
+    command_name="safebreach-update-simulator",
     inputs_list=[
         InputArgument(name="Simulator/Node Name", description="Name of simulator/node to search with.",
                       required=True, is_array=False),
@@ -1461,9 +1461,9 @@ def delete_simulator_with_given_name(client: Client):
     outputs_prefix="updated_simulator_details",
     outputs_list=simulators_output_fields,
     description="This command updates simulator with given name with given details.")
-def update_simulator_with_given_name(client: Client):
+def update_simulator(client: Client):
 
-    updated_node = client.update_simulator_with_given_name()
+    updated_node = client.update_simulator()
 
     flattened_nodes, keys = client.flatten_node_details([updated_node.get("data", {})])
     human_readable = tableToMarkdown(
@@ -1502,7 +1502,7 @@ def return_rotated_verification_token(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-get-test-summary",
+    command_name="safebreach-get-tests",
     inputs_list=[
         InputArgument(name="Include Archived", description="Should archived tests be included in search.",
                       options=["true", "false"], default="true", required=False, is_array=False),
@@ -1523,7 +1523,7 @@ def get_all_tests_summary(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-get-test-summary-with-plan-run-id",
+    command_name="safebreach-get-test-with-plan-id",
     inputs_list=[
         InputArgument(name="Include Archived", description="Should archived tests be included in search.",
                       options=["true", "false"], default="true", required=False, is_array=False),
@@ -1544,7 +1544,7 @@ def get_all_tests_summary_with_plan_id(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-delete-test-summary-of-given-test",
+    command_name="safebreach-delete-test-with-id",
     inputs_list=[
         InputArgument(name="Test ID", description="number of entries per page to be retrieved.",
                       required=False, is_array=False),
@@ -1650,27 +1650,27 @@ def main() -> None:
             result = get_simulator_with_name(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-delete-simulator-with-name":
+        elif demisto.command() == "safebreach-delete-simulator":
             result = delete_simulator_with_given_name(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-update-simulator-with-given-name":
-            result = update_simulator_with_given_name(client=client)
+        elif demisto.command() == "safebreach-update-simulator":
+            result = update_simulator(client=client)
             return_results(result)
 
         elif demisto.command() == "safebreach-rotate-verification-token":
             result = return_rotated_verification_token(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-get-test-summary":
+        elif demisto.command() == "safebreach-get-tests":
             result = get_all_tests_summary(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-get-test-summary-with-plan-run-id":
+        elif demisto.command() == "safebreach-get-test-with-plan-id":
             result = get_all_tests_summary_with_plan_id(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-delete-test-summary-of-given-test":
+        elif demisto.command() == "safebreach-delete-test-with-id":
             result = delete_test_result_of_test(client=client)
             return_results(result)
 
