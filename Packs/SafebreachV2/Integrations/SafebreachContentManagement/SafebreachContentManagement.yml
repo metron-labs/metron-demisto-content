@@ -162,24 +162,18 @@ script:
     outputs:
     - contextPath: generated_api_key.name
       description: The Name of API Key generated through this command,                            This will match the input name of the command.
-      type: Number
+      type: String
     - contextPath: generated_api_key.description
       description: The Description of API Key created.                            this will be same as input description given for the command.
       type: String
-    - contextPath: generated_api_key.createdBy
+    - contextPath: generated_api_key.created_by
       description: The id of user who generated this API key.
       type: String
-    - contextPath: generated_api_key.createdAt
+    - contextPath: generated_api_key.created_bt
       description: The creation date and time of API key.
       type: String
     - contextPath: generated_api_key.key
       description: The value of API key generated. store this for further use as this will only be shown once.
-      type: String
-    - contextPath: generated_api_key.roles
-      description: The roles allowed for this api key.                            This will generally be the roles assigned to user who created the key.
-      type: String
-    - contextPath: generated_api_key.role
-      description: The role of API Key.
       type: String
   - deprecated: false
     description: This command creates a deployment with given data.
@@ -199,7 +193,7 @@ script:
       default: false
     - name: simulators
       isArray: true
-      description: "A deployment is a group of simulators which work as a single group. this field needs\n                      Comma separated IDs of all simulators that should be part of this deployment.\n                      the ID can be retrieved from safebreach-get-all-simulator-details command with\n                      details input set to true so that the details can be seen. Care should be taken when giving \n                      simulator IDs as comma separated values as if any simulator has been deleted then this deployment \n                      wont contain that simulator on creation."
+      description: "A deployment is a group of simulators which work as a single group. this field needs\n                      Comma separated IDs of all simulators that should be part of this deployment.\n                      the ID can be retrieved from safebreach-get-all-simulator-details command with Care should be taken when \n                      giving simulator IDs as comma separated values as if any simulator has been deleted then this deployment \n                      wont contain that simulator on creation."
       required: false
       secret: false
       default: false
@@ -207,13 +201,13 @@ script:
     - contextPath: created_deployment_data.id
       description: The ID of deployment created. this Id can be used to update ,delete deployment as                       deployment_id field of the deployment.
       type: Number
-    - contextPath: created_deployment_data.accountId
+    - contextPath: created_deployment_data.account_id
       description: This field shows account ID of user who has created the account.
       type: String
     - contextPath: created_deployment_data.name
       description: The name of deployment created. this will be name which will be shown on deployments page                       of safebreach and name that is given as input to the command.
       type: String
-    - contextPath: created_deployment_data.createdAt
+    - contextPath: created_deployment_data.created_at
       description: The creation date and time of deployment , this will be closer to                       command execution time if the deployment creation is successful.
       type: String
     - contextPath: created_deployment_data.description
@@ -266,12 +260,6 @@ script:
       required: true
       secret: false
       default: false
-    - name: admin_name
-      isArray: false
-      description: "\n                      Name of the Admin creating user. This will be populated in created by field of user page in safebreach.\n                      "
-      required: false
-      secret: false
-      default: false
     - name: change_password_on_create
       isArray: false
       description: "\n                      Should user change password on creation. when this is set to true then user will have to reset password on\n                      the next login, this can be used if we want user to reset password as soon as they login.\n                      "
@@ -315,9 +303,6 @@ script:
     - contextPath: created_user_data.createdAt
       description: The creation time of User.
       type: String
-    - contextPath: created_user_data.deletedAt
-      description: The Deletion time of User . This will be empty unless the user is deleted.
-      type: String
     - contextPath: created_user_data.roles
       description: The roles and permissions of User created.
       type: String
@@ -347,17 +332,17 @@ script:
     - contextPath: deleted_api_key.description
       description: Description of API Key deleted.
       type: String
-    - contextPath: deleted_api_key.createdBy
+    - contextPath: deleted_api_key.created_by
       description: The id of user who generated this API key.
       type: String
-    - contextPath: deleted_api_key.createdAt
+    - contextPath: deleted_api_key.created_at
       description: The creation time and date of API key.
       type: String
-    - contextPath: deleted_api_key.deletedAt
+    - contextPath: deleted_api_key.deleted_at
       description: The deletion time and date of API key. The deletion date and time are generally                       close to the command execution time and date.
       type: String
   - deprecated: false
-    description: "\n    This command deletes a deployment with given data.The deployment_id field of this command can  be retrieved from \n    get-all-deployments command. If the user wants to search with deployment ID then they can search it that way or \n    if user just wants to search with name then they can just give name field and the command internally searches the deployment \n    with given name and deletes it."
+    description: "\n    This command deletes a deployment with given data.The deployment_id field of this command can  be retrieved from \n    get-all-deployments command. If the user wants to search with deployment ID then they can search it and then delete it.\n    "
     name: safebreach-delete-deployment
     arguments:
     - name: deployment_id
@@ -370,13 +355,13 @@ script:
     - contextPath: deleted_deployment_data.id
       description: The ID of deployment which has been deleted.
       type: Number
-    - contextPath: deleted_deployment_data.accountId
+    - contextPath: deleted_deployment_data.account_id
       description: The account Id of user who deleted the deployment.
       type: String
     - contextPath: deleted_deployment_data.name
       description: The name of deployment before the deployment was deleted.
       type: String
-    - contextPath: deleted_deployment_data.createdAt
+    - contextPath: deleted_deployment_data.created_at
       description: The creation date and time of deployment which has been deleted.
       type: String
     - contextPath: deleted_deployment_data.description
@@ -386,24 +371,24 @@ script:
       description: The simulators that are part of deployment before it was deleted.
       type: String
   - deprecated: false
-    description: "\n    This command deletes connector related errors and warnings. This command needs connector id as input which will be\n    used to delete the errors/warnings for the given connector id. the connector ids can be retrieved by using command\n    get-all-integration-issues and this command will give connector id which can be used for input. \n    "
+    description: "This command deletes integration related errors and warnings. This command needs integration id as input which will be\n    used to delete the errors/warnings for the given integration id. the integration ids can be retrieved by using command\n    get-all-integration-issues and this command will give integration id which can be used for input. \n    If output of command has result as true then logs have been cleared for integration else errorMessage field is shown."
     name: safebreach-delete-integration-issues
     arguments:
     - name: integration_id
       isArray: false
-      description: "\n                      The connector ID of Integration to have its errors/warnings deleted. this is used to search for integration \n                      connector which will have its logs cleared, there is no way to clear just errors or just warnings here and \n                      this connector with this will be having all errors and warnings cleared.\n                      "
+      description: "\n                      The ID of Integration to have its errors/warnings deleted. this is used to search for integration \n                      which will have its logs cleared, there is no way to clear just errors or just warnings here and \n                      this Integration with this will be having all errors and warnings cleared.\n                      "
       required: true
       secret: false
       default: false
     outputs:
     - contextPath: errors_cleared.error
-      description: Error count after deletion of errors for the given connector.
+      description: Error count after deletion of errors for the given Integration.
       type: Number
     - contextPath: errors_cleared.result
       description: error deletion status whether true or false.
       type: String
   - deprecated: false
-    description: This command gets simulations which are in running or queued state.
+    description: This command gets deletes schedules with given ID.
     name: safebreach-delete-schedule
     arguments:
     - name: schedule_id
@@ -413,34 +398,34 @@ script:
       secret: false
       default: false
     outputs:
-    - contextPath: deleted_Schedule.id
+    - contextPath: deleted_schedule.id
       description: the Id of the schedule.
       type: String
-    - contextPath: deleted_Schedule.isEnabled
+    - contextPath: deleted_schedule.is_enabled
       description: if schedule is enabled.
       type: Boolean
-    - contextPath: deleted_Schedule.user_schedule
+    - contextPath: deleted_schedule.user_schedule
       description: the user readable form of the schedule.
       type: String
-    - contextPath: deleted_Schedule.runDate
+    - contextPath: deleted_schedule.run_date
       description: the run date of the schedule.
       type: String
-    - contextPath: deleted_Schedule.cronTimezone
+    - contextPath: deleted_schedule.cron_timezone
       description: the time zone of the schedule.
       type: String
-    - contextPath: deleted_Schedule.description
+    - contextPath: deleted_schedule.description
       description: the description of the schedule.
       type: String
-    - contextPath: deleted_Schedule.plan_id
-      description: the plan ID of the schedule.
+    - contextPath: deleted_schedule.test_id
+      description: the test ID of the schedule.
       type: String
-    - contextPath: deleted_Schedule.createdAt
+    - contextPath: deleted_schedule.created_at
       description: the creation datetime of the schedule.
       type: String
-    - contextPath: deleted_Schedule.updatedAt
+    - contextPath: deleted_schedule.updated_at
       description: the updated datetime of the schedule.
       type: String
-    - contextPath: deleted_Schedule.deletedAt
+    - contextPath: deleted_schedule.deleted_at
       description: the deletion time of the schedule.
       type: String
   - deprecated: false
@@ -560,69 +545,60 @@ script:
     - name: test_id
       isArray: false
       description: test id of the test summary which we want to search the test with.
-      required: false
+      required: true
       secret: false
       default: false
     outputs:
-    - contextPath: deleted_test_results.planId
-      description: Plan ID of the simulation.
+    - contextPath: deleted_test_results.scenario_id
+      description: scenario ID of the test.
       type: String
-    - contextPath: deleted_test_results.planName
-      description: Test Name of the simulation.
+    - contextPath: deleted_test_results.simulation_name
+      description: Name of the simulation.
       type: String
-    - contextPath: deleted_test_results.securityActionPerControl
+    - contextPath: deleted_test_results.security_action_per_control
       description: Security Actions of the simulation.
       type: String
-    - contextPath: deleted_test_results.planRunId
-      description: Test id of the simulation.
+    - contextPath: deleted_test_results.test_id
+      description: Test id of the test.
       type: String
     - contextPath: deleted_test_results.status
-      description: status of the simulation.
+      description: status of the test.
       type: String
-    - contextPath: deleted_test_results.plannedSimulationsAmount
-      description: Planned simulations amount of the simulation.
+    - contextPath: deleted_test_results.planned_simulations_amount
+      description: Planned simulations count of the test.
       type: String
-    - contextPath: deleted_test_results.simulatorExecutions
-      description: simulator executions of the simulation.
+    - contextPath: deleted_test_results.simulator_executions
+      description: simulator executions of the test.
       type: String
-    - contextPath: deleted_test_results.ranBy
+    - contextPath: deleted_test_results.attack_executions
+      description: list of attacks that are part of the simulation.
+      type: String
+    - contextPath: deleted_test_results.ran_by
       description: user who started the simulation.
       type: String
-    - contextPath: deleted_test_results.simulatorCount
-      description: simulators count of simulation.
+    - contextPath: deleted_test_results.simulator_count
+      description: simulators count per account.
       type: String
-    - contextPath: deleted_test_results.endTime
-      description: End Time of the simulation.
+    - contextPath: deleted_test_results.end_time
+      description: End Time of the test.
       type: String
-    - contextPath: deleted_test_results.startTime
-      description: start time of the simulation.
+    - contextPath: deleted_test_results.start_time
+      description: start time of the test.
       type: String
     - contextPath: deleted_test_results.finalStatus.stopped
-      description: stopped count of simulation.
+      description: stopped count of attacks.
       type: String
     - contextPath: deleted_test_results.finalStatus.missed
-      description: missed count of simulation.
+      description: missed count of attacks.
       type: String
     - contextPath: deleted_test_results.finalStatus.logged
-      description: logged count of simulation.
+      description: logged count of attacks.
       type: String
     - contextPath: deleted_test_results.finalStatus.detected
-      description: detected count of simulation.
+      description: detected count of attacks.
       type: String
     - contextPath: deleted_test_results.finalStatus.prevented
-      description: prevented count of simulation.
-      type: String
-    - contextPath: deleted_test_results.finalStatus.inconsistent
-      description: inconsistent count of simulation.
-      type: String
-    - contextPath: deleted_test_results.finalStatus.drifted
-      description: drifted count of simulation.
-      type: String
-    - contextPath: deleted_test_results.finalStatus.not_drifted
-      description: not drifted count of simulation.
-      type: String
-    - contextPath: deleted_test_results.finalStatus.baseline
-      description: baseline count of simulation.
+      description: prevented count of attacks.
       type: String
   - deprecated: false
     description: This command deletes a user with given data.
@@ -630,13 +606,7 @@ script:
     arguments:
     - name: user_id
       isArray: false
-      description: "user ID of user from safebreach to search. this can be retrieved in 2 ways,\n                      1. run get-all-users command and then look for user id of user with matching criteria\n                      but to see details its required that details parameter to be set to true,\n                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email\n                      command and then search for user with required details in displayed results for ID.\n                      This field is not  required, meaning even if just email is given , we will internally search user\n                      id with the matching email and use the user for further process."
-      required: false
-      secret: false
-      default: false
-    - name: email
-      isArray: false
-      description: "Email of the user to Search for updating user details. This is a required field.\n                      The user with matching email will be considered as user whose data will be updated."
+      description: "\n                      user ID of user from safebreach to search. this can be retrieved in 2 ways,\n                      run get-all-users command and then look for user id of user with matching criteria.\n                      "
       required: true
       secret: false
       default: false
@@ -672,72 +642,56 @@ script:
       description: The deployments related to user before he was deleted.
       type: String
   - deprecated: false
-    description: "\n    This command gives all connector related issues and warning. this will show the connector error and warnings which are \n    generally displayed in installed integrations page.\n    "
+    description: "\n    This command gives all integrations related issues and warning. this will show the integrations error and warnings which are \n    generally displayed in installed integrations page.\n    "
     name: safebreach-get-integration-issues
-    arguments: []
+    arguments:
+    - name: error_type
+      isArray: false
+      description: 'this will help see issues which are either errors or warnings or both based on the input.'
+      required: false
+      secret: false
+      default: false
+      predefined:
+      - ''
+      - ERROR
+      - WARNING
+      auto: PREDEFINED
     outputs:
     - contextPath: integration_errors.integration_id
-      description: The connector ID of Integration connector. A general notation that has been followed here is                       as follows, if the  id has _default at the end then its a default connector else its a custom connector.
+      description: The ID of Integration. A general notation that has been followed here is                       as follows, if the  id has _default at the end then its a default connector else its a custom connector.
       type: Number
+    - contextPath: integration_errors.integration_name
+      description: Name of the integration.
+      type: String
     - contextPath: integration_errors.action
-      description: The action of Integration connector error. This describes where exactly did the error occur,                        if its search,then it implies error/warning happened when connector was trying that process.
+      description: The action of Integration error. This describes where exactly did the error occur,                        if its search,then it implies error/warning happened when connector was trying that process.
       type: String
     - contextPath: integration_errors.success_state
-      description: status of connector error. This implies whether the connector was able to                        successfully perform the operation or if it failed partway.                        So false implies it failed partway and true implies it was successfully completed.
+      description: status of integration error. This implies whether the connector was able to                        successfully perform the operation or if it failed partway.                        So false implies it failed partway and true implies it was successfully completed.
       type: String
     - contextPath: integration_errors.error_description
-      description: This is the exact error description shown on safebreach connector error/warning page.                        This description can be used for understanding of what exactly happened for the connector to fail.
+      description: This is the exact error description shown on safebreach integration error/warning page.                        This description can be used for understanding of what exactly happened for the integration to fail.
       type: String
     - contextPath: integration_errors.timestamp
-      description: Time at which error/warning occurred. This can be used to pinpoint error which occurred                       across connectors if time of origin was remembered.
+      description: Time at which error/warning occurred. This can be used to pinpoint error which occurred                       across integrations if time of origin was remembered.
       type: String
   - deprecated: false
     description: This command gets simulations which are in running or queued state.
-    name: safebreach-get-queued-running-simulations
+    name: safebreach-get-running-simulations
     arguments: []
     outputs:
-    - contextPath: active_simulations.status
-      description: the status of the simulation, if its running or queued.
-      type: String
-    - contextPath: active_simulations.timestamp
-      description: the time at which simulation was triggered.
-      type: String
-    - contextPath: active_simulations.numOfTasks
-      description: the number of tasks involved in the simulation.
-      type: String
     - contextPath: active_simulations.test id
       description: this is test ID of the simulation.
       type: String
-    - contextPath: active_simulations.stepRunId
-      description: the step id of the simulation.
+    - contextPath: active_simulations.simulation_id
+      description: the simulation id of the simulation.
       type: String
-    - contextPath: active_simulations.jobId
-      description: the job id of the simulation.
-      type: String
-    - contextPath: active_simulations.taskId
-      description: the task ID of the simulation.
-      type: String
-    - contextPath: active_simulations.moveId
-      description: the move ID of the simulation.
-      type: String
-    - contextPath: active_simulations.moveRevision
-      description: the move revision of the simulation.
-      type: String
-    - contextPath: active_simulations.simulator_ids_involved
-      description: the simulators involved in the simulation.
-      type: String
-    - contextPath: active_simulations.simulator_names_involved
-      description: the names of simulators the simulation.
-      type: String
-    - contextPath: active_simulations.timeout
-      description: the timeout of the simulation if its failing etc.
-      type: String
-    - contextPath: active_simulations.packageId
-      description: the package ID of the simulation.
+    - contextPath: active_simulations.attack_id
+      description: the attack ID of the simulation.
       type: String
   - deprecated: false
     description: This command gets tests which are in running or queued state.
-    name: safebreach-get-queued-running-tests
+    name: safebreach-get-running-tests
     arguments: []
     outputs:
     - contextPath: active_tests.id
@@ -749,123 +703,73 @@ script:
     - contextPath: active_tests.description
       description: Details related to the test being run.
       type: String
-    - contextPath: active_tests.successCriteria
-      description: Plan Run ID of the simulation.
+    - contextPath: active_tests.success_criteria
+      description: success criterion for the test.
       type: String
-    - contextPath: active_tests.originalScenarioId
+    - contextPath: active_tests.original_scenario_id
       description: Original scenario ID of the running test.
       type: String
-    - contextPath: active_tests.actions count
+    - contextPath: active_tests.actions_count
       description: number of actions.
       type: String
-    - contextPath: active_tests.edges count
+    - contextPath: active_tests.edges_count
       description: number of edges.
       type: String
-    - contextPath: active_tests.createdAt
+    - contextPath: active_tests.created_at
       description: details related to when test is created.
       type: String
-    - contextPath: active_tests.updatedAt
+    - contextPath: active_tests.updated_at
       description: details related to when test is last updated/changed.
       type: String
-    - contextPath: active_tests.steps count
+    - contextPath: active_tests.steps_count
       description: number of steps in simulator.
       type: String
-    - contextPath: active_tests.planId
-      description: planId of the test.
+    - contextPath: active_tests.scenario_id
+      description: scenario_id of the test.
       type: String
-    - contextPath: active_tests.originalPlan ID
-      description: original plan ID for reference.
+    - contextPath: active_tests.original_scenario_id
+      description: scenario_id for reference.
       type: String
-    - contextPath: active_tests.ranBy
-      description: User who ran the plan.
+    - contextPath: active_tests.ran_by
+      description: User who ran the scenario.
       type: String
-    - contextPath: active_tests.ranFrom
+    - contextPath: active_tests.ran_from
       description: Where the test ran from.
       type: String
-    - contextPath: active_tests.enableFeedbackLoop
-      description: Should feedback loop be enabled.
-      type: String
-    - contextPath: active_tests.testID
-      description: plan run id.
+    - contextPath: active_tests.test_id
+      description: test id of the test.
       type: String
     - contextPath: active_tests.priority
       description: priority of tests.
       type: String
-    - contextPath: active_tests.retrySimulations
+    - contextPath: active_tests.retry_simulations
       description: Should simulations be retried.
       type: String
-    - contextPath: active_tests.flowControl
-      description: Flow control of tests.
-      type: String
-    - contextPath: active_tests.slot position
-      description: position in queue.
-      type: String
-    - contextPath: active_tests.slot status
-      description: is the test paused.
-      type: Boolean
-    - contextPath: active_tests.pauseDuration
+    - contextPath: active_tests.pause_duration
       description: is the test paused and if so till when.
       type: String
-    - contextPath: active_tests.totalJobs
-      description: Total number of jobs for this test.
-      type: String
-    - contextPath: active_tests.pausedDate
+    - contextPath: active_tests.paused_date
       description: when the test is paused.
       type: String
-    - contextPath: active_tests.expectedSimulationsAmount
+    - contextPath: active_tests.expected_simulations_amount
       description: number of simulations expected.
       type: String
-    - contextPath: active_tests.dispatchedSimulationsAmount
+    - contextPath: active_tests.dispatched_simulations_amount
       description: the number of simulations dispatched.
       type: String
-    - contextPath: active_tests.blockedSimulationsAmount
-      description: The number of simulations blocked.
-      type: String
-    - contextPath: active_tests.unblockedSimulationsAmount
-      description: The number of simulations unblocked.
-      type: String
-    - contextPath: active_tests.skippedSimulationsAmount
+    - contextPath: active_tests.skipped_simulations_amount
       description: The number of simulations skipped.
       type: String
-    - contextPath: active_tests.failedSimulationsAmount
+    - contextPath: active_tests.failed_simulations_amount
       description: The number of simulations failed.
-      type: String
-    - contextPath: active_tests.isPrepared
-      description: Total number of simulations that have been prepared.
       type: String
   - deprecated: false
     description: "This command to get all available simulators. if details is set to true then it retrieves simulator details like name, \n    hostname, internal and external ips, types of targets and attacker configurations this simulator is associated with etc.\n    if its set to false then it retrieves just name, id, simulation users, proxies etc. if deleted is set to true then it\n    retrieves the data which has been deleted."
     name: safebreach-get-available-simulator-details
     arguments:
-    - name: secret
-      isArray: false
-      description: if secrets are to be included for search.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: should_include_proxies
-      isArray: false
-      description: if proxies are to be included for search.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
     - name: hostname
       isArray: false
       description: if hostname to be included for search.
-      required: false
-      secret: false
-      default: false
-    - name: connection_type
-      isArray: false
-      description: if connectionType to be included for search.
       required: false
       secret: false
       default: false
@@ -883,27 +787,16 @@ script:
       default: false
     - name: os
       isArray: false
-      description: 'operating system name to filter with, Eg: LINUX,WINDOWS etc.'
+      description: "operating system name to filter with, Eg: LINUX,WINDOWS etc, incase nothing is selected then this will \n                  be set as empty which means all are retrieved."
       required: false
       secret: false
       default: false
-    - name: sort_direction
-      isArray: false
-      description: direction in which secrets are to be sorted.
-      required: false
-      secret: false
-      default: false
-      defaultValue: asc
       predefined:
-      - asc
-      - desc
+      - ''
+      - LINUX
+      - MAC
+      - WINDOWS
       auto: PREDEFINED
-    - name: page_size
-      isArray: false
-      description: number of entries to search.
-      required: false
-      secret: false
-      default: false
     - name: is_enabled
       isArray: false
       description: if to search only enabled ones.
@@ -1059,190 +952,120 @@ script:
   - deprecated: false
     description: This command gets tests with given modifiers.
     name: safebreach-get-tests
-    arguments:
-    - name: include_archived
-      isArray: false
-      description: "\n                      Should archived tests be included in search. Archived tests are tests which have been \n                      set aside for further use in an inactive state. if this is set to false then archived tests\n                      wont be pulled but  if set to true then they will be pulled and shown.\n                      "
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'false'
-      predefined:
-      - 'true'
-      - 'false'
-      auto: PREDEFINED
-    - name: entries_per_page
-      isArray: false
-      description: "\n                      number of entries to be retrieved. for viewing, this will work in combination with sort_by field and\n                      things will be sorted in decreasing order so if you chose 100 entries here and if endTime is chosen as sort\n                      then it will show last 100 executions with latest end time.\n                      "
-      required: false
-      secret: false
-      default: false
-    - name: plan_id
-      isArray: false
-      description: "\n                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests \n                      instead of this with same parameters as inputs.\n                      "
-      required: false
-      secret: false
-      default: false
-    - name: status
-      isArray: false
-      description: tests with this status will be searched and filtered.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - CANCELED
-      - COMPLETED
-      auto: PREDEFINED
-    - name: simulation_id
-      isArray: false
-      description: Unique ID of the simulation.
-      required: false
-      secret: false
-      default: false
-    - name: sort_by
-      isArray: false
-      description: "how to sort the results retrieved, there are 4 options:\n                      1. sorting by endTime will show results in terms of decreasing order of simulations end time.\n                      2. sorting by start time will show results in terms of the decreasing order of simulation start time.\n                      3. testID - this is test id and sorting by this will be decreasing order of test id.\n                      4. stepRunId -."
-      required: false
-      secret: false
-      default: false
-      defaultValue: endTime
-      predefined:
-      - endTime
-      - startTime
-      - testID
-      - stepRunId
-      auto: PREDEFINED
+    arguments: []
     outputs:
-    - contextPath: test_results.planId
-      description: Plan ID of the simulation.
+    - contextPath: test_results.scenario_id
+      description: scenario ID of the test.
       type: String
-    - contextPath: test_results.planName
-      description: Test Name of the simulation.
+    - contextPath: test_results.simulation_name
+      description: Name of the simulation.
       type: String
-    - contextPath: test_results.securityActionPerControl
+    - contextPath: test_results.security_action_per_control
       description: Security Actions of the simulation.
       type: String
-    - contextPath: test_results.planRunId
-      description: Test id of the simulation.
+    - contextPath: test_results.test_id
+      description: Test id of the test.
       type: String
     - contextPath: test_results.status
-      description: status of the simulation.
+      description: status of the test.
       type: String
-    - contextPath: test_results.plannedSimulationsAmount
-      description: Planned simulations amount of the simulation.
+    - contextPath: test_results.planned_simulations_amount
+      description: Planned simulations count of the test.
       type: String
-    - contextPath: test_results.simulatorExecutions
-      description: simulator executions of the simulation.
+    - contextPath: test_results.simulator_executions
+      description: simulator executions of the test.
       type: String
-    - contextPath: test_results.ranBy
+    - contextPath: test_results.attack_executions
+      description: list of attacks that are part of the simulation.
+      type: String
+    - contextPath: test_results.ran_by
       description: user who started the simulation.
       type: String
-    - contextPath: test_results.simulatorCount
-      description: simulators count of simulation.
+    - contextPath: test_results.simulator_count
+      description: simulators count per account.
       type: String
-    - contextPath: test_results.endTime
-      description: End Time of the simulation.
+    - contextPath: test_results.end_time
+      description: End Time of the test.
       type: String
-    - contextPath: test_results.startTime
-      description: start time of the simulation.
+    - contextPath: test_results.start_time
+      description: start time of the test.
       type: String
     - contextPath: test_results.finalStatus.stopped
-      description: stopped count of simulation.
+      description: stopped count of attacks.
       type: String
     - contextPath: test_results.finalStatus.missed
-      description: missed count of simulation.
+      description: missed count of attacks.
       type: String
     - contextPath: test_results.finalStatus.logged
-      description: logged count of simulation.
+      description: logged count of attacks.
       type: String
     - contextPath: test_results.finalStatus.detected
-      description: detected count of simulation.
+      description: detected count of attacks.
       type: String
     - contextPath: test_results.finalStatus.prevented
-      description: prevented count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.inconsistent
-      description: inconsistent count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.drifted
-      description: drifted count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.not_drifted
-      description: not drifted count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.baseline
-      description: baseline count of simulation.
+      description: prevented count of attacks.
       type: String
   - deprecated: false
-    description: "\n    This command gets tests with given plan ID and the order is based on sort by column.\n    "
-    name: safebreach-get-test-with-plan-id
+    description: "\n    This command gets tests with given scenario ID.\n    "
+    name: safebreach-get-test-with-scenario-id
     arguments:
-    - name: plan_id
+    - name: scenario_id
       isArray: false
-      description: "\n                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests \n                      instead of this with same parameters as inputs.\n                      "
+      description: "\n                      scenario Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests \n                      instead of this with same parameters as inputs.\n                      "
       required: true
       secret: false
       default: false
     outputs:
-    - contextPath: test_results.planId
-      description: Plan ID of the simulation.
+    - contextPath: test_results.scenario_id
+      description: scenario ID of the test.
       type: String
-    - contextPath: test_results.planName
-      description: Test Name of the simulation.
+    - contextPath: test_results.simulation_name
+      description: Name of the simulation.
       type: String
-    - contextPath: test_results.securityActionPerControl
+    - contextPath: test_results.security_action_per_control
       description: Security Actions of the simulation.
       type: String
-    - contextPath: test_results.planRunId
-      description: Test id of the simulation.
+    - contextPath: test_results.test_id
+      description: Test id of the test.
       type: String
     - contextPath: test_results.status
-      description: status of the simulation.
+      description: status of the test.
       type: String
-    - contextPath: test_results.plannedSimulationsAmount
-      description: Planned simulations amount of the simulation.
+    - contextPath: test_results.planned_simulations_amount
+      description: Planned simulations count of the test.
       type: String
-    - contextPath: test_results.simulatorExecutions
-      description: simulator executions of the simulation.
+    - contextPath: test_results.simulator_executions
+      description: simulator executions of the test.
       type: String
-    - contextPath: test_results.ranBy
+    - contextPath: test_results.attack_executions
+      description: list of attacks that are part of the simulation.
+      type: String
+    - contextPath: test_results.ran_by
       description: user who started the simulation.
       type: String
-    - contextPath: test_results.simulatorCount
-      description: simulators count of simulation.
+    - contextPath: test_results.simulator_count
+      description: simulators count per account.
       type: String
-    - contextPath: test_results.endTime
-      description: End Time of the simulation.
+    - contextPath: test_results.end_time
+      description: End Time of the test.
       type: String
-    - contextPath: test_results.startTime
-      description: start time of the simulation.
+    - contextPath: test_results.start_time
+      description: start time of the test.
       type: String
     - contextPath: test_results.finalStatus.stopped
-      description: stopped count of simulation.
+      description: stopped count of attacks.
       type: String
     - contextPath: test_results.finalStatus.missed
-      description: missed count of simulation.
+      description: missed count of attacks.
       type: String
     - contextPath: test_results.finalStatus.logged
-      description: logged count of simulation.
+      description: logged count of attacks.
       type: String
     - contextPath: test_results.finalStatus.detected
-      description: detected count of simulation.
+      description: detected count of attacks.
       type: String
     - contextPath: test_results.finalStatus.prevented
-      description: prevented count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.inconsistent
-      description: inconsistent count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.drifted
-      description: drifted count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.not_drifted
-      description: not drifted count of simulation.
-      type: String
-    - contextPath: test_results.finalStatus.baseline
-      description: baseline count of simulation.
+      description: prevented count of attacks.
       type: String
   - deprecated: false
     description: This command gives all users who are not deleted.
@@ -1283,32 +1106,52 @@ script:
     - contextPath: custom_scenarios.description
       description: the description of the scenario.
       type: String
-    - contextPath: custom_scenarios.successCriteria
+    - contextPath: custom_scenarios.success_criteria
       description: success criteria the scenario.
       type: String
-    - contextPath: custom_scenarios.originalScenarioId
+    - contextPath: custom_scenarios.original_scenario_id
       description: original scenario id of scenario.
       type: String
     - contextPath: custom_scenarios.actions_list
       description: actions list of the scenario.
       type: String
     - contextPath: custom_scenarios.edges_count
-      description: edges count for the scenario.
+      description: edges_count for the scenario.
       type: String
     - contextPath: custom_scenarios.steps_order
       description: the order of steps of the scenario.
       type: String
-    - contextPath: custom_scenarios.createdAt
+    - contextPath: custom_scenarios.created_at
       description: the creation datetime of the scenario.
       type: String
-    - contextPath: custom_scenarios.updatedAt
+    - contextPath: custom_scenarios.updated_at
       description: the last updated time the scenario.
       type: String
-    - contextPath: custom_scenarios.custom_data_object_for_rerun_simulation
-      description: the data which can be used for             rerun-simulation command.
+  - deprecated: false
+    description: "\n    This command gets all deployments present for this instance.\n    "
+    name: safebreach-get-deployments
+    arguments: []
+    outputs:
+    - contextPath: deployment_data.id
+      description: The ID of deployment.
+      type: Number
+    - contextPath: deployment_data.account_id
+      description: The accountId of user who created the deployment.
       type: String
-    - contextPath: custom_scenarios.custom_data_for_rerun_test
-      description: the data which can be used for rerun-test command.
+    - contextPath: deployment_data.name
+      description: The name of deployment.                        this will be the name shown in deployment name field of table in deployments page in safebreach UI.
+      type: String
+    - contextPath: deployment_data.created_at
+      description: The creation date and time of deployment.
+      type: String
+    - contextPath: deployment_data.updated_at
+      description: The last updated date and time of deployment.
+      type: String
+    - contextPath: deployment_data.description
+      description: This is description field of deployments table of safebreach UI.
+      type: String
+    - contextPath: deployment_data.simulators
+      description: The simulators that are part of deployment.
       type: String
   - deprecated: false
     description: "\n    This command gets scenarios which are built by safebreach. They will be available by default even in new instance\n    of your safebreach instance. They can be modified and saved as custom scenarios or used as it is.\n    "
@@ -1324,13 +1167,13 @@ script:
     - contextPath: prebuilt_scenarios.description
       description: the description of the scenario.
       type: String
-    - contextPath: prebuilt_scenarios.createdBy
+    - contextPath: prebuilt_scenarios.created_by
       description: user id of user, who created the scenario.
       type: String
-    - contextPath: prebuilt_scenarios.createdAt
+    - contextPath: prebuilt_scenarios.created_at
       description: creation datetime of scenario.
       type: String
-    - contextPath: prebuilt_scenarios.updatedAt
+    - contextPath: prebuilt_scenarios.updated_at
       description: the update datetime of the scenario.
       type: String
     - contextPath: prebuilt_scenarios.recommended
@@ -1348,42 +1191,42 @@ script:
     - contextPath: prebuilt_scenarios.order
       description: the order of execution related to the scenario.
       type: String
-    - contextPath: prebuilt_scenarios.minApiVer
+    - contextPath: prebuilt_scenarios.min_api_ver
       description: the minimum version of API required for scenario to be executed.
       type: String
   - deprecated: false
-    description: This command retrieves schedules from safebreach which user has set and they will display it to user.
+    description: "\n    This command retrieves schedules from safebreach which user has set and they will display it to user.\n    By default Name is not shown, to retrieve and see it, please run 'safebreach-get-test-with-scenario-id'\n    command with test_id field from this command's output with scenario_id of safebreach-get-test-with-scenario-id.\n    scenario_name is the name of the schedule.\n    "
     name: safebreach-get-schedules
     arguments: []
     outputs:
     - contextPath: schedules.id
       description: the Id of the schedule.
       type: String
-    - contextPath: schedules.isEnabled
+    - contextPath: schedules.is_enabled
       description: if simulation is enabled.
       type: Boolean
     - contextPath: schedules.user_schedule
       description: the user readable form of the schedule.
       type: String
-    - contextPath: schedules.runDate
+    - contextPath: schedules.run_date
       description: the run date of the schedule.
       type: String
-    - contextPath: schedules.cronTimezone
+    - contextPath: schedules.cron_timezone
       description: the time zone of the schedule.
       type: String
     - contextPath: schedules.description
       description: the description of the schedule.
       type: String
-    - contextPath: schedules.plan_id
+    - contextPath: schedules.test_id
       description: the matrix ID of the schedule.
       type: String
-    - contextPath: schedules.createdAt
+    - contextPath: schedules.created_at
       description: the creation datetime of the schedule.
       type: String
-    - contextPath: schedules.updatedAt
+    - contextPath: schedules.updated_at
       description: the updated datetime of the schedule.
       type: String
-    - contextPath: schedules.deletedAt
+    - contextPath: schedules.deleted_at
       description: the deletion time of the schedule.
       type: String
   - deprecated: false
@@ -1405,7 +1248,7 @@ script:
       type: String
   - deprecated: false
     description: "\n    this command is used to get simulations and their data related to a given test, \n    this can be used as predecessor command to rerun-simulations command for easier queueing of simulations.\n    This command does not have any limiters with pagination implemented so there might be huge data retrieved.\n    "
-    name: safebreach-get-simulation-results
+    name: safebreach-get-simulations
     arguments:
     - name: test_id
       isArray: false
@@ -1417,9 +1260,6 @@ script:
     - contextPath: simulation_details.simulation_id
       description: the id of the simulation.
       type: String
-    - contextPath: simulation_details.plan_name
-      description: name of the plan to which this simulation belongs to.
-      type: String
     - contextPath: simulation_details.attacker_node_name
       description: Name of attacker node of simulation.
       type: String
@@ -1429,17 +1269,20 @@ script:
     - contextPath: simulation_details.dest_node_name
       description: name of destination of simulation.
       type: String
-    - contextPath: simulation_details.status
-      description: final status of simulation.
-      type: String
-    - contextPath: simulation_details.result
-      description: result of simulation.
-      type: String
-    - contextPath: simulation_details.security_action
-      description: security action of simulation.
+    - contextPath: simulation_details.attack_name
+      description: name of attack.
       type: String
     - contextPath: simulation_details.attacks_involved
       description: attack types involved in of simulation.
+      type: String
+    - contextPath: simulation_details.result_details
+      description: result of simulation.
+      type: String
+    - contextPath: simulation_details.security_action
+      description: security status as per the simulation.
+      type: String
+    - contextPath: simulation_details.attack_description
+      description: attack details.
       type: String
   - deprecated: false
     description: This command gives all details related to account, we are using this to find assigned simulator quota.
@@ -1619,7 +1462,7 @@ script:
       type: String
   - deprecated: false
     description: "\n    This command gets simulations/tests which are in running or queued state and pauses/resumes them based on input selected.\n    the state selected will be applied for all running/queued state tasks whether they are simulations or tests.\n    "
-    name: safebreach-pause-resume-simulations-tests
+    name: safebreach-pause/resume-simulations-tests
     arguments:
     - name: simulation_or_test_state
       isArray: false
@@ -1636,65 +1479,9 @@ script:
       description: the status of the simulations/tests.
       type: String
   - deprecated: false
-    description: "this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table."
+    description: this commands puts given simulation ids into queue for running.
     name: safebreach-rerun-simulation
     arguments:
-    - name: position
-      isArray: false
-      description: position in queue to put the given simulation data at.
-      required: false
-      secret: false
-      default: false
-    - name: enable_feedback_loop
-      isArray: false
-      description: this argument is used to enable/disable feedback loop.
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: retry_simulation
-      isArray: false
-      description: this argument is used to retry according to retry policy                 mention in retry policy field.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - ''
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: wait_for_retry
-      isArray: false
-      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - ''
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: priority
-      isArray: false
-      description: the priority of this simulation action.
-      required: false
-      secret: false
-      default: false
-      defaultValue: low
-      predefined:
-      - low
-      - high
-      auto: PREDEFINED
-    - name: simulation_name
-      isArray: false
-      description: simulation name for the given simulation.
-      required: true
-      secret: false
-      default: false
     - name: simulation_ids
       isArray: false
       description: ids of simulation we want to queue,                          please give ids of simulations as comma separated numbers.
@@ -1711,17 +1498,14 @@ script:
     - contextPath: changed_data.description
       description: the description of the simulation.
       type: String
-    - contextPath: changed_data.successCriteria
+    - contextPath: changed_data.success_criteria
       description: success criteria the simulation.
       type: String
-    - contextPath: changed_data.originalScenarioId
+    - contextPath: changed_data.original_scenario_id
       description: original simulation id of simulation.
       type: String
     - contextPath: changed_data.actions_list
       description: actions list of the simulation.
-      type: String
-    - contextPath: changed_data.edges_count
-      description: edges count for the simulation.
       type: String
     - contextPath: changed_data.steps_order
       description: the order of steps of the simulation.
@@ -1733,68 +1517,12 @@ script:
       description: the last updated time the simulation.
       type: String
   - deprecated: false
-    description: "this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table."
+    description: this commands puts given test data in queue for execution.
     name: safebreach-rerun-test
     arguments:
-    - name: position
-      isArray: false
-      description: position in queue to put the given test data at.
-      required: false
-      secret: false
-      default: false
-    - name: enable_feedback_loop
-      isArray: false
-      description: this argument is used to enable/disable feedback loop.
-      required: false
-      secret: false
-      default: false
-      defaultValue: 'true'
-      predefined:
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: retry_simulation
-      isArray: false
-      description: this argument is used to retry according to retry policy                 mention in retry policy field.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - ''
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: wait_for_retry
-      isArray: false
-      description: this arguments tells flow to retry the adding to queue after the                 current step execution is completed.
-      required: false
-      secret: false
-      default: false
-      predefined:
-      - ''
-      - 'false'
-      - 'true'
-      auto: PREDEFINED
-    - name: priority
-      isArray: false
-      description: the priority of this test action.
-      required: false
-      secret: false
-      default: false
-      defaultValue: low
-      predefined:
-      - low
-      - high
-      auto: PREDEFINED
-    - name: retry_policy
-      isArray: false
-      description: "the retry policy of test."
-      required: false
-      secret: false
-      default: false
     - name: test_id
       isArray: false
-      description: test id for the given test,             this is be planRunId field from get-all-tests-summary command.
+      description: test id for the given test,             this is be test id field from get-all-tests-summary command.
       required: true
       secret: false
       default: false
@@ -1806,62 +1534,62 @@ script:
       default: false
     outputs:
     - contextPath: changed_data.id
-      description: the Id of scenario.
+      description: the Id of test.
       type: String
     - contextPath: changed_data.name
-      description: the name of the scenario.
+      description: the name of the test.
       type: String
     - contextPath: changed_data.description
-      description: the description of the scenario.
+      description: the description of the test.
       type: String
-    - contextPath: changed_data.successCriteria
-      description: success criteria the scenario.
+    - contextPath: changed_data.success_criteria
+      description: success criteria the test.
       type: String
-    - contextPath: changed_data.originalScenarioId
-      description: original scenario id of scenario.
+    - contextPath: changed_data.original_scenario_id
+      description: original scenario id of test.
       type: String
     - contextPath: changed_data.actions_list
-      description: actions list of the scenario.
+      description: actions list of the test.
       type: String
     - contextPath: changed_data.edges_count
-      description: edges count for the scenario.
+      description: edges_count for the test.
       type: String
     - contextPath: changed_data.steps_order
-      description: the order of steps of the scenario.
+      description: the order of steps of the test.
       type: String
-    - contextPath: changed_data.createdAt
-      description: the creation datetime of the scenario.
+    - contextPath: changed_data.created_at
+      description: the creation datetime of the test.
       type: String
-    - contextPath: changed_data.updatedAt
-      description: the last updated time the scenario.
+    - contextPath: changed_data.updated_at
+      description: the last updated time the test.
       type: String
-    - contextPath: changed_data.planId
-      description: the plan id of the scenario.
+    - contextPath: changed_data.scenario_id
+      description: the test id of the test.
       type: String
-    - contextPath: changed_data.ranBy
-      description: the user id of the user who ran the scenario.
+    - contextPath: changed_data.ran_by
+      description: the user id of the user who ran the test.
       type: String
-    - contextPath: changed_data.ranFrom
-      description: where the user ran the scenario from.
+    - contextPath: changed_data.ran_from
+      description: where the user ran the test from.
       type: String
-    - contextPath: changed_data.enableFeedbackLoop
-      description: feedback loop status of the scenario.
+    - contextPath: changed_data.enable_feedback_loop
+      description: feedback loop status of the test.
       type: String
-    - contextPath: changed_data.planRunId
-      description: plan run id of the scenario.
+    - contextPath: changed_data.test_id
+      description: test_id of the test.
       type: String
     - contextPath: changed_data.priority
-      description: priority of the scenario.
+      description: priority of the test.
       type: String
-    - contextPath: changed_data.retrySimulations
-      description: retry status of the scenario.
+    - contextPath: changed_data.retry_simulations
+      description: retry status of the test.
       type: String
   - deprecated: false
     description: "\n    This command rotates generated verification token meaning it creates a new token which will be used for verification \n    of simulator and adding the simulator.\n    "
     name: safebreach-rotate-verification-token
     arguments: []
     outputs:
-    - contextPath: Safebreach Content Management.new_token
+    - contextPath: token.new_token
       description: new Token which has been generated due to the api call.
       type: String
   - deprecated: false
@@ -1896,16 +1624,16 @@ script:
     - contextPath: updated_deployment_data.id
       description: The ID of deployment whose values have been updated.                           ID cant be changed so this wont be updated.
       type: Number
-    - contextPath: updated_deployment_data.accountId
+    - contextPath: updated_deployment_data.account_id
       description: The accountId of user who created the deployment.
       type: String
     - contextPath: updated_deployment_data.name
       description: The name of deployment which has been updated to the name given in updated_deployment_name.                        this will be the name shown in deployment name field of table in deployments page in safebreach UI.
       type: String
-    - contextPath: updated_deployment_data.createdAt
+    - contextPath: updated_deployment_data.created_at
       description: The creation date and time of deployment whose data has been updated.
       type: String
-    - contextPath: updated_deployment_data.updatedAt
+    - contextPath: updated_deployment_data.updated_at
       description: The last updated date and time of deployment whose data has been updated.                       This will generally be closer to the update deployment command run time for reference.
       type: String
     - contextPath: updated_deployment_data.description
@@ -2062,18 +1790,12 @@ script:
       type: String
   - deprecated: false
     description: This command updates a user with given data.
-    name: safebreach-update-user-details
+    name: safebreach-update-user
     arguments:
     - name: user_id
       isArray: false
-      description: "user ID of user from safebreach to search. this can be retrieved in 2 ways,\n                      1. run get-all-users command and then look for user id of user with matching criteria\n                      but to see details its required that details parameter to be set to true,\n                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email\n                      command and then search for user with required details in displayed results for ID.\n                      This field is not  required, meaning even if just email is given , we will internally search user\n                      id with the matching email and use the user for further process."
-      required: false
-      secret: false
-      default: false
-    - name: email
-      isArray: false
-      description: "Email of the user to Search for updating user details. This is a required field.\n                      The user with matching email will be considered as user whose data will be updated."
-      required: false
+      description: user ID of user from safebreach to search.
+      required: true
       secret: false
       default: false
     - name: name
@@ -2119,7 +1841,7 @@ script:
       auto: PREDEFINED
     - name: deployments
       isArray: true
-      description: "\n                        Comma separated ID of all deployments the user should be part of.\n                        unless this field is left empty, whatever is present here will be updated to user details.\n                        user will be selected based on user_id or email fields mentioned above.\n                      "
+      description: "\n                        Comma separated ID of all deployments the user should be part of.\n                        unless this field is left empty, whatever is present here will be updated to user details.\n                        incase there are old deployments assigned to user then please include them too, else they will be\n                        replaced with new values set here. user will be selected based on user_id field mentioned above.\n                      "
       required: false
       secret: false
       default: false
@@ -2157,7 +1879,7 @@ script:
   script: '-'
   type: python
   subtype: python3
-  dockerimage: demisto/python3:3.10.13.75921
+  dockerimage: demisto/python3:3.10.13.78960
   feed: false
   isfetch: false
   runonce: false

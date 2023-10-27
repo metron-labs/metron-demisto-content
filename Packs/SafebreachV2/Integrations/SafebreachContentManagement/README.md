@@ -109,13 +109,11 @@ After you successfully execute a command, a DBot message appears in the War Room
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| generated_api_key.name | Number | The Name of API Key generated through this command,                            This will match the input name of the command. | 
+| generated_api_key.name | String | The Name of API Key generated through this command,                            This will match the input name of the command. | 
 | generated_api_key.description | String | The Description of API Key created.                            this will be same as input description given for the command. | 
-| generated_api_key.createdBy | String | The id of user who generated this API key. | 
-| generated_api_key.createdAt | String | The creation date and time of API key. | 
+| generated_api_key.created_by | String | The id of user who generated this API key. | 
+| generated_api_key.created_bt | String | The creation date and time of API key. | 
 | generated_api_key.key | String | The value of API key generated. store this for further use as this will only be shown once | 
-| generated_api_key.roles | String | The roles allowed for this api key.                            This will generally be the roles assigned to user who created the key. | 
-| generated_api_key.role | String | The role of API Key. | 
 
 ### safebreach-create-deployment
 
@@ -132,16 +130,16 @@ This command creates a deployment with given data.
 | --- | --- | --- |
 | name | <br/>                      Name of the deployment to create. this will be shown as name in deployments page of safebreach<br/>                      . | Required | 
 | description | <br/>                      Description of the deployment to create. <br/>                      This will show as description of the deployment in your safebreach instance.<br/>                      It is generally preferable to give description while creating a deployment for easier identification<br/>                      . | Optional | 
-| simulators | <br/>                      A deployment is a group of simulators which work as a single group. this field needs<br/>                      Comma separated IDs of all simulators that should be part of this deployment.<br/>                      the ID can be retrieved from safebreach-get-all-simulator-details command with<br/>                      details input set to true so that the details can be seen. Care should be taken when giving <br/>                      simulator IDs as comma separated values as if any simulator has been deleted then this deployment <br/>                      wont contain that simulator on creation<br/>                      . | Optional | 
+| simulators | <br/>                      A deployment is a group of simulators which work as a single group. this field needs<br/>                      Comma separated IDs of all simulators that should be part of this deployment.<br/>                      the ID can be retrieved from safebreach-get-all-simulator-details command with Care should be taken when <br/>                      giving simulator IDs as comma separated values as if any simulator has been deleted then this deployment <br/>                      wont contain that simulator on creation<br/>                      . | Optional | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | created_deployment_data.id | Number | The ID of deployment created. this Id can be used to update ,delete deployment as                       deployment_id field of the deployment. | 
-| created_deployment_data.accountId | String | This field shows account ID of user who has created the account. | 
+| created_deployment_data.account_id | String | This field shows account ID of user who has created the account. | 
 | created_deployment_data.name | String | The name of deployment created. this will be name which will be shown on deployments page                       of safebreach and name that is given as input to the command. | 
-| created_deployment_data.createdAt | String | The creation date and time of deployment , this will be closer to                       command execution time if the deployment creation is successful. | 
+| created_deployment_data.created_at | String | The creation date and time of deployment , this will be closer to                       command execution time if the deployment creation is successful. | 
 | created_deployment_data.description | String | The description of the deployment created will be shown in description                            part of the table in safebreach. | 
 | created_deployment_data.simulators | String | The simulators that are part of deployment. In case any simulators are given during                       creation that are deleted before the creation time then the deployment wont contain those simulators. | 
 
@@ -163,7 +161,6 @@ This command creates a user with given data.
 | is_active | <br/>                      Whether the user is active upon creation. if this is set to true then user will be active as soon<br/>                      as this command succeeds but if set to false then the user has to activated and if user will have to<br/>                      do reset password process to become active. by default the user will be active.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
 | email_post_creation | <br/>                      This field sends email to user post creation if this field is set to true, by default this field is set <br/>                      to false. set this to true if user has to be sent email post creation else set this to false.<br/>                      . Possible values are: true, false. Default is true. | Optional | 
 | password | <br/>                      This will be set as password for the created user. incase needed the flag change password can be set to<br/>                      true if its needed for user to change password on first login.<br/>                      . | Required | 
-| admin_name | <br/>                      Name of the Admin creating user. This will be populated in created by field of user page in safebreach.<br/>                      . | Optional | 
 | change_password_on_create | <br/>                      Should user change password on creation. when this is set to true then user will have to reset password on<br/>                      the next login, this can be used if we want user to reset password as soon as they login.<br/>                      . Possible values are: true, false. Default is false. | Optional | 
 | user_role | <br/>                      Role of the user being Created. The user will have the permissions of role they are being assigned here.<br/>                      choices are viewer, administrator, content developer, operator.<br/>                      . Possible values are: viewer, administrator, contentDeveloper, operator. Default is viewer. | Optional | 
 | deployments | <br/>                      Comma separated ID of all deployments the user should be part of. The deployment IDs can be retrieved from<br/>                      get-deployments-list command or from UI directly but care should be noted that only deployment ids of <br/>                      deployments which haven't been deleted will be shown here and after creation of user. for example<br/>                      if 1,2,3 are deployment ids given while creation but if 2 is deleted then when user is created , he will<br/>                      only have 1,3.<br/>                      . | Optional | 
@@ -176,7 +173,6 @@ This command creates a user with given data.
 | created_user_data.name | String | The name of User created. | 
 | created_user_data.email | String | The email of User created. | 
 | created_user_data.createdAt | String | The creation time of User. | 
-| created_user_data.deletedAt | String | The Deletion time of User . This will be empty unless the user is deleted | 
 | created_user_data.roles | String | The roles and permissions of User created. | 
 | created_user_data.description | String | The description of User if any is given at creation time, it will be populated here. | 
 | created_user_data.role | String | The role assigned to user during creation. | 
@@ -207,18 +203,17 @@ This command creates a user with given data.
 | --- | --- | --- |
 | deleted_api_key.name | Number | The Name of API Key deleted. | 
 | deleted_api_key.description | String | Description of API Key deleted. | 
-| deleted_api_key.createdBy | String | The id of user who generated this API key. | 
-| deleted_api_key.createdAt | String | The creation time and date of API key. | 
-| deleted_api_key.deletedAt | String | The deletion time and date of API key. The deletion date and time are generally                       close to the command execution time and date. | 
+| deleted_api_key.created_by | String | The id of user who generated this API key. | 
+| deleted_api_key.created_at | String | The creation time and date of API key. | 
+| deleted_api_key.deleted_at | String | The deletion time and date of API key. The deletion date and time are generally                       close to the command execution time and date. | 
 
 ### safebreach-delete-deployment
 
 ***
 
     This command deletes a deployment with given data.The deployment_id field of this command can  be retrieved from 
-    get-all-deployments command. If the user wants to search with deployment ID then they can search it that way or 
-    if user just wants to search with name then they can just give name field and the command internally searches the deployment 
-    with given name and deletes it.
+    get-all-deployments command. If the user wants to search with deployment ID then they can search it and then delete it.
+    
 
 #### Base Command
 
@@ -235,9 +230,9 @@ This command creates a user with given data.
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | deleted_deployment_data.id | Number | The ID of deployment which has been deleted. | 
-| deleted_deployment_data.accountId | String | The account Id of user who deleted the deployment. | 
+| deleted_deployment_data.account_id | String | The account Id of user who deleted the deployment. | 
 | deleted_deployment_data.name | String | The name of deployment before the deployment was deleted. | 
-| deleted_deployment_data.createdAt | String | The creation date and time of deployment which has been deleted. | 
+| deleted_deployment_data.created_at | String | The creation date and time of deployment which has been deleted. | 
 | deleted_deployment_data.description | String | The description of deployment before it was deleted. | 
 | deleted_deployment_data.simulators | String | The simulators that are part of deployment before it was deleted. | 
 
@@ -245,9 +240,10 @@ This command creates a user with given data.
 
 ***
 
-    This command deletes connector related errors and warnings. This command needs connector id as input which will be
-    used to delete the errors/warnings for the given connector id. the connector ids can be retrieved by using command
-    get-all-integration-issues and this command will give connector id which can be used for input. 
+    This command deletes integration related errors and warnings. This command needs integration id as input which will be
+    used to delete the errors/warnings for the given integration id. the integration ids can be retrieved by using command
+    get-all-integration-issues and this command will give integration id which can be used for input. 
+    If output of command has result as true then logs have been cleared for integration else errorMessage field is shown
     
 
 #### Base Command
@@ -258,19 +254,19 @@ This command creates a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| integration_id | <br/>                      The connector ID of Integration to have its errors/warnings deleted. this is used to search for integration <br/>                      connector which will have its logs cleared, there is no way to clear just errors or just warnings here and <br/>                      this connector with this will be having all errors and warnings cleared.<br/>                      . | Required | 
+| integration_id | <br/>                      The ID of Integration to have its errors/warnings deleted. this is used to search for integration <br/>                      which will have its logs cleared, there is no way to clear just errors or just warnings here and <br/>                      this Integration with this will be having all errors and warnings cleared.<br/>                      . | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| errors_cleared.error | Number | Error count after deletion of errors for the given connector. | 
+| errors_cleared.error | Number | Error count after deletion of errors for the given Integration. | 
 | errors_cleared.result | String | error deletion status whether true or false. | 
 
 ### safebreach-delete-schedule
 
 ***
-This command gets simulations which are in running or queued state.
+This command gets deletes schedules with given ID.
 
 #### Base Command
 
@@ -286,16 +282,16 @@ This command gets simulations which are in running or queued state.
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| deleted_Schedule.id | String | the Id of the schedule. | 
-| deleted_Schedule.isEnabled | Boolean | if schedule is enabled. | 
-| deleted_Schedule.user_schedule | String | the user readable form of the schedule. | 
-| deleted_Schedule.runDate | String | the run date of the schedule. | 
-| deleted_Schedule.cronTimezone | String | the time zone of the schedule. | 
-| deleted_Schedule.description | String | the description of the schedule. | 
-| deleted_Schedule.plan_id | String | the plan ID of the schedule. | 
-| deleted_Schedule.createdAt | String | the creation datetime of the schedule. | 
-| deleted_Schedule.updatedAt | String | the updated datetime of the schedule. | 
-| deleted_Schedule.deletedAt | String | the deletion time of the schedule. | 
+| deleted_schedule.id | String | the Id of the schedule. | 
+| deleted_schedule.is_enabled | Boolean | if schedule is enabled. | 
+| deleted_schedule.user_schedule | String | the user readable form of the schedule. | 
+| deleted_schedule.run_date | String | the run date of the schedule. | 
+| deleted_schedule.cron_timezone | String | the time zone of the schedule. | 
+| deleted_schedule.description | String | the description of the schedule. | 
+| deleted_schedule.test_id | String | the test ID of the schedule. | 
+| deleted_schedule.created_at | String | the creation datetime of the schedule. | 
+| deleted_schedule.updated_at | String | the updated datetime of the schedule. | 
+| deleted_schedule.deleted_at | String | the deletion time of the schedule. | 
 
 ### safebreach-delete-simulator
 
@@ -363,32 +359,29 @@ This command deletes tests with given test ID.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| test_id | test id of the test summary which we want to search the test with. | Optional | 
+| test_id | test id of the test summary which we want to search the test with. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| deleted_test_results.planId | String | Plan ID of the simulation. | 
-| deleted_test_results.planName | String | Test Name of the simulation. | 
-| deleted_test_results.securityActionPerControl | String | Security Actions of the simulation. | 
-| deleted_test_results.planRunId | String | Test id of the simulation. | 
-| deleted_test_results.status | String | status of the simulation. | 
-| deleted_test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation. | 
-| deleted_test_results.simulatorExecutions | String | simulator executions of the simulation. | 
-| deleted_test_results.ranBy | String | user who started the simulation. | 
-| deleted_test_results.simulatorCount | String | simulators count of simulation. | 
-| deleted_test_results.endTime | String | End Time of the simulation. | 
-| deleted_test_results.startTime | String | start time of the simulation. | 
-| deleted_test_results.finalStatus.stopped | String | stopped count of simulation. | 
-| deleted_test_results.finalStatus.missed | String | missed count of simulation. | 
-| deleted_test_results.finalStatus.logged | String | logged count of simulation. | 
-| deleted_test_results.finalStatus.detected | String | detected count of simulation. | 
-| deleted_test_results.finalStatus.prevented | String | prevented count of simulation. | 
-| deleted_test_results.finalStatus.inconsistent | String | inconsistent count of simulation. | 
-| deleted_test_results.finalStatus.drifted | String | drifted count of simulation. | 
-| deleted_test_results.finalStatus.not_drifted | String | not drifted count of simulation. | 
-| deleted_test_results.finalStatus.baseline | String | baseline count of simulation. | 
+| deleted_test_results.scenario_id | String | scenario ID of the test. | 
+| deleted_test_results.simulation_name | String | Name of the simulation. | 
+| deleted_test_results.security_action_per_control | String | Security Actions of the simulation. | 
+| deleted_test_results.test_id | String | Test id of the test. | 
+| deleted_test_results.status | String | status of the test. | 
+| deleted_test_results.planned_simulations_amount | String | Planned simulations count of the test. | 
+| deleted_test_results.simulator_executions | String | simulator executions of the test. | 
+| deleted_test_results.attack_executions | String | list of attacks that are part of the simulation. | 
+| deleted_test_results.ran_by | String | user who started the simulation. | 
+| deleted_test_results.simulator_count | String | simulators count per account. | 
+| deleted_test_results.end_time | String | End Time of the test. | 
+| deleted_test_results.start_time | String | start time of the test. | 
+| deleted_test_results.finalStatus.stopped | String | stopped count of attacks. | 
+| deleted_test_results.finalStatus.missed | String | missed count of attacks. | 
+| deleted_test_results.finalStatus.logged | String | logged count of attacks. | 
+| deleted_test_results.finalStatus.detected | String | detected count of attacks. | 
+| deleted_test_results.finalStatus.prevented | String | prevented count of attacks. | 
 
 ### safebreach-delete-user
 
@@ -403,8 +396,7 @@ This command deletes a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| user_id | <br/>                      user ID of user from safebreach to search. this can be retrieved in 2 ways,<br/>                      1. run get-all-users command and then look for user id of user with matching criteria<br/>                      but to see details its required that details parameter to be set to true,<br/>                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email<br/>                      command and then search for user with required details in displayed results for ID.<br/>                      This field is not  required, meaning even if just email is given , we will internally search user<br/>                      id with the matching email and use the user for further process<br/>                      . | Optional | 
-| email | <br/>                      Email of the user to Search for updating user details. This is a required field.<br/>                      The user with matching email will be considered as user whose data will be updated<br/>                      . | Required | 
+| user_id | <br/>                      user ID of user from safebreach to search. this can be retrieved in 2 ways,<br/>                      run get-all-users command and then look for user id of user with matching criteria.<br/>                      . | Required | 
 
 #### Context Output
 
@@ -425,7 +417,7 @@ This command deletes a user with given data.
 
 ***
 
-    This command gives all connector related issues and warning. this will show the connector error and warnings which are 
+    This command gives all integrations related issues and warning. this will show the integrations error and warnings which are 
     generally displayed in installed integrations page.
     
 
@@ -437,25 +429,27 @@ This command deletes a user with given data.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
+| error_type | this will help see issues which are either errors or warnings or both based on the input . Possible values are: , ERROR, WARNING. | Optional | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| integration_errors.integration_id | Number | The connector ID of Integration connector. A general notation that has been followed here is                       as follows, if the  id has _default at the end then its a default connector else its a custom connector | 
-| integration_errors.action | String | The action of Integration connector error. This describes where exactly did the error occur,                        if its search,then it implies error/warning happened when connector was trying that process | 
-| integration_errors.success_state | String | status of connector error. This implies whether the connector was able to                        successfully perform the operation or if it failed partway.                        So false implies it failed partway and true implies it was successfully completed | 
-| integration_errors.error_description | String | This is the exact error description shown on safebreach connector error/warning page.                        This description can be used for understanding of what exactly happened for the connector to fail. | 
-| integration_errors.timestamp | String | Time at which error/warning occurred. This can be used to pinpoint error which occurred                       across connectors if time of origin was remembered | 
+| integration_errors.integration_id | Number | The ID of Integration. A general notation that has been followed here is                       as follows, if the  id has _default at the end then its a default connector else its a custom connector | 
+| integration_errors.integration_name | String | Name of the integration | 
+| integration_errors.action | String | The action of Integration error. This describes where exactly did the error occur,                        if its search,then it implies error/warning happened when connector was trying that process | 
+| integration_errors.success_state | String | status of integration error. This implies whether the connector was able to                        successfully perform the operation or if it failed partway.                        So false implies it failed partway and true implies it was successfully completed | 
+| integration_errors.error_description | String | This is the exact error description shown on safebreach integration error/warning page.                        This description can be used for understanding of what exactly happened for the integration to fail. | 
+| integration_errors.timestamp | String | Time at which error/warning occurred. This can be used to pinpoint error which occurred                       across integrations if time of origin was remembered | 
 
-### safebreach-get-queued-running-simulations
+### safebreach-get-running-simulations
 
 ***
 This command gets simulations which are in running or queued state.
 
 #### Base Command
 
-`safebreach-get-queued-running-simulations`
+`safebreach-get-running-simulations`
 
 #### Input
 
@@ -466,28 +460,18 @@ This command gets simulations which are in running or queued state.
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| active_simulations.status | String | the status of the simulation, if its running or queued. | 
-| active_simulations.timestamp | String | the time at which simulation was triggered. | 
-| active_simulations.numOfTasks | String | the number of tasks involved in the simulation. | 
 | active_simulations.test id | String | this is test ID of the simulation. | 
-| active_simulations.stepRunId | String | the step id of the simulation. | 
-| active_simulations.jobId | String | the job id of the simulation. | 
-| active_simulations.taskId | String | the task ID of the simulation. | 
-| active_simulations.moveId | String | the move ID of the simulation. | 
-| active_simulations.moveRevision | String | the move revision of the simulation. | 
-| active_simulations.simulator_ids_involved | String | the simulators involved in the simulation. | 
-| active_simulations.simulator_names_involved | String | the names of simulators the simulation. | 
-| active_simulations.timeout | String | the timeout of the simulation if its failing etc. | 
-| active_simulations.packageId | String | the package ID of the simulation. | 
+| active_simulations.simulation_id | String | the simulation id of the simulation. | 
+| active_simulations.attack_id | String | the attack ID of the simulation. | 
 
-### safebreach-get-queued-running-tests
+### safebreach-get-running-tests
 
 ***
 This command gets tests which are in running or queued state.
 
 #### Base Command
 
-`safebreach-get-queued-running-tests`
+`safebreach-get-running-tests`
 
 #### Input
 
@@ -501,34 +485,26 @@ This command gets tests which are in running or queued state.
 | active_tests.id | Number | Id of Actively running test. | 
 | active_tests.name | String | Name of the test being run. | 
 | active_tests.description | String | Details related to the test being run. | 
-| active_tests.successCriteria | String | Plan Run ID of the simulation. | 
-| active_tests.originalScenarioId | String | Original scenario ID of the running test | 
-| active_tests.actions count | String | number of actions | 
-| active_tests.edges count | String | number of edges. | 
-| active_tests.createdAt | String | details related to when test is created. | 
-| active_tests.updatedAt | String | details related to when test is last updated/changed | 
-| active_tests.steps count | String | number of steps in simulator. | 
-| active_tests.planId | String | planId of the test. | 
-| active_tests.originalPlan ID | String | original plan ID for reference. | 
-| active_tests.ranBy | String | User who ran the plan. | 
-| active_tests.ranFrom | String | Where the test ran from. | 
-| active_tests.enableFeedbackLoop | String | Should feedback loop be enabled. | 
-| active_tests.testID | String | plan run id. | 
+| active_tests.success_criteria | String | success criterion for the test. | 
+| active_tests.original_scenario_id | String | Original scenario ID of the running test | 
+| active_tests.actions_count | String | number of actions | 
+| active_tests.edges_count | String | number of edges. | 
+| active_tests.created_at | String | details related to when test is created. | 
+| active_tests.updated_at | String | details related to when test is last updated/changed | 
+| active_tests.steps_count | String | number of steps in simulator. | 
+| active_tests.scenario_id | String | scenario_id of the test. | 
+| active_tests.original_scenario_id | String | scenario_id for reference. | 
+| active_tests.ran_by | String | User who ran the scenario. | 
+| active_tests.ran_from | String | Where the test ran from. | 
+| active_tests.test_id | String | test id of the test. | 
 | active_tests.priority | String | priority of tests. | 
-| active_tests.retrySimulations | String | Should simulations be retried | 
-| active_tests.flowControl | String | Flow control of tests | 
-| active_tests.slot position | String | position in queue. | 
-| active_tests.slot status | Boolean | is the test paused. | 
-| active_tests.pauseDuration | String | is the test paused and if so till when | 
-| active_tests.totalJobs | String | Total number of jobs for this test | 
-| active_tests.pausedDate | String | when the test is paused | 
-| active_tests.expectedSimulationsAmount | String | number of simulations expected | 
-| active_tests.dispatchedSimulationsAmount | String | the number of simulations dispatched | 
-| active_tests.blockedSimulationsAmount | String | The number of simulations blocked | 
-| active_tests.unblockedSimulationsAmount | String | The number of simulations unblocked | 
-| active_tests.skippedSimulationsAmount | String | The number of simulations skipped | 
-| active_tests.failedSimulationsAmount | String | The number of simulations failed | 
-| active_tests.isPrepared | String | Total number of simulations that have been prepared | 
+| active_tests.retry_simulations | String | Should simulations be retried | 
+| active_tests.pause_duration | String | is the test paused and if so till when | 
+| active_tests.paused_date | String | when the test is paused | 
+| active_tests.expected_simulations_amount | String | number of simulations expected | 
+| active_tests.dispatched_simulations_amount | String | the number of simulations dispatched | 
+| active_tests.skipped_simulations_amount | String | The number of simulations skipped | 
+| active_tests.failed_simulations_amount | String | The number of simulations failed | 
 
 ### safebreach-get-available-simulator-details
 
@@ -548,15 +524,10 @@ This command gets tests which are in running or queued state.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| secret | if secrets are to be included for search. Possible values are: true, false. | Optional | 
-| should_include_proxies | if proxies are to be included for search. Possible values are: true, false. | Optional | 
 | hostname | if hostname to be included for search. | Optional | 
-| connection_type | if connectionType to be included for search. | Optional | 
 | external_ip | if external IP details to be included for search. | Optional | 
 | internal_ip | if Internal IP are to be included for search. | Optional | 
-| os | operating system name to filter with, Eg: LINUX,WINDOWS etc. | Optional | 
-| sort_direction | direction in which secrets are to be sorted. Possible values are: asc, desc. Default is asc. | Optional | 
-| page_size | number of entries to search. | Optional | 
+| os | <br/>                  operating system name to filter with, Eg: LINUX,WINDOWS etc, incase nothing is selected then this will <br/>                  be set as empty which means all are retrieved<br/>                  . Possible values are: , LINUX, MAC, WINDOWS. | Optional | 
 | is_enabled | if to search only enabled ones. Possible values are: true, false. | Optional | 
 | is_connected | status of connection of simulators to search. Possible values are: true, false. | Optional | 
 | is_critical | whether to search only for critical simulators or not. Possible values are: true, false. | Optional | 
@@ -614,79 +585,67 @@ This command gets tests with given modifiers.
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| include_archived | <br/>                      Should archived tests be included in search. Archived tests are tests which have been <br/>                      set aside for further use in an inactive state. if this is set to false then archived tests<br/>                      wont be pulled but  if set to true then they will be pulled and shown.<br/>                      . Possible values are: true, false. Default is false. | Optional | 
-| entries_per_page | <br/>                      number of entries to be retrieved. for viewing, this will work in combination with sort_by field and<br/>                      things will be sorted in decreasing order so if you chose 100 entries here and if endTime is chosen as sort<br/>                      then it will show last 100 executions with latest end time.<br/>                      . | Optional | 
-| plan_id | <br/>                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests <br/>                      instead of this with same parameters as inputs.<br/>                      . | Optional | 
-| status | tests with this status will be searched and filtered. Possible values are: CANCELED, COMPLETED. | Optional | 
-| simulation_id | Unique ID of the simulation. | Optional | 
-| sort_by | <br/>                      how to sort the results retrieved, there are 4 options:<br/>                      1. sorting by endTime will show results in terms of decreasing order of simulations end time.<br/>                      2. sorting by start time will show results in terms of the decreasing order of simulation start time.<br/>                      3. testID - this is test id and sorting by this will be decreasing order of test id.<br/>                      4. stepRunId -<br/>                      . Possible values are: endTime, startTime, testID, stepRunId. Default is endTime. | Optional | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| test_results.planId | String | Plan ID of the simulation. | 
-| test_results.planName | String | Test Name of the simulation. | 
-| test_results.securityActionPerControl | String | Security Actions of the simulation. | 
-| test_results.planRunId | String | Test id of the simulation. | 
-| test_results.status | String | status of the simulation. | 
-| test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation. | 
-| test_results.simulatorExecutions | String | simulator executions of the simulation. | 
-| test_results.ranBy | String | user who started the simulation. | 
-| test_results.simulatorCount | String | simulators count of simulation. | 
-| test_results.endTime | String | End Time of the simulation. | 
-| test_results.startTime | String | start time of the simulation. | 
-| test_results.finalStatus.stopped | String | stopped count of simulation. | 
-| test_results.finalStatus.missed | String | missed count of simulation. | 
-| test_results.finalStatus.logged | String | logged count of simulation. | 
-| test_results.finalStatus.detected | String | detected count of simulation. | 
-| test_results.finalStatus.prevented | String | prevented count of simulation. | 
-| test_results.finalStatus.inconsistent | String | inconsistent count of simulation. | 
-| test_results.finalStatus.drifted | String | drifted count of simulation. | 
-| test_results.finalStatus.not_drifted | String | not drifted count of simulation. | 
-| test_results.finalStatus.baseline | String | baseline count of simulation. | 
+| test_results.scenario_id | String | scenario ID of the test. | 
+| test_results.simulation_name | String | Name of the simulation. | 
+| test_results.security_action_per_control | String | Security Actions of the simulation. | 
+| test_results.test_id | String | Test id of the test. | 
+| test_results.status | String | status of the test. | 
+| test_results.planned_simulations_amount | String | Planned simulations count of the test. | 
+| test_results.simulator_executions | String | simulator executions of the test. | 
+| test_results.attack_executions | String | list of attacks that are part of the simulation. | 
+| test_results.ran_by | String | user who started the simulation. | 
+| test_results.simulator_count | String | simulators count per account. | 
+| test_results.end_time | String | End Time of the test. | 
+| test_results.start_time | String | start time of the test. | 
+| test_results.finalStatus.stopped | String | stopped count of attacks. | 
+| test_results.finalStatus.missed | String | missed count of attacks. | 
+| test_results.finalStatus.logged | String | logged count of attacks. | 
+| test_results.finalStatus.detected | String | detected count of attacks. | 
+| test_results.finalStatus.prevented | String | prevented count of attacks. | 
 
-### safebreach-get-test-with-plan-id
+### safebreach-get-test-with-scenario-id
 
 ***
 
-    This command gets tests with given plan ID and the order is based on sort by column.
+    This command gets tests with given scenario ID.
     
 
 #### Base Command
 
-`safebreach-get-test-with-plan-id`
+`safebreach-get-test-with-scenario-id`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| plan_id | <br/>                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests <br/>                      instead of this with same parameters as inputs.<br/>                      . | Required | 
+| scenario_id | <br/>                      scenario Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests <br/>                      instead of this with same parameters as inputs.<br/>                      . | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| test_results.planId | String | Plan ID of the simulation. | 
-| test_results.planName | String | Test Name of the simulation. | 
-| test_results.securityActionPerControl | String | Security Actions of the simulation. | 
-| test_results.planRunId | String | Test id of the simulation. | 
-| test_results.status | String | status of the simulation. | 
-| test_results.plannedSimulationsAmount | String | Planned simulations amount of the simulation. | 
-| test_results.simulatorExecutions | String | simulator executions of the simulation. | 
-| test_results.ranBy | String | user who started the simulation. | 
-| test_results.simulatorCount | String | simulators count of simulation. | 
-| test_results.endTime | String | End Time of the simulation. | 
-| test_results.startTime | String | start time of the simulation. | 
-| test_results.finalStatus.stopped | String | stopped count of simulation. | 
-| test_results.finalStatus.missed | String | missed count of simulation. | 
-| test_results.finalStatus.logged | String | logged count of simulation. | 
-| test_results.finalStatus.detected | String | detected count of simulation. | 
-| test_results.finalStatus.prevented | String | prevented count of simulation. | 
-| test_results.finalStatus.inconsistent | String | inconsistent count of simulation. | 
-| test_results.finalStatus.drifted | String | drifted count of simulation. | 
-| test_results.finalStatus.not_drifted | String | not drifted count of simulation. | 
-| test_results.finalStatus.baseline | String | baseline count of simulation. | 
+| test_results.scenario_id | String | scenario ID of the test. | 
+| test_results.simulation_name | String | Name of the simulation. | 
+| test_results.security_action_per_control | String | Security Actions of the simulation. | 
+| test_results.test_id | String | Test id of the test. | 
+| test_results.status | String | status of the test. | 
+| test_results.planned_simulations_amount | String | Planned simulations count of the test. | 
+| test_results.simulator_executions | String | simulator executions of the test. | 
+| test_results.attack_executions | String | list of attacks that are part of the simulation. | 
+| test_results.ran_by | String | user who started the simulation. | 
+| test_results.simulator_count | String | simulators count per account. | 
+| test_results.end_time | String | End Time of the test. | 
+| test_results.start_time | String | start time of the test. | 
+| test_results.finalStatus.stopped | String | stopped count of attacks. | 
+| test_results.finalStatus.missed | String | missed count of attacks. | 
+| test_results.finalStatus.logged | String | logged count of attacks. | 
+| test_results.finalStatus.detected | String | detected count of attacks. | 
+| test_results.finalStatus.prevented | String | prevented count of attacks. | 
 
 ### safebreach-get-all-users
 
@@ -736,15 +695,41 @@ This command gives all users who are not deleted.
 | custom_scenarios.id | String | the Id of scenario. | 
 | custom_scenarios.name | String | the name of the scenario. | 
 | custom_scenarios.description | String | the description of the scenario. | 
-| custom_scenarios.successCriteria | String | success criteria the scenario. | 
-| custom_scenarios.originalScenarioId | String | original scenario id of scenario. | 
+| custom_scenarios.success_criteria | String | success criteria the scenario. | 
+| custom_scenarios.original_scenario_id | String | original scenario id of scenario. | 
 | custom_scenarios.actions_list | String | actions list of the scenario. | 
-| custom_scenarios.edges_count | String | edges count for the scenario. | 
+| custom_scenarios.edges_count | String | edges_count for the scenario. | 
 | custom_scenarios.steps_order | String | the order of steps of the scenario. | 
-| custom_scenarios.createdAt | String | the creation datetime of the scenario. | 
-| custom_scenarios.updatedAt | String | the last updated time the scenario. | 
-| custom_scenarios.custom_data_object_for_rerun_simulation | String | the data which can be used for             rerun-simulation command. | 
-| custom_scenarios.custom_data_for_rerun_test | String | the data which can be used for rerun-test command. | 
+| custom_scenarios.created_at | String | the creation datetime of the scenario. | 
+| custom_scenarios.updated_at | String | the last updated time the scenario. | 
+
+### safebreach-get-deployments
+
+***
+
+    This command gets all deployments present for this instance.
+    
+
+#### Base Command
+
+`safebreach-get-deployments`
+
+#### Input
+
+| **Argument Name** | **Description** | **Required** |
+| --- | --- | --- |
+
+#### Context Output
+
+| **Path** | **Type** | **Description** |
+| --- | --- | --- |
+| deployment_data.id | Number | The ID of deployment | 
+| deployment_data.account_id | String | The accountId of user who created the deployment. | 
+| deployment_data.name | String | The name of deployment.                        this will be the name shown in deployment name field of table in deployments page in safebreach UI | 
+| deployment_data.created_at | String | The creation date and time of deployment. | 
+| deployment_data.updated_at | String | The last updated date and time of deployment. | 
+| deployment_data.description | String | This is description field of deployments table of safebreach UI | 
+| deployment_data.simulators | String | The simulators that are part of deployment. | 
 
 ### safebreach-get-prebuilt-scenarios
 
@@ -770,20 +755,25 @@ This command gives all users who are not deleted.
 | prebuilt_scenarios.id | String | the Id of scenario. | 
 | prebuilt_scenarios.name | String | the name of the scenario. | 
 | prebuilt_scenarios.description | String | the description of the scenario. | 
-| prebuilt_scenarios.createdBy | String | user id of user, who created the scenario. | 
-| prebuilt_scenarios.createdAt | String | creation datetime of scenario. | 
-| prebuilt_scenarios.updatedAt | String | the update datetime of the scenario. | 
+| prebuilt_scenarios.created_by | String | user id of user, who created the scenario. | 
+| prebuilt_scenarios.created_at | String | creation datetime of scenario. | 
+| prebuilt_scenarios.updated_at | String | the update datetime of the scenario. | 
 | prebuilt_scenarios.recommended | String | the recommendation status of the scenario. | 
 | prebuilt_scenarios.tags_list | String | the tags related to the scenario. | 
 | prebuilt_scenarios.categories | String | the category ids of the scenario. | 
 | prebuilt_scenarios.steps_order | String | the order of steps involved in the scenario. | 
 | prebuilt_scenarios.order | String | the order of execution related to the scenario. | 
-| prebuilt_scenarios.minApiVer | String | the minimum version of API required for scenario to be executed | 
+| prebuilt_scenarios.min_api_ver | String | the minimum version of API required for scenario to be executed | 
 
 ### safebreach-get-schedules
 
 ***
-This command retrieves schedules from safebreach which user has set and they will display it to user
+
+    This command retrieves schedules from safebreach which user has set and they will display it to user.
+    By default Name is not shown, to retrieve and see it, please run 'safebreach-get-test-with-scenario-id'
+    command with test_id field from this command's output with scenario_id of safebreach-get-test-with-scenario-id.
+    scenario_name is the name of the schedule.
+    
 
 #### Base Command
 
@@ -799,15 +789,15 @@ This command retrieves schedules from safebreach which user has set and they wil
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | schedules.id | String | the Id of the schedule. | 
-| schedules.isEnabled | Boolean | if simulation is enabled. | 
+| schedules.is_enabled | Boolean | if simulation is enabled. | 
 | schedules.user_schedule | String | the user readable form of the schedule. | 
-| schedules.runDate | String | the run date of the schedule. | 
-| schedules.cronTimezone | String | the time zone of the schedule. | 
+| schedules.run_date | String | the run date of the schedule. | 
+| schedules.cron_timezone | String | the time zone of the schedule. | 
 | schedules.description | String | the description of the schedule. | 
-| schedules.plan_id | String | the matrix ID of the schedule. | 
-| schedules.createdAt | String | the creation datetime of the schedule. | 
-| schedules.updatedAt | String | the updated datetime of the schedule. | 
-| schedules.deletedAt | String | the deletion time of the schedule. | 
+| schedules.test_id | String | the matrix ID of the schedule. | 
+| schedules.created_at | String | the creation datetime of the schedule. | 
+| schedules.updated_at | String | the updated datetime of the schedule. | 
+| schedules.deleted_at | String | the deletion time of the schedule. | 
 
 ### safebreach-get-services-status
 
@@ -835,7 +825,7 @@ This command retrieves schedules from safebreach which user has set and they wil
 | services_status.connection status | String | connection status of service. | 
 | services_status.error | String | error status of service. | 
 
-### safebreach-get-simulation-results
+### safebreach-get-simulations
 
 ***
 
@@ -846,7 +836,7 @@ This command retrieves schedules from safebreach which user has set and they wil
 
 #### Base Command
 
-`safebreach-get-simulation-results`
+`safebreach-get-simulations`
 
 #### Input
 
@@ -859,14 +849,14 @@ This command retrieves schedules from safebreach which user has set and they wil
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | simulation_details.simulation_id | String | the id of the simulation. | 
-| simulation_details.plan_name | String | name of the plan to which this simulation belongs to. | 
 | simulation_details.attacker_node_name | String | Name of attacker node of simulation. | 
 | simulation_details.target_node_name | String | name of target of simulation. | 
 | simulation_details.dest_node_name | String | name of destination of simulation. | 
-| simulation_details.status | String | final status of simulation. | 
-| simulation_details.result | String | result of simulation. | 
-| simulation_details.security_action | String | security action of simulation. | 
+| simulation_details.attack_name | String | name of attack | 
 | simulation_details.attacks_involved | String | attack types involved in of simulation. | 
+| simulation_details.result_details | String | result of simulation. | 
+| simulation_details.security_action | String | security status as per the simulation. | 
+| simulation_details.attack_description | String | attack details. | 
 
 ### safebreach-get-available-simulator-count
 
@@ -995,7 +985,7 @@ This command gives all users which match the inputs given, Since email is a uniq
 | --- | --- | --- |
 | verification_token.token | String | the value of new verification token. | 
 
-### safebreach-pause-resume-simulations-tests
+### safebreach-pause/resume-simulations-tests
 
 ***
 
@@ -1005,7 +995,7 @@ This command gives all users which match the inputs given, Since email is a uniq
 
 #### Base Command
 
-`safebreach-pause-resume-simulations-tests`
+`safebreach-pause/resume-simulations-tests`
 
 #### Input
 
@@ -1022,7 +1012,7 @@ This command gives all users which match the inputs given, Since email is a uniq
 ### safebreach-rerun-simulation
 
 ***
-this commands puts given simulation data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table 
+this commands puts given simulation ids into queue for running.
 
 #### Base Command
 
@@ -1032,12 +1022,6 @@ this commands puts given simulation data at a given position, for this command t
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| position | position in queue to put the given simulation data at. | Optional | 
-| enable_feedback_loop | this argument is used to enable/disable feedback loop. Possible values are: false, true. Default is true. | Optional | 
-| retry_simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
-| wait_for_retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
-| priority | the priority of this simulation action. Possible values are: low, high. Default is low. | Optional | 
-| simulation_name | simulation name for the given simulation. | Required | 
 | simulation_ids | ids of simulation we want to queue,                          please give ids of simulations as comma separated numbers. | Required | 
 
 #### Context Output
@@ -1047,10 +1031,9 @@ this commands puts given simulation data at a given position, for this command t
 | changed_data.id | String | the Id of simulation. | 
 | changed_data.name | String | the name of the simulation. | 
 | changed_data.description | String | the description of the simulation. | 
-| changed_data.successCriteria | String | success criteria the simulation. | 
-| changed_data.originalScenarioId | String | original simulation id of simulation. | 
+| changed_data.success_criteria | String | success criteria the simulation. | 
+| changed_data.original_scenario_id | String | original simulation id of simulation. | 
 | changed_data.actions_list | String | actions list of the simulation. | 
-| changed_data.edges_count | String | edges count for the simulation. | 
 | changed_data.steps_order | String | the order of steps of the simulation. | 
 | changed_data.createdAt | String | the creation datetime of the simulation. | 
 | changed_data.updatedAt | String | the last updated time the simulation. | 
@@ -1058,7 +1041,7 @@ this commands puts given simulation data at a given position, for this command t
 ### safebreach-rerun-test
 
 ***
-this commands puts given test data at a given position, for this command to get test data input,        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table 
+this commands puts given test data in queue for execution.
 
 #### Base Command
 
@@ -1068,36 +1051,30 @@ this commands puts given test data at a given position, for this command to get 
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| position | position in queue to put the given test data at. | Optional | 
-| enable_feedback_loop | this argument is used to enable/disable feedback loop. Possible values are: false, true. Default is true. | Optional | 
-| retry_simulation | this argument is used to retry according to retry policy                 mention in retry policy field. Possible values are: , false, true. | Optional | 
-| wait_for_retry | this arguments tells flow to retry the adding to queue after the                 current step execution is completed. Possible values are: , false, true. | Optional | 
-| priority | the priority of this test action. Possible values are: low, high. Default is low. | Optional | 
-| retry_policy | <br/>                      the retry policy of test <br/>                      . | Optional | 
-| test_id | test id for the given test,             this is be planRunId field from get-all-tests-summary command. | Required | 
+| test_id | test id for the given test,             this is be test id field from get-all-tests-summary command. | Required | 
 | test_name | test name for the given test. | Required | 
 
 #### Context Output
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| changed_data.id | String | the Id of scenario. | 
-| changed_data.name | String | the name of the scenario. | 
-| changed_data.description | String | the description of the scenario. | 
-| changed_data.successCriteria | String | success criteria the scenario. | 
-| changed_data.originalScenarioId | String | original scenario id of scenario. | 
-| changed_data.actions_list | String | actions list of the scenario. | 
-| changed_data.edges_count | String | edges count for the scenario. | 
-| changed_data.steps_order | String | the order of steps of the scenario. | 
-| changed_data.createdAt | String | the creation datetime of the scenario. | 
-| changed_data.updatedAt | String | the last updated time the scenario. | 
-| changed_data.planId | String | the plan id of the scenario. | 
-| changed_data.ranBy | String | the user id of the user who ran the scenario. | 
-| changed_data.ranFrom | String | where the user ran the scenario from. | 
-| changed_data.enableFeedbackLoop | String | feedback loop status of the scenario. | 
-| changed_data.planRunId | String | plan run id of the scenario. | 
-| changed_data.priority | String | priority of the scenario. | 
-| changed_data.retrySimulations | String | retry status of the scenario. | 
+| changed_data.id | String | the Id of test. | 
+| changed_data.name | String | the name of the test. | 
+| changed_data.description | String | the description of the test. | 
+| changed_data.success_criteria | String | success criteria the test. | 
+| changed_data.original_scenario_id | String | original scenario id of test. | 
+| changed_data.actions_list | String | actions list of the test. | 
+| changed_data.edges_count | String | edges_count for the test. | 
+| changed_data.steps_order | String | the order of steps of the test. | 
+| changed_data.created_at | String | the creation datetime of the test. | 
+| changed_data.updated_at | String | the last updated time the test. | 
+| changed_data.scenario_id | String | the test id of the test. | 
+| changed_data.ran_by | String | the user id of the user who ran the test. | 
+| changed_data.ran_from | String | where the user ran the test from. | 
+| changed_data.enable_feedback_loop | String | feedback loop status of the test. | 
+| changed_data.test_id | String | test_id of the test. | 
+| changed_data.priority | String | priority of the test. | 
+| changed_data.retry_simulations | String | retry status of the test. | 
 
 ### safebreach-rotate-verification-token
 
@@ -1120,7 +1097,7 @@ this commands puts given test data at a given position, for this command to get 
 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
-| Safebreach Content Management.new_token | String | new Token which has been generated due to the api call | 
+| token.new_token | String | new Token which has been generated due to the api call | 
 
 ### safebreach-update-deployment
 
@@ -1150,10 +1127,10 @@ this commands puts given test data at a given position, for this command to get 
 | **Path** | **Type** | **Description** |
 | --- | --- | --- |
 | updated_deployment_data.id | Number | The ID of deployment whose values have been updated.                           ID cant be changed so this wont be updated. | 
-| updated_deployment_data.accountId | String | The accountId of user who created the deployment. | 
+| updated_deployment_data.account_id | String | The accountId of user who created the deployment. | 
 | updated_deployment_data.name | String | The name of deployment which has been updated to the name given in updated_deployment_name.                        this will be the name shown in deployment name field of table in deployments page in safebreach UI | 
-| updated_deployment_data.createdAt | String | The creation date and time of deployment whose data has been updated. | 
-| updated_deployment_data.updatedAt | String | The last updated date and time of deployment whose data has been updated.                       This will generally be closer to the update deployment command run time for reference | 
+| updated_deployment_data.created_at | String | The creation date and time of deployment whose data has been updated. | 
+| updated_deployment_data.updated_at | String | The last updated date and time of deployment whose data has been updated.                       This will generally be closer to the update deployment command run time for reference | 
 | updated_deployment_data.description | String | The updated description of deployment which is provided in updated_deployment_description                       field of input . This will now be the description which is shown in description field of deployments                       table of safebreach UI | 
 | updated_deployment_data.simulators | String | The simulators that are part of deployment. unless any simulators are given as input this                            field won't be updated this field doesn't reflect changes if simulators given as input are deleted | 
 
@@ -1219,27 +1196,26 @@ this commands puts given test data at a given position, for this command to get 
 | updated_simulator_details.proxies | String | Proxies of simulator. | 
 | updated_simulator_details.advanced_actions | String | Advanced simulator details. | 
 
-### safebreach-update-user-details
+### safebreach-update-user
 
 ***
 This command updates a user with given data.
 
 #### Base Command
 
-`safebreach-update-user-details`
+`safebreach-update-user`
 
 #### Input
 
 | **Argument Name** | **Description** | **Required** |
 | --- | --- | --- |
-| user_id | <br/>                      user ID of user from safebreach to search. this can be retrieved in 2 ways,<br/>                      1. run get-all-users command and then look for user id of user with matching criteria<br/>                      but to see details its required that details parameter to be set to true,<br/>                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email<br/>                      command and then search for user with required details in displayed results for ID.<br/>                      This field is not  required, meaning even if just email is given , we will internally search user<br/>                      id with the matching email and use the user for further process<br/>                      . | Optional | 
-| email | <br/>                      Email of the user to Search for updating user details. This is a required field.<br/>                      The user with matching email will be considered as user whose data will be updated<br/>                      . | Optional | 
+| user_id | user ID of user from safebreach to search. | Required | 
 | name | <br/>                      Update the user name to given value of this field, <br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
 | user_description | <br/>                      Update the user Description to given value in this field. This will be updated description of user<br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
 | is_active | <br/>                      Update the user Status based on the input, if this is set to false then user will be deactivated.<br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . Possible values are: true, false, . | Optional | 
 | password | <br/>                      Password of user to be updated with. this will be used for changing password for user.<br/>                      unless this field is left empty, whatever is present here will be updated to user details.<br/>                      user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
 | user_role | <br/>                      Role of the user to be changed to. unless you want to change the user role and permissions, <br/>                      dont select anything in this field, user will be selected based on user_id or email fields mentioned above.<br/>                      . Possible values are: viewer, administrator, contentDeveloper, operator. | Optional | 
-| deployments | <br/>                        Comma separated ID of all deployments the user should be part of.<br/>                        unless this field is left empty, whatever is present here will be updated to user details.<br/>                        user will be selected based on user_id or email fields mentioned above.<br/>                      . | Optional | 
+| deployments | <br/>                        Comma separated ID of all deployments the user should be part of.<br/>                        unless this field is left empty, whatever is present here will be updated to user details.<br/>                        incase there are old deployments assigned to user then please include them too, else they will be<br/>                        replaced with new values set here. user will be selected based on user_id field mentioned above.<br/>                      . | Optional | 
 
 #### Context Output
 

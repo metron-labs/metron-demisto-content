@@ -14,23 +14,17 @@ bool_map = {
 }
 
 simulator_details_inputs = [
-    InputArgument(name="secret", description="if secrets are to be included for search.", options=["true", "false"],
-                  required=False, is_array=False),
-    InputArgument(name="should_include_proxies", description="if proxies are to be included for search.",
-                  options=["true", "false"], required=False, is_array=False),
     InputArgument(name="hostname", description="if hostname to be included for search.",
-                  required=False, is_array=False),
-    InputArgument(name="connection_type", description="if connectionType to be included for search.",
                   required=False, is_array=False),
     InputArgument(name="external_ip", description="if external IP details to be included for search.",
                   required=False, is_array=False),
     InputArgument(name="internal_ip", description="if Internal IP are to be included for search.",
                   required=False, is_array=False),
-    InputArgument(name="os", description="operating system name to filter with, Eg: LINUX,WINDOWS etc",
-                  required=False, is_array=False),
-    InputArgument(name="sort_direction", description="direction in which secrets are to be sorted.", options=["asc", "desc"],
-                  default="asc", required=False, is_array=False),
-    InputArgument(name="page_size", description="number of entries to search.", required=False, is_array=False),
+    InputArgument(name="os", description="""
+                  operating system name to filter with, Eg: LINUX,WINDOWS etc, incase nothing is selected then this will 
+                  be set as empty which means all are retrieved
+                  """,
+                  options=["", "LINUX", "MAC", "WINDOWS"], default="", required=False, is_array=False),
     InputArgument(name="is_enabled", description="if to search only enabled ones.", options=["true", "false"],
                   required=False, is_array=False),
     InputArgument(name="is_connected", description="status of connection of simulators to search.", options=["true", "false"],
@@ -135,69 +129,56 @@ simulator_details_for_update_fields = [
 ]
 
 test_summaries_output_fields = [
-    OutputArgument(name="planId", description="Plan ID of the simulation.", output_type=str),
-    OutputArgument(name="planName", description="Test Name of the simulation.", output_type=str),
-    OutputArgument(name="securityActionPerControl", description="Security Actions of the simulation.", output_type=str),
-    OutputArgument(name="planRunId", description="Test id of the simulation.", output_type=str),
-    OutputArgument(name="status", description="status of the simulation.", output_type=str),
-    OutputArgument(name="plannedSimulationsAmount", description="Planned simulations amount of the simulation.", output_type=str),
-    OutputArgument(name="simulatorExecutions", description="simulator executions of the simulation.", output_type=str),
-    OutputArgument(name="ranBy", description="user who started the simulation.", output_type=str),
-    OutputArgument(name="simulatorCount", description="simulators count of simulation.", output_type=str),
-    OutputArgument(name="endTime", description="End Time of the simulation.", output_type=str),
-    OutputArgument(name="startTime", description="start time of the simulation.", output_type=str),
-    OutputArgument(name="finalStatus.stopped", description="stopped count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.missed", description="missed count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.logged", description="logged count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.detected", description="detected count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.prevented", description="prevented count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.inconsistent", description="inconsistent count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.drifted", description="drifted count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.not_drifted", description="not drifted count of simulation.", output_type=str),
-    OutputArgument(name="finalStatus.baseline", description="baseline count of simulation.", output_type=str),
+    OutputArgument(name="scenario_id", description="scenario ID of the test.", output_type=str),
+    OutputArgument(name="simulation_name", description="Name of the simulation.", output_type=str),
+    OutputArgument(name="security_action_per_control", description="Security Actions of the simulation.", output_type=str),
+    OutputArgument(name="test_id", description="Test id of the test.", output_type=str),
+    OutputArgument(name="status", description="status of the test.", output_type=str),
+    OutputArgument(name="planned_simulations_amount", description="Planned simulations count of the test.", output_type=str),
+    OutputArgument(name="simulator_executions", description="simulator executions of the test.", output_type=str),
+    OutputArgument(name="attack_executions", description="list of attacks that are part of the simulation.", output_type=str),
+    OutputArgument(name="ran_by", description="user who started the simulation.", output_type=str),
+    OutputArgument(name="simulator_count", description="simulators count per account.", output_type=str),
+    OutputArgument(name="end_time", description="End Time of the test.", output_type=str),
+    OutputArgument(name="start_time", description="start time of the test.", output_type=str),
+    OutputArgument(name="finalStatus.stopped", description="stopped count of attacks.", output_type=str),
+    OutputArgument(name="finalStatus.missed", description="missed count of attacks.", output_type=str),
+    OutputArgument(name="finalStatus.logged", description="logged count of attacks.", output_type=str),
+    OutputArgument(name="finalStatus.detected", description="detected count of attacks.", output_type=str),
+    OutputArgument(name="finalStatus.prevented", description="prevented count of attacks.", output_type=str),
 ]
 
 tests_outputs = [
     OutputArgument(name="id", description="Id of Actively running test.", output_type=int),
     OutputArgument(name="name", description="Name of the test being run.", output_type=str),
     OutputArgument(name="description", description="Details related to the test being run.", output_type=str),
-    OutputArgument(name="successCriteria", description="Plan Run ID of the simulation.", output_type=str),
-    OutputArgument(name="originalScenarioId", description="Original scenario ID of the running test", output_type=str),
-    OutputArgument(name="actions count", description="number of actions", output_type=str),
-    OutputArgument(name="edges count", description="number of edges.", output_type=str),
-    OutputArgument(name="createdAt", description="details related to when test is created.", output_type=str),
-    OutputArgument(name="updatedAt", description="details related to when test is last updated/changed", output_type=str),
-    OutputArgument(name="steps count", description="number of steps in simulator.", output_type=str),
-    OutputArgument(name="planId", description="planId of the test.", output_type=str),
-    OutputArgument(name="originalPlan ID", description="original plan ID for reference.", output_type=str),
-    OutputArgument(name="ranBy", description="User who ran the plan.", output_type=str),
-    OutputArgument(name="ranFrom", description="Where the test ran from.", output_type=str),
-    OutputArgument(name="enableFeedbackLoop", description="Should feedback loop be enabled.", output_type=str),
-    OutputArgument(name="testID", description="plan run id.", output_type=str),
+    OutputArgument(name="success_criteria", description="success criterion for the test.", output_type=str),
+    OutputArgument(name="original_scenario_id", description="Original scenario ID of the running test", output_type=str),
+    OutputArgument(name="actions_count", description="number of actions", output_type=str),
+    OutputArgument(name="edges_count", description="number of edges.", output_type=str),
+    OutputArgument(name="created_at", description="details related to when test is created.", output_type=str),
+    OutputArgument(name="updated_at", description="details related to when test is last updated/changed", output_type=str),
+    OutputArgument(name="steps_count", description="number of steps in simulator.", output_type=str),
+    OutputArgument(name="scenario_id", description="scenario_id of the test.", output_type=str),
+    OutputArgument(name="original_scenario_id", description="scenario_id for reference.", output_type=str),
+    OutputArgument(name="ran_by", description="User who ran the scenario.", output_type=str),
+    OutputArgument(name="ran_from", description="Where the test ran from.", output_type=str),
+    OutputArgument(name="test_id", description="test id of the test.", output_type=str),
     OutputArgument(name="priority", description="priority of tests.", output_type=str),
-    OutputArgument(name="retrySimulations", description="Should simulations be retried", output_type=str),
-    OutputArgument(name="flowControl", description="Flow control of tests", output_type=str),
-    OutputArgument(name="slot position", description="position in queue.", output_type=str),
-    OutputArgument(name="slot status", description="is the test paused.", output_type=bool),
-    OutputArgument(name="pauseDuration", description="is the test paused and if so till when", output_type=str),
-    OutputArgument(name="totalJobs", description="Total number of jobs for this test", output_type=str),
-    OutputArgument(name="pausedDate", description="when the test is paused", output_type=str),
-    OutputArgument(name="expectedSimulationsAmount", description="number of simulations expected", output_type=str),
-    OutputArgument(name="dispatchedSimulationsAmount", description="the number of simulations dispatched", output_type=str),
-    OutputArgument(name="blockedSimulationsAmount", description="The number of simulations blocked", output_type=str),
-    OutputArgument(name="unblockedSimulationsAmount", description="The number of simulations unblocked", output_type=str),
-    OutputArgument(name="skippedSimulationsAmount", description="The number of simulations skipped", output_type=str),
-    OutputArgument(name="failedSimulationsAmount", description="The number of simulations failed", output_type=str),
-    OutputArgument(name="isPrepared", description="Total number of simulations that have been prepared", output_type=str),
+    OutputArgument(name="retry_simulations", description="Should simulations be retried", output_type=str),
+    OutputArgument(name="pause_duration", description="is the test paused and if so till when", output_type=str),
+    OutputArgument(name="paused_date", description="when the test is paused", output_type=str),
+    OutputArgument(name="expected_simulations_amount", description="number of simulations expected", output_type=str),
+    OutputArgument(name="dispatched_simulations_amount", description="the number of simulations dispatched", output_type=str),
+    OutputArgument(name="skipped_simulations_amount", description="The number of simulations skipped", output_type=str),
+    OutputArgument(name="failed_simulations_amount", description="The number of simulations failed", output_type=str),
 ]
 
 test_outputs_headers_list = [
-    "id", "name", "description", "successCriteria", "originalScenarioId", "actions count", "edges count",
-    "createdAt", "updatedAt", "steps count", "planId", "originalPlan ID", "ranBy", "ranFrom", "enableFeedbackLoop",
-    "planRunId", "priority", "retrySimulations", "flowControl", "slot position", "slot status", "pauseDuration",
-    "totalJobs", "pausedDate", "expectedSimulationsAmount", "dispatchedSimulationsAmount", "blockedSimulationsAmount",
-    "unblockedSimulationsAmount", "skippedSimulationsAmount", "failedSimulationsAmount", "isPrepared"
-]
+    "id", "name", "description", "successCriteria", "originalScenarioId", "actions_count", "edges_count",
+    "createdAt", "updatedAt", "steps_count", "planId", "original_scenario_id", "ranBy", "ranFrom",
+    "planRunId", "priority", "retrySimulations", "pause_duration", "paused_ate", "expectedSimulationsAmount",
+    "dispatchedSimulationsAmount", "skippedSimulationsAmount", "failedSimulationsAmount"]
 
 
 def test_outputs_headers_transform(header):
@@ -205,34 +186,26 @@ def test_outputs_headers_transform(header):
         "id": "id",
         "name": "name",
         "description": "description",
-        "successCriteria": "successCriteria",
-        "originalScenarioId": "originalScenarioId",
-        "actions count": "actions count",
-        "edges count": "edges count",
-        "createdAt": "createdAt",
-        "updatedAt": "updatedAt",
-        "steps count": "steps count",
-        "planId": "planId",
-        "originalPlan ID": "original Plan ID",
-        "ranBy": "ranBy",
-        "ranFrom": "ranFrom",
-        "enableFeedbackLoop": "enableFeedbackLoop",
-        "planRunId": "test id",
+        "successCriteria": "success_criteria",
+        "originalScenarioId": "original_scenario_id",
+        "actions_count": "actions_count",
+        "edges_count": "edges_count",
+        "createdAt": "created_at",
+        "updatedAt": "updated_at",
+        "steps_count": "steps_count",
+        "planId": "scenario_id",
+        "original_scenario_id": "original_scenario_id",
+        "ranBy": "ran_by",
+        "ranFrom": "ran_from",
+        "planRunId": "test_id",
         "priority": "priority",
-        "retrySimulations": "retrySimulations",
-        "flowControl": "flowControl",
-        "slot position": "slot position",
-        "slot status": "slot status",
-        "pauseDuration": "pauseDuration",
-        "totalJobs": "totalJobs",
-        "pausedDate": "pausedDate",
-        "expectedSimulationsAmount": "expectedSimulationsAmount",
-        "dispatchedSimulationsAmount": "dispatchedSimulationsAmount",
-        "blockedSimulationsAmount": "blockedSimulationsAmount",
-        "unblockedSimulationsAmount": "unblockedSimulationsAmount",
-        "skippedSimulationsAmount": "skippedSimulationsAmount",
-        "failedSimulationsAmount": "failedSimulationsAmount",
-        "isPrepared": "isPrepared"
+        "retrySimulations": "retry_simulations",
+        "pauseDuration": "pause_duration",
+        "pausedDate": "paused_date",
+        "expectedSimulationsAmount": "expected_simulations_amount",
+        "dispatchedSimulationsAmount": "dispatched_simulations_amount",
+        "skippedSimulationsAmount": "skipped_simulations_amount",
+        "failedSimulationsAmount": "failed_simulations_amount",
     }
 
     return return_map.get(header, header)
@@ -251,7 +224,7 @@ metadata_collector = YMLMetadataCollector(
     """,
     display="Safebreach Content Management",
     category="Deception & Breach Simulation",
-    docker_image="demisto/python3:3.10.13.75921",
+    docker_image="demisto/python3:3.10.13.78960",
     is_fetch=False,
     long_running=False,
     long_running_port=False,
@@ -290,17 +263,7 @@ metadata_collector = YMLMetadataCollector(
           ])
 
 
-def format_sb_code_error(errors_data):
-    """This function gets all errors for when we get a 400 status and
-       formats the errors accordingly
-
-    Args:
-        errors_data (dict): This is all errors with sbcodes returned by safebreach API
-
-    Returns:
-        (str,optional): returns error codes which are formatted as string
-    """
-    error_data = ""
+def sb_error_string(error_data, sb_code):
     sbcode_error_dict = {
         700: f"{error_data} value is below permitted minimum",
         701: f"{error_data} value is above permitted maximum",
@@ -324,10 +287,37 @@ def format_sb_code_error(errors_data):
         720: "passwords dont match",
         721: "gateway timeout"
     }
+    return sbcode_error_dict.get(sb_code, "")
+
+
+def format_sb_code_error(errors_data):
+    """This function gets all errors for when we get a 400 status and
+       formats the errors accordingly
+
+    Args:
+        errors_data (dict): This is all errors with sbcodes returned by safebreach API
+
+    Returns:
+        (str,optional): returns error codes which are formatted as string
+    """
+    error_data = ""
+
     try:
         errors = errors_data.get("errors")
         if errors_data.get("statusCode") == 400:
-            return json.dumps({"issue": errors_data.get("message"), "details": errors_data.get("additionalData")})
+            if errors_data.get("message"):
+                return json.dumps({"issue": errors_data.get("message"), "details": errors_data.get("additionalData")})
+        else:
+            issues = []
+            for error in errors:
+                if error.get("sbcode"):
+                    sb_code = error.get("sbcode")
+                    fields = error.get("data", {}).get("fields")
+                    for field in fields:
+                        error_data = field
+                        issue = sb_error_string(error_data=error_data, sb_code=sb_code)
+                        issues.append(issue)
+            return "; ".join(issues)
     except AttributeError:
         return errors_data
 
@@ -336,7 +326,7 @@ def format_sb_code_error(errors_data):
     for error in errors:
         error_data = error.get("data")
         error_code = error.get("sbcode")
-        final_error_string = final_error_string + " " + sbcode_error_dict[int(error_code)]
+        final_error_string = final_error_string + " " + sb_error_string(error_data=error_data, sb_code=int(error_code))
     return final_error_string
 
 
@@ -344,15 +334,24 @@ class NotFoundError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+    def __str__(self) -> str:
+        return super().__str__()
+
 
 class SBError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+    def __str__(self) -> str:
+        return super().__str__()
+
 
 class InputError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+    def __str__(self) -> str:
+        return super().__str__()
 
 
 class Client(BaseClient):
@@ -396,8 +395,7 @@ class Client(BaseClient):
         }
 
         response = self._http_request(method=method, full_url=request_url, json_data=body, headers=headers,
-                                      params=request_params, ok_codes=[200, 201, 204, 400])
-
+                                      params=request_params, ok_codes=[200, 201, 204, 400, 409])
         return response if not ((type(response) == dict) and (response.get("error") and not response.get("errorCode")))\
             else self.handle_sbcodes(response)
 
@@ -467,17 +465,6 @@ class Client(BaseClient):
             dict: user data related to the user who has been deleted
         """
         user_id = demisto.args().get("user_id")
-        user_email = demisto.args().get("email", "").strip()
-        # we are prioritizing email or ID when both are given by user
-        if user_email and not user_id:
-            # retrieve all users and filter with given details
-            user_list = self.get_users_list()
-            demisto.info("retrieved user list which contains all available users in safebreach")
-            user = list(filter(lambda user_data: user_data["email"] == user_email, user_list))
-            if user:
-                user_id = int(user[0]["id"])
-                demisto.info("user has been found and details are being given for deleting user")
-        # since we have user ID we can delete the user
         account_id = demisto.params().get("account_id", 0)
         method = "DELETE"
         url = f"/config/v1/accounts/{account_id}/users/{user_id}"
@@ -519,28 +506,6 @@ class Client(BaseClient):
         response = self.get_response(url=url)
         deployments = response['data']
         return deployments
-
-    def get_deployment_id_by_name(self, deployment_name: str) -> dict:
-        """This function gets deployment with given name
-
-        Args:
-            deployment_name (str): name of the given deployment
-
-        Raises:
-            Exception: If no deployment with given name is found then this exception is raised
-
-        Returns:
-            dict: deployment related details found while we find deployment with given name
-        """
-        available_deployments = self.list_deployments()
-        demisto.info(f"available deployments are {available_deployments}")
-        if not available_deployments:
-            raise NotFoundError(f"deployments with name: {deployment_name} not found as you dont have any deployments")
-        needed_deployments = list(filter(
-            lambda deployment: deployment["name"].lower() == deployment_name.lower(), available_deployments))
-        if not needed_deployments:
-            raise NotFoundError("related deployment with given name couldn't be found")
-        return needed_deployments[0]
 
     def create_deployment_data(self):
         """This function creates a deployment based on data given by user, this will be called by an external function
@@ -618,38 +583,34 @@ class Client(BaseClient):
         The parameters are all optional
 
         parameters include:
-        1. including archived, this will retrieve archived test summaries too
-        2. size, Number of tests to retrieve
-        3. status, status of test - CANCELED,COMPLETED
-        4. plan_id : Plan id of test -  this is not plan run id
-        5. simulator_id : this is simulator ID 
-        6. sort by: default its sorted by endDate but can be altered with respect to given enum
+        1. simulator_id : this is simulator ID 
 
         Returns:
             List[Dict]: Returns test data as a list of dictionaries
         """
 
-        sort_map = {
-            "endTime": "endTime",
-            "startTime": "startTime",
-            "testID": "planRunId",
-            "stepRunId": "stepRunId"
-        }
+        # sort_map = {
+        #     "endTime": "endTime",
+        #     "startTime": "startTime",
+        #     "testID": "planRunId",
+        #     "stepRunId": "stepRunId"
+        # }
 
         account_id = demisto.params().get("account_id", 0)
 
-        include_archived = demisto.args().get("include_archived")
-        size = demisto.args().get("entries_per_page", 100)
-        status = demisto.args().get("status")
-        plan_id = demisto.args().get("plan_id")
+        # include_archived = "false"
+        # size = demisto.args().get("entries_per_page")
+        # status = demisto.args().get("status","")
+        # scenario_id = demisto.args().get("scenario_id")
         simulation_id = demisto.args().get("simulation_id")
-        sort_by = sort_map.get(demisto.args().get("sort_by"), "endTime")
+        # sort_by = sort_map.get(demisto.args().get("sort_by"), "endTime")
 
         parameters = {}
         method = "GET"
         url = f"/data/v1/accounts/{account_id}/testsummaries"
-        for param in [("includeArchived", include_archived), ("size", size), ("status", status), ("planId", plan_id),
-                      ("simulationId", simulation_id), ("sortBy", sort_by)]:
+        for param in [("simulationId", simulation_id)]:
+            # [("includeArchived", include_archived), ("size", size), ("status", status), ("planId", scenario_id),
+            #               ("simulationId", simulation_id), ("sortBy", sort_by)]:
             parameters.update({} if not param[1] else {param[0]: param[1]})
 
         demisto.info(f"get_test_summary parameters is {parameters}")
@@ -665,20 +626,23 @@ class Client(BaseClient):
         """
         for test_summary in test_summaries:
             for key in list(test_summary.keys()):
-                if key == "finalStatus":
+                if key == "moveExecutions":
+                    test_summary["attack_executions"] = ", ".join([str(attack["moveId"])
+                                                                   for attack in test_summary.get("moveExecutions", [])])
+                elif key == "securityActionPerControl":
+                    test_summary["security_actions"] = ", ".join([str(control["product"])
+                                                                  for control in test_summary.get("securityActionPerControl", [])
+                                                                  ])
+                elif key == "finalStatus":
                     data_dict = {
                         "stopped": test_summary[key].get('stopped', 0),
                         "missed": test_summary[key].get('missed', 0),
                         "logged": test_summary[key].get('logged', 0),
                         "detected": test_summary[key].get('detected', 0),
-                        "prevented": test_summary[key].get('prevented', 0),
-                        "inconsistent": test_summary[key].get('inconsistent', 0),
-                        "drifted": test_summary[key].get('drifted', 0),
-                        "not_drifted": test_summary[key].get('not_drifted', 0),
-                        "baseline": test_summary[key].get('baseline', 0)
+                        "prevented": test_summary[key].get('prevented', 0)
                     }
                     test_summary.update(data_dict)
-                if key in ["endTime", "startTime"] and isinstance(test_summary[key], int):
+                elif key in ["endTime", "startTime"] and isinstance(test_summary[key], int):
                     test_summary[key] = datetime.utcfromtimestamp((test_summary[key]) / 1000).strftime(DATE_FORMAT)
         return test_summaries
 
@@ -696,16 +660,13 @@ class Client(BaseClient):
         for test in tests:
             for key in list(test.keys()):
                 if key == "actions":
-                    return_obj['actions count'] = len(test[key])
+                    return_obj['actions_count'] = len(test[key])
                 elif key == "edges":
-                    return_obj['edges count'] = len(test[key])
+                    return_obj['edges_count'] = len(test[key])
                 elif key == "steps":
                     return_obj["steps count"] = len(test[key])
-                elif key == "slot":
-                    return_obj["slot position"] = test[key]["id"]
-                    return_obj["slot status"] = test[key]["isPaused"]
                 elif key == "originalPlan":
-                    return_obj["originalPlan ID"] = test[key].get("id")
+                    return_obj["original_scenario_id"] = test[key].get("id")
                 return_obj[key] = test[key]
             return_list.append(return_obj)
         return return_list
@@ -720,6 +681,7 @@ class Client(BaseClient):
             list[dict]: the same data will have other keys which will be of more use to show in table
         """
         simulations_copy = deepcopy(simulations)
+        simulations_copy.pop("QUEUED")
         return_list = []
         for simulation in simulations_copy:
             return_obj = {}
@@ -730,15 +692,15 @@ class Client(BaseClient):
                 for key in data:
                     if key == "metadata":
                         return_obj['moveId'] = data["metadata"]["moveId"]
-                        return_obj['moveRevision'] = data["metadata"]["moveRevision"]
                         # skipping params keys because it is full of ID's and useless for user
-                    elif key == "actions":
-                        return_obj['simulator_ids_involved'] = ""
-                        return_obj["simulator_names_involved"] = ""
-                        for object in data["actions"]:
-                            return_obj['simulator_ids_involved'] = f"{return_obj['simulator_ids_involved']} ; {object['nodeId']}"
-                            return_obj['simulator_names_involved'] = f"{return_obj['simulator_names_involved']} \
-                                ; {object.get('nodeNameInMove','') or object.get('nodeNameInMoveDescription','')}"
+                    # elif key == "actions":
+                    #     return_obj['simulator_ids_involved'] = ""
+                    #     return_obj["simulator_names_involved"] = ""
+                    #     for object in data["actions"]:
+                    #         return_obj['simulator_ids_involved'] =
+                    # f"{return_obj['simulator_ids_involved']} ; {object['nodeId']}"
+                    #         return_obj['simulator_names_involved'] = f"{return_obj['simulator_names_involved']} \
+                    #             ; {object.get('nodeNameInMove','') or object.get('nodeNameInMoveDescription','')}"
                     else:
                         return_obj[key] = data[key]
                 return_list.append(return_obj)
@@ -773,13 +735,21 @@ class Client(BaseClient):
             dict : flattened error logs which are easier to display on table
         """
         flattened_logs_list = []
-
+        error_map = {
+            "ERROR": "error",
+            "WARNING": "warning"
+        }
+        preference = demisto.args().get("error_type")
+        preference = error_map.get(preference, "")
+        connector_map = get_integration_details(self)
         for connector in error_logs:
-            logs = error_logs[connector]["logs"] if error_logs[connector].get("status") != "ok" else []
-            if logs:
-                for log in logs:
-                    log["connector"] = connector
-                    flattened_logs_list.append(log)
+            if preference == "" or preference == error_logs[connector]["status"]:
+                logs = error_logs[connector]["logs"] if error_logs[connector].get("status") != "ok" else []
+                if logs:
+                    for log in logs:
+                        log["integration_name"] = connector_map.get(connector, "")
+                        log["connector"] = connector
+                        flattened_logs_list.append(log)
         return flattened_logs_list
 
     def get_all_integration_error_logs(self):
@@ -791,6 +761,19 @@ class Client(BaseClient):
         account_id = demisto.params().get("account_id", 0)
         method = "GET"
         url = f"/siem/v1/accounts/{account_id}/config/providers/status"
+
+        error_logs = self.get_response(url=url, method=method)
+        return error_logs
+
+    def get_integration_details(self):
+        """This function retrieves all integrations of a given account and their configurations
+
+        Returns:
+            dict: This will be having dict containing results and status
+        """
+        account_id = demisto.params().get("account_id", 0)
+        method = "GET"
+        url = f"/siem/v1/accounts/{account_id}/config/providers"
 
         error_logs = self.get_response(url=url, method=method)
         return error_logs
@@ -946,16 +929,11 @@ class Client(BaseClient):
             dict: parameters dictionary
         """
         possible_inputs = {
-            "secret": "secret",
-            "should_include_proxies": "shouldIncludeProxies",
             "hostname": "hostname",
-            "connection_type": "connectionType",
             "external_ip": "externalIp",
             "internal_ip": "internalIp",
             "os": "os",
             "status": "status",
-            "sort_direction": "sortDirection",
-            "page_size": "pageSize",
             "is_enabled": "isEnabled",
             "is_connected": "isConnected",
             "is_critical": "isCritical",
@@ -964,12 +942,14 @@ class Client(BaseClient):
         request_params = {
             "details": "true",
             "deleted": "false",
+            "secret": "false",
         }
         for parameter in possible_inputs:
             if demisto.args().get(parameter):
                 request_params[possible_inputs[parameter]] = bool_map[demisto.args().get(parameter)] \
                     if (demisto.args().get(parameter) not in ["true", "false"] and parameter in ["details", "deleted",
-                        "is_enabled", "is_connected", "is_critical", "additional_details"]) else demisto.args().get(parameter)
+                        "is_enabled", "is_connected", "is_critical", "additional_details"])\
+                    else demisto.args().get(parameter).strip()
         return request_params
 
     def flatten_simulator_details(self, simulators):
@@ -1119,7 +1099,7 @@ class Client(BaseClient):
         updated_simulator = self.update_simulator_api_call(simulator_id=simulator_id, simulator_data=payload)
         return updated_simulator
 
-    def approve_simulator_with_given_name(self):
+    def approve_simulator(self):
         """This function updates simulator with given name
 
         Returns:
@@ -1160,7 +1140,6 @@ class Client(BaseClient):
         is_active = bool_map.get(demisto.args().get("is_active"), "false")
         send_email_post_creation = bool_map.get(demisto.args().get("email_post_creation"), "false")
         password = demisto.args().get("password")
-        admin_name = demisto.args().get("admin_name", "").strip()
         change_password = bool_map.get(demisto.args().get("change_password_on_create"), "false")
         role = demisto.args().get("user_role", "").strip()
         deployment_list = demisto.args().get("deployments", None)
@@ -1179,7 +1158,6 @@ class Client(BaseClient):
             "email": email,
             "mustChangePassword": change_password,
             "sendMail": send_email_post_creation,
-            "adminName": admin_name,
             "role": role,
             "isActive": is_active,
             "deployments": deployment_list,
@@ -1200,7 +1178,7 @@ class Client(BaseClient):
         """
 
         user_id = demisto.args().get("user_id")
-        user_email = demisto.args().get("email", "").strip()
+        # user_email = demisto.args().get("email", "").strip()
 
         name = demisto.args().get("name", "").strip()
         is_active = bool_map[demisto.args().get("is_active", "False")]
@@ -1223,15 +1201,15 @@ class Client(BaseClient):
             "password": password
         }
         demisto.info(f"upload user payload is {details}")
-        # retrieve user based on email and user_id whichever is present
-        if user_email and not user_id:
-            user_list = self.get_users_list()
-            demisto.info("retrieved user list which contains all available users in safebreach")
-            user = list(filter(lambda user_data: user_data.get("email") == user_email, user_list))
-            if not user:
-                demisto.info(f"filtered users are {user} while all users are {user_list}")
-                raise NotFoundError(f"User with {user_id} or {user_email} not found")
-            user_id = user[0]["id"]
+        # # retrieve user based on email and user_id whichever is present
+        # if user_email and not user_id:
+        #     user_list = self.get_users_list()
+        #     demisto.info("retrieved user list which contains all available users in safebreach")
+        #     user = list(filter(lambda user_data: user_data.get("email") == user_email, user_list))
+        #     if not user:
+        #         demisto.info(f"filtered users are {user} while all users are {user_list}")
+        #         raise NotFoundError(f"User with {user_id} or {user_email} not found")
+        #     user_id = user[0]["id"]
         user = self.update_user_with_details(user_id, details)
         return user
 
@@ -1333,8 +1311,6 @@ class Client(BaseClient):
                 elif key == "steps" and scenario[key]:
                     steps_involved = [step.get('name') for step in scenario[key] if step.get("name") is not None]
                     return_obj["steps_order"] = "; ".join(steps_involved)
-                elif key == "edges":
-                    return_obj["edges_count"] = len(scenario[key])
                 return_obj[key] = scenario[key]
             return_obj["custom_data_object_for_rerun_simulation"] = json.dumps({
                 "name": return_obj.get("name"),
@@ -1358,8 +1334,6 @@ class Client(BaseClient):
                 steps_involved = [f"{step.get('name')}- with test ID {step.get('planRunId')}" for step in test[key]
                                   if step.get("name") is not None]
                 return_obj["steps_order"] = "; ".join(steps_involved)
-            elif key == "edges":
-                return_obj["edges_count"] = len(test[key])
             return_obj[key] = test[key]
         return return_obj
 
@@ -1439,7 +1413,7 @@ class Client(BaseClient):
                     raise InputError("Input Error: simulation_ids are numbers and not strings, please \
                         enter valid simulation ids")
             test_data = {
-                "name": demisto.args().get("simulation_name", "").strip(),
+                "name": demisto.args().get("simulation_name", "Rerun simulations by list").strip(),
                 "steps": [
                         {
                             "attacksFilter": {},
@@ -1455,27 +1429,27 @@ class Client(BaseClient):
                 ]
             }
 
-        position = demisto.args().get("position")
-        feedback_loop = demisto.args().get("enable_feedback_loop")
-        retry_simulations = demisto.args().get("retry_simulation")
-        wait_for_retry = demisto.args().get("wait_for_retry")
-        priority = demisto.args().get("priority")
-        request_params = {
-            "position": position,
-            "enableFeedbackLoop": feedback_loop,
-            "retrySimulations": retry_simulations,
-            "priority": priority,
-            "waitForRetry": wait_for_retry
-        }
-        for parameter in list(request_params.keys()):
-            if not request_params[parameter]:
-                request_params.pop(parameter)
+        # position = demisto.args().get("position")
+        # feedback_loop = demisto.args().get("enable_feedback_loop")
+        # retry_simulations = demisto.args().get("retry_simulation")
+        # wait_for_retry = demisto.args().get("wait_for_retry")
+        # priority = demisto.args().get("priority")
+        # request_params = {
+        #     "position": position,
+        #     "enableFeedbackLoop": feedback_loop,
+        #     "retrySimulations": retry_simulations,
+        #     "priority": priority,
+        #     "waitForRetry": wait_for_retry
+        # }
+        # for parameter in list(request_params.keys()):
+        #     if not request_params[parameter]:
+        #         request_params.pop(parameter)
 
-        demisto.info(f"processed request parameters payload is {request_params}")
+        # demisto.info(f"processed request parameters payload is {request_params}")
 
         method = "POST"
         url = f"/orch/v3/accounts/{account_id}/queue"
-        tests_data = self.get_response(url=url, method=method, body={"plan": test_data}, request_params=request_params)
+        tests_data = self.get_response(url=url, method=method, body={"plan": test_data})  # , request_params=request_params)
         return tests_data
 
 
@@ -1520,8 +1494,8 @@ def format_simulations_data(simulations):
     for simulation in simulations:
         return_object = {}
         for key in simulation:
-            if key in ["id", "planName", "attackerNodeName", "id", "finalStatus", "resultDetails",
-                       "securityAction", "targetNodeName", "securityAction", "moveDesc"]:
+            if key in ["id", "targetNodeName", "attackerNodeName", "destNodeName", "moveDesc",
+                       "moveName", "securityAction", "resultDetails"]:
                 return_object[key] = simulation.get(key)
             elif key == "Attack_Type":
                 return_object["attacks_involved"] = ", ".join([attack["displayName"] for attack in simulation[key]])
@@ -1563,26 +1537,24 @@ def get_specific_simulator_details(client: Client):
 
 def tests_header_transformer(header):
     return_map = {
-        'planId': 'planId',
-        "planName": "planName",
-        'securityActionPerControl': 'securityActionPerControl',
-        'planRunId': 'testID',
+        'planId': 'scenario_id',
+        "planName": "scenario_name",
+        'securityActionPerControl': 'security_action_per_control',
+        'planRunId': 'test_id',
         "status": "status",
-        "plannedSimulationsAmount": "plannedSimulationsAmount",
-        "simulatorExecutions": "simulatorExecutions",
-        "ranBy": "ranBy",
-        "simulatorCount": "simulatorCount",
-        "endTime": "endTime",
-        "startTime": "startTime",
+        "plannedSimulationsAmount": "planned_simulations_amount",
+        "simulatorExecutions": "simulator_executions",
+        "ranBy": "ran_by",
+        "security_actions": "security_actions",
+        "attack_executions": "attack_executions",
+        "simulatorCount": "simulator_count",
+        "endTime": "end_time",
+        "startTime": "start_time",
         "stopped": "stopped",
         "missed": "missed",
         "logged": "logged",
         "detected": "detected",
         "prevented": "prevented",
-        "inconsistent": "inconsistent",
-        "drifted": "drifted",
-        "not_drifted": "not_drifted",
-        "baseline": "baseline"
     }
     return return_map.get(header, header)
 
@@ -1603,9 +1575,10 @@ def get_tests_summary(client: Client):
         name="Test Results",
         t=test_summaries,
         headerTransform=tests_header_transformer,
-        headers=['planId', "planName", 'securityActionPerControl', 'planRunId', "status", "plannedSimulationsAmount",
-                 "simulatorExecutions", "ranBy", "simulatorCount", "endTime", "startTime", "stopped", "missed",
-                 "logged", "detected", "prevented", "inconsistent", "drifted", "not_drifted", "baseline"])
+        headers=['planId', "planName", 'planRunId', "status", "ranBy", "security_actions",
+                 'securityActionPerControl', "plannedSimulationsAmount", "simulatorExecutions", "simulatorCount",
+                 "attack_executions", "endTime", "startTime", "stopped", "missed",
+                 "logged", "detected", "prevented"])
     outputs = {
         'tests_data': test_summaries
     }
@@ -1750,9 +1723,6 @@ def get_user_id_by_name_or_email(client: Client):
                       This will be set as password for the created user. incase needed the flag change password can be set to
                       true if its needed for user to change password on first login.
                       """,),
-        InputArgument(name="admin_name", required=False, is_array=False, description="""
-                      Name of the Admin creating user. This will be populated in created by field of user page in safebreach.
-                      """),
         InputArgument(name="change_password_on_create", required=False, is_array=False, options=["true", "false"],
                       default="false", description="""
                       Should user change password on creation. when this is set to true then user will have to reset password on
@@ -1781,8 +1751,6 @@ def get_user_id_by_name_or_email(client: Client):
                        output_type=str),
         OutputArgument(name="createdAt", prefix="created_user_data", output_type=str,
                        description="The creation time of User."),
-        OutputArgument(name="deletedAt", prefix="created_user_data", output_type=str,
-                       description="The Deletion time of User . This will be empty unless the user is deleted"),
         OutputArgument(name="roles", prefix="created_user_data", output_type=str,
                        description="The roles and permissions of User created.",),
         OutputArgument(name="description", prefix="created_user_data", output_type=str,
@@ -1822,23 +1790,15 @@ def create_user(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-update-user-details",
+    command_name="safebreach-update-user",
     inputs_list=[
-        InputArgument(name="user_id", required=False, is_array=False,
-                      description="""
-                      user ID of user from safebreach to search. this can be retrieved in 2 ways,
-                      1. run get-all-users command and then look for user id of user with matching criteria
-                      but to see details its required that details parameter to be set to true,
-                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email
-                      command and then search for user with required details in displayed results for ID.
-                      This field is not  required, meaning even if just email is given , we will internally search user
-                      id with the matching email and use the user for further process
-                      """),
-        InputArgument(name="email", required=False, is_array=False,
-                      description="""
-                      Email of the user to Search for updating user details. This is a required field.
-                      The user with matching email will be considered as user whose data will be updated
-                      """),
+        InputArgument(name="user_id", required=True, is_array=False,
+                      description="user ID of user from safebreach to search."),
+        # InputArgument(name="email", required=True, is_array=False,
+        #               description="""
+        #               Email of the user to Search for updating user details. This is a required field.
+        #               The user with matching email will be considered as user whose data will be updated
+        #               """),
         InputArgument(name="name", required=False, is_array=False, description="""
                       Update the user name to given value of this field, 
                       unless this field is left empty, whatever is present here will be updated to user details.
@@ -1868,7 +1828,8 @@ def create_user(client: Client):
         InputArgument(name="deployments", required=False, is_array=True, description="""
                         Comma separated ID of all deployments the user should be part of.
                         unless this field is left empty, whatever is present here will be updated to user details.
-                        user will be selected based on user_id or email fields mentioned above.
+                        incase there are old deployments assigned to user then please include them too, else they will be
+                        replaced with new values set here. user will be selected based on user_id field mentioned above.
                       """,
                       )
     ],
@@ -1902,7 +1863,7 @@ def create_user(client: Client):
     ],
     description="This command updates a user with given data.")
 def update_user_with_details(client: Client):
-    """This function is executed when 'safebreach-update-user-details' command is being executed.
+    """This function is executed when 'safebreach-update-user' command is being executed.
     This function will call another function which receives inputs from user and creates payload for upload user.
 
     Args:
@@ -1930,21 +1891,11 @@ def update_user_with_details(client: Client):
 @metadata_collector.command(
     command_name="safebreach-delete-user",
     inputs_list=[
-        InputArgument(name="user_id", required=False, is_array=False,
+        InputArgument(name="user_id", required=True, is_array=False,
                       description="""
                       user ID of user from safebreach to search. this can be retrieved in 2 ways,
-                      1. run get-all-users command and then look for user id of user with matching criteria
-                      but to see details its required that details parameter to be set to true,
-                      2. if you know user name or email then those can be used in safebreach-get-user-with-given-name-or-email
-                      command and then search for user with required details in displayed results for ID.
-                      This field is not  required, meaning even if just email is given , we will internally search user
-                      id with the matching email and use the user for further process
+                      run get-all-users command and then look for user id of user with matching criteria.
                       """),
-        InputArgument(name="email", required=True, is_array=False,
-                      description="""
-                      Email of the user to Search for updating user details. This is a required field.
-                      The user with matching email will be considered as user whose data will be updated
-                      """)
     ],
     outputs_prefix="deleted_user_data",
     outputs_list=[
@@ -2013,6 +1964,56 @@ def deployment_transformer(header):
 
 
 @metadata_collector.command(
+    command_name="safebreach-get-deployments",
+    inputs_list=None,
+    outputs_prefix="deployment_data",
+    outputs_list=[
+        OutputArgument(name="id", prefix="deployment_data", output_type=int,
+                       description="The ID of deployment"),
+        OutputArgument(name="account_id", prefix="deployment_data", output_type=str,
+                       description="The accountId of user who created the deployment."),
+        OutputArgument(name="name", prefix="deployment_data", output_type=str,
+                       description="The name of deployment.\
+                        this will be the name shown in deployment name field of table in deployments page in safebreach UI"),
+        OutputArgument(name="created_at", prefix="deployment_data", output_type=str,
+                       description="The creation date and time of deployment."),
+        OutputArgument(name="updated_at", prefix="deployment_data", output_type=str,
+                       description="The last updated date and time of deployment."),
+        OutputArgument(name="description", prefix="deployment_data", output_type=str,
+                       description="This is description field of deployments table of safebreach UI"),
+        OutputArgument(name="simulators", prefix="deployment_data", output_type=str,
+                       description="The simulators that are part of deployment."),
+    ],
+    description="""
+    This command gets all deployments present for this instance.
+    """)
+def get_deployments(client: Client):
+    """This function is executed on command "safebreach-get-deployments"
+
+    Args:
+        client (Client): Client class for API calls
+
+    Returns:
+        CommandResults,dict:Deployment data as a table and a dictionary
+    """
+    deployments = client.list_deployments()
+
+    human_readable = tableToMarkdown(name="Deployments", t=deployments,
+                                     headerTransform=deployment_transformer,
+                                     headers=['id', "accountId", 'name', 'createdAt',
+                                              "description", "nodes", "updatedAt"])
+    outputs = deployments.get("data", {})
+    demisto.info(f"json output for update deployment is {outputs}")
+
+    result = CommandResults(
+        outputs_prefix="deployment_data",
+        outputs=outputs,
+        readable_output=human_readable
+    )
+    return result
+
+
+@metadata_collector.command(
     command_name="safebreach-create-deployment",
     inputs_list=[
         InputArgument(name="name", required=True, is_array=False, description="""
@@ -2027,9 +2028,8 @@ def deployment_transformer(header):
         InputArgument(name="simulators", required=False, is_array=True, description="""
                       A deployment is a group of simulators which work as a single group. this field needs
                       Comma separated IDs of all simulators that should be part of this deployment.
-                      the ID can be retrieved from safebreach-get-all-simulator-details command with
-                      details input set to true so that the details can be seen. Care should be taken when giving 
-                      simulator IDs as comma separated values as if any simulator has been deleted then this deployment 
+                      the ID can be retrieved from safebreach-get-all-simulator-details command with Care should be taken when 
+                      giving simulator IDs as comma separated values as if any simulator has been deleted then this deployment 
                       wont contain that simulator on creation
                       """)
     ],
@@ -2038,12 +2038,12 @@ def deployment_transformer(header):
         OutputArgument(name="id", prefix="created_deployment_data", output_type=int,
                        description="The ID of deployment created. this Id can be used to update ,delete deployment as\
                        deployment_id field of the deployment."),
-        OutputArgument(name="accountId", prefix="created_deployment_data", output_type=str,
+        OutputArgument(name="account_id", prefix="created_deployment_data", output_type=str,
                        description="This field shows account ID of user who has created the account."),
         OutputArgument(name="name", prefix="created_deployment_data", output_type=str,
                        description="The name of deployment created. this will be name which will be shown on deployments page\
                        of safebreach and name that is given as input to the command."),
-        OutputArgument(name="createdAt", prefix="created_deployment_data", output_type=str,
+        OutputArgument(name="created_at", prefix="created_deployment_data", output_type=str,
                        description="The creation date and time of deployment , this will be closer to\
                        command execution time if the deployment creation is successful."),
         OutputArgument(name="description", prefix="created_deployment_data", output_type=str,
@@ -2106,14 +2106,14 @@ def create_deployment(client: Client):
         OutputArgument(name="id", prefix="updated_deployment_data", output_type=int,
                        description="The ID of deployment whose values have been updated.\
                            ID cant be changed so this wont be updated."),
-        OutputArgument(name="accountId", prefix="updated_deployment_data", output_type=str,
+        OutputArgument(name="account_id", prefix="updated_deployment_data", output_type=str,
                        description="The accountId of user who created the deployment."),
         OutputArgument(name="name", prefix="updated_deployment_data", output_type=str,
                        description="The name of deployment which has been updated to the name given in updated_deployment_name.\
                         this will be the name shown in deployment name field of table in deployments page in safebreach UI"),
-        OutputArgument(name="createdAt", prefix="updated_deployment_data", output_type=str,
+        OutputArgument(name="created_at", prefix="updated_deployment_data", output_type=str,
                        description="The creation date and time of deployment whose data has been updated."),
-        OutputArgument(name="updatedAt", prefix="updated_deployment_data", output_type=str,
+        OutputArgument(name="updated_at", prefix="updated_deployment_data", output_type=str,
                        description="The last updated date and time of deployment whose data has been updated.\
                        This will generally be closer to the update deployment command run time for reference"),
         OutputArgument(name="description", prefix="updated_deployment_data", output_type=str,
@@ -2168,11 +2168,11 @@ def update_deployment(client: Client):
     outputs_list=[
         OutputArgument(name="id", prefix="deleted_deployment_data", output_type=int,
                        description="The ID of deployment which has been deleted.",),
-        OutputArgument(name="accountId", prefix="deleted_deployment_data", output_type=str,
+        OutputArgument(name="account_id", prefix="deleted_deployment_data", output_type=str,
                        description="The account Id of user who deleted the deployment."),
         OutputArgument(name="name", prefix="deleted_deployment_data", output_type=str,
                        description="The name of deployment before the deployment was deleted.",),
-        OutputArgument(name="createdAt", prefix="deleted_deployment_data", output_type=str,
+        OutputArgument(name="created_at", prefix="deleted_deployment_data", output_type=str,
                        description="The creation date and time of deployment which has been deleted."),
         OutputArgument(name="description", prefix="deleted_deployment_data", output_type=str,
                        description="The description of deployment before it was deleted."),
@@ -2181,9 +2181,8 @@ def update_deployment(client: Client):
     ],
     description="""
     This command deletes a deployment with given data.The deployment_id field of this command can  be retrieved from 
-    get-all-deployments command. If the user wants to search with deployment ID then they can search it that way or 
-    if user just wants to search with name then they can just give name field and the command internally searches the deployment 
-    with given name and deletes it.""")
+    get-all-deployments command. If the user wants to search with deployment ID then they can search it and then delete it.
+    """)
 def delete_deployment(client: Client):
     """This function is executed on command "safebreach-delete-deployment"
 
@@ -2210,6 +2209,20 @@ def delete_deployment(client: Client):
     return result
 
 
+def apikey_transformer(header):
+    return_map = {
+        'name': 'name',
+        "description": "description",
+        'createdAt': 'created_at',
+        "createdBy": "created_by",
+        "deletedBy": "deleted_by",
+        "updatedBy": "updated_by",
+        "key": "key",
+    }
+
+    return return_map.get(header, header)
+
+
 @metadata_collector.command(
     command_name="safebreach-generate-api-key",
     inputs_list=[
@@ -2224,23 +2237,18 @@ def delete_deployment(client: Client):
     ],
     outputs_prefix="generated_api_key",
     outputs_list=[
-        OutputArgument(name="name", prefix="generated_api_key", output_type=int,
+        OutputArgument(name="name", prefix="generated_api_key", output_type=str,
                        description="The Name of API Key generated through this command, \
                            This will match the input name of the command.",),
         OutputArgument(name="description", prefix="generated_api_key", output_type=str,
                        description="The Description of API Key created. \
                            this will be same as input description given for the command."),
-        OutputArgument(name="createdBy", prefix="generated_api_key", output_type=str,
+        OutputArgument(name="created_by", prefix="generated_api_key", output_type=str,
                        description="The id of user who generated this API key."),
-        OutputArgument(name="createdAt", prefix="generated_api_key", output_type=str,
+        OutputArgument(name="created_bt", prefix="generated_api_key", output_type=str,
                        description="The creation date and time of API key."),
         OutputArgument(name="key", prefix="generated_api_key", output_type=str,
                        description="The value of API key generated. store this for further use as this will only be shown once"),
-        OutputArgument(name="roles", prefix="generated_api_key", output_type=str,
-                       description="The roles allowed for this api key. \
-                           This will generally be the roles assigned to user who created the key."),
-        OutputArgument(name="role", description="The role of API Key.", prefix="generated_api_key",
-                       output_type=str),
     ],
     description="""
     This command creates a API Key with given data. The API key created will be shown in API keys section 
@@ -2260,8 +2268,9 @@ def create_api_key(client: Client):
 
     human_readable = tableToMarkdown(
         name="Generated API key Data",
+        headerTransform=apikey_transformer,
         t=generated_api_key.get("data"),
-        headers=["name", "description", "createdBy", "createdAt", "key", "roles", "role"])
+        headers=["name", "description", "createdBy", "createdAt", "key"])
     outputs = generated_api_key.get("data")
     demisto.info(f"json output for create API key is {outputs}")
 
@@ -2286,11 +2295,11 @@ def create_api_key(client: Client):
         OutputArgument(name="name", description="The Name of API Key deleted.", prefix="deleted_api_key", output_type=int),
         OutputArgument(name="description", description="Description of API Key deleted.", prefix="deleted_api_key",
                        output_type=str),
-        OutputArgument(name="createdBy", description="The id of user who generated this API key.", prefix="deleted_api_key",
+        OutputArgument(name="created_by", description="The id of user who generated this API key.", prefix="deleted_api_key",
                        output_type=str),
-        OutputArgument(name="createdAt", description="The creation time and date of API key.", prefix="deleted_api_key",
+        OutputArgument(name="created_at", description="The creation time and date of API key.", prefix="deleted_api_key",
                        output_type=str),
-        OutputArgument(name="deletedAt", prefix="deleted_api_key", output_type=str,
+        OutputArgument(name="deleted_at", prefix="deleted_api_key", output_type=str,
                        description="The deletion time and date of API key. The deletion date and time are generally\
                        close to the command execution time and date."),
     ],
@@ -2313,6 +2322,7 @@ def delete_api_key(client: Client):
     human_readable = tableToMarkdown(
         name="Deleted API key Data",
         t=deleted_api_key.get("data"),
+        headerTransform=apikey_transformer,
         headers=["name", "description", "createdBy", "createdAt", "deletedAt"])
     outputs = deleted_api_key.get("data")
     demisto.info(f"json output for delete api key is {outputs}")
@@ -2338,28 +2348,33 @@ def integration_issues_transformer(header):
 
 @metadata_collector.command(
     command_name="safebreach-get-integration-issues",
-    inputs_list=None,
+    inputs_list=[
+        InputArgument(name="error_type", required=False, is_array=False, options=["", "ERROR", "WARNING"],
+                      description="this will help see issues which are either errors or warnings or both based on the input ",),
+    ],
     outputs_prefix="integration_errors",
     outputs_list=[
         OutputArgument(name="integration_id", prefix="integration_errors", output_type=int,
-                       description="The connector ID of Integration connector. A general notation that has been followed here is\
+                       description="The ID of Integration. A general notation that has been followed here is\
                        as follows, if the  id has _default at the end then its a default connector else its a custom connector",),
+        OutputArgument(name="integration_name", prefix="integration_errors", output_type=str,
+                       description="Name of the integration",),
         OutputArgument(name="action", prefix="integration_errors", output_type=str,
-                       description="The action of Integration connector error. This describes where exactly did the error occur,\
+                       description="The action of Integration error. This describes where exactly did the error occur,\
                         if its search,then it implies error/warning happened when connector was trying that process",),
         OutputArgument(name="success_state", prefix="integration_errors", output_type=str,
-                       description="status of connector error. This implies whether the connector was able to \
+                       description="status of integration error. This implies whether the connector was able to \
                        successfully perform the operation or if it failed partway. \
                        So false implies it failed partway and true implies it was successfully completed"),
         OutputArgument(name="error_description", prefix="integration_errors", output_type=str,
-                       description="This is the exact error description shown on safebreach connector error/warning page.\
-                        This description can be used for understanding of what exactly happened for the connector to fail."),
+                       description="This is the exact error description shown on safebreach integration error/warning page.\
+                        This description can be used for understanding of what exactly happened for the integration to fail."),
         OutputArgument(name="timestamp", prefix="integration_errors", output_type=str,
                        description="Time at which error/warning occurred. This can be used to pinpoint error which occurred\
-                       across connectors if time of origin was remembered",),
+                       across integrations if time of origin was remembered",),
     ],
     description="""
-    This command gives all connector related issues and warning. this will show the connector error and warnings which are 
+    This command gives all integrations related issues and warning. this will show the integrations error and warnings which are 
     generally displayed in installed integrations page.
     """)
 def get_all_integration_error_logs(client: Client):
@@ -2369,7 +2384,7 @@ def get_all_integration_error_logs(client: Client):
         client (Client): Client class for API calls
 
     Returns:
-        CommandResults,Dict: This function returns all errors along with connector details in a table and we get data as json
+        CommandResults,Dict: This function returns all errors along with integration details in a table and we get data as json
     """
     formatted_error_logs = []
     error_logs = client.get_all_integration_error_logs()
@@ -2377,10 +2392,10 @@ def get_all_integration_error_logs(client: Client):
 
     formatted_error_logs = client.flatten_error_logs_for_table_view(error_logs.get("result"))
     human_readable = tableToMarkdown(
-        name="Integration Connector errors",
+        name="Integration errors",
         headerTransform=integration_issues_transformer,
         t=formatted_error_logs,
-        headers=["connector", "action", "success", "error", "timestamp"])
+        headers=["connector", "action", "success", "error", "timestamp", "integration_name"])
     outputs = error_logs.get("result")
     demisto.info(f"json output for get_all_integration_logs is {outputs}")
 
@@ -2392,30 +2407,45 @@ def get_all_integration_error_logs(client: Client):
     return result
 
 
+def get_integration_details(client: Client):
+
+    connector_details = client.get_integration_details()
+    demisto.info(f"integration are {len(connector_details.get('result',{}).get('providers',[]))}")
+
+    installed_connectors = connector_details.get('result', {}).get('providers', [])
+
+    connectors_map = {}
+    for connector in installed_connectors:
+        connectors_map[connector["id"]] = connector["name"]
+
+    return connectors_map
+
+
 @metadata_collector.command(
     command_name="safebreach-delete-integration-issues",
     inputs_list=[
         InputArgument(name="integration_id", required=True, is_array=False,
                       description="""
-                      The connector ID of Integration to have its errors/warnings deleted. this is used to search for integration 
-                      connector which will have its logs cleared, there is no way to clear just errors or just warnings here and 
-                      this connector with this will be having all errors and warnings cleared.
+                      The ID of Integration to have its errors/warnings deleted. this is used to search for integration 
+                      which will have its logs cleared, there is no way to clear just errors or just warnings here and 
+                      this Integration with this will be having all errors and warnings cleared.
                       """,),
     ],
     outputs_prefix="errors_cleared",
     outputs_list=[
-        OutputArgument(name="error", description="Error count after deletion of errors for the given connector.",
+        OutputArgument(name="error", description="Error count after deletion of errors for the given Integration.",
                        prefix="integration_errors", output_type=int),
         OutputArgument(name="result", description="error deletion status whether true or false.",
                        prefix="integration_errors", output_type=str),
     ],
     description="""
-    This command deletes connector related errors and warnings. This command needs connector id as input which will be
-    used to delete the errors/warnings for the given connector id. the connector ids can be retrieved by using command
-    get-all-integration-issues and this command will give connector id which can be used for input. 
+    This command deletes integration related errors and warnings. This command needs integration id as input which will be
+    used to delete the errors/warnings for the given integration id. the integration ids can be retrieved by using command
+    get-all-integration-issues and this command will give integration id which can be used for input. 
+    If output of command has result as true then logs have been cleared for integration else errorMessage field is shown
     """)
 def delete_integration_error_logs(client: Client):
-    """This function deletes integration errors of a given connector
+    """This function deletes integration errors of a given integration
 
     Args:
         client (Client): Client class for API calls
@@ -2426,10 +2456,10 @@ def delete_integration_error_logs(client: Client):
     error_logs = client.delete_integration_error_logs()
     headers = ["result", "error"]
     if error_logs.get("errorMessage"):
-        # should we throw a connector not found here or just show it as success saying no connector found
+        # should we throw a integration not found here or just show it as success saying no integration found
         headers = ["error", "errorMessage"]
     human_readable = tableToMarkdown(
-        name="Integration Connector errors status",
+        name="Integration errors status",
         t=error_logs,
         headers=headers)
     outputs = error_logs
@@ -2646,7 +2676,7 @@ def update_simulator(client: Client):
     description="""
     This command approves simulator with given name with given id.
     """)
-def approve_simulator_with_given_name(client: Client):
+def approve_simulator(client: Client):
     """This function approves simulator with given data having name as given input
 
     Args:
@@ -2655,7 +2685,7 @@ def approve_simulator_with_given_name(client: Client):
     Returns:
         CommandResults,Dict: This will return table and dict containing approved simulator data
     """
-    approved_simulator = client.approve_simulator_with_given_name()
+    approved_simulator = client.approve_simulator()
 
     flattened_simulators, keys = client.flatten_simulator_details([approved_simulator.get("data", {})])
     human_readable = tableToMarkdown(
@@ -2676,6 +2706,7 @@ def approve_simulator_with_given_name(client: Client):
 @metadata_collector.command(
     command_name="safebreach-rotate-verification-token",
     inputs_list=None,
+    outputs_prefix="token",
     outputs_list=[
         OutputArgument(name="new_token", output_type=str, description="new Token which has been generated due to the api call"),
     ],
@@ -2708,36 +2739,7 @@ def return_rotated_verification_token(client: Client):
 
 @metadata_collector.command(
     command_name="safebreach-get-tests",
-    inputs_list=[
-        InputArgument(name="include_archived", options=["true", "false"], default="false", required=False, is_array=False,
-                      description="""
-                      Should archived tests be included in search. Archived tests are tests which have been 
-                      set aside for further use in an inactive state. if this is set to false then archived tests
-                      wont be pulled but  if set to true then they will be pulled and shown.
-                      """,
-                      ),
-        InputArgument(name="entries_per_page", required=False, is_array=False, description="""
-                      number of entries to be retrieved. for viewing, this will work in combination with sort_by field and
-                      things will be sorted in decreasing order so if you chose 100 entries here and if endTime is chosen as sort
-                      then it will show last 100 executions with latest end time.
-                      """),
-        InputArgument(name="plan_id", required=False, is_array=False,
-                      description="""
-                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests 
-                      instead of this with same parameters as inputs.
-                      """),
-        InputArgument(name="status", required=False, is_array=False, options=["CANCELED", "COMPLETED"],
-                      description="tests with this status will be searched and filtered."),
-        InputArgument(name="simulation_id", required=False, is_array=False, description="Unique ID of the simulation."),
-        InputArgument(name="sort_by", required=False, is_array=False, options=["endTime", "startTime", "testID", "stepRunId"],
-                      default="endTime", description="""
-                      how to sort the results retrieved, there are 4 options:
-                      1. sorting by endTime will show results in terms of decreasing order of simulations end time.
-                      2. sorting by start time will show results in terms of the decreasing order of simulation start time.
-                      3. testID - this is test id and sorting by this will be decreasing order of test id.
-                      4. stepRunId -
-                      """),
-    ],
+    inputs_list=None,
     outputs_prefix="test_results",
     outputs_list=test_summaries_output_fields,
     description="This command gets tests with given modifiers.")
@@ -2754,28 +2756,28 @@ def get_all_tests_summary(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-get-test-with-plan-id",
+    command_name="safebreach-get-test-with-scenario-id",
     inputs_list=[
-        InputArgument(name="plan_id", required=True, is_array=False,
+        InputArgument(name="scenario_id", required=True, is_array=False,
                       description="""
-                      plan Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests 
+                      scenario Id of test. this can be found on UI, if unsure about this then please run safebreach-get-tests 
                       instead of this with same parameters as inputs.
                       """)
     ],
     outputs_prefix="test_results",
     outputs_list=test_summaries_output_fields,
     description="""
-    This command gets tests with given plan ID and the order is based on sort by column.
+    This command gets tests with given scenario ID.
     """)
-def get_all_tests_summary_with_plan_id(client: Client):
-    """This function takes  a plan run ID and returns test summaries with that plan run ID
+def get_all_tests_summary_with_scenario_id(client: Client):
+    """This function takes scenario ID and returns test summaries with that scenario ID
 
     Args:
         client (Client): Client class for API calls
 
     Returns:
         CommandResults,List(dict): This will return  a table with all details and
-        a list of dictionaries with details related to tests with given plan ID
+        a list of dictionaries with details related to tests with given scenario ID
     """
     return get_tests_summary(client=client)
 
@@ -2784,7 +2786,7 @@ def get_all_tests_summary_with_plan_id(client: Client):
     command_name="safebreach-delete-test-with-id",
     inputs_list=[
         InputArgument(name="test_id", description="test id of the test summary which we want to search the test with.",
-                      required=False, is_array=False),
+                      required=True, is_array=False),
     ],
     outputs_prefix="deleted_test_results",
     outputs_list=test_summaries_output_fields,
@@ -2815,7 +2817,7 @@ def delete_test_result_of_test(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-get-queued-running-tests",
+    command_name="safebreach-get-running-tests",
     inputs_list=None,
     outputs_prefix="active_tests",
     outputs_list=tests_outputs,
@@ -2852,54 +2854,29 @@ def get_all_running_tests_summary(client: Client):
 
 def simulations_output_transform(header):
     return_map = {
-        "status": "status",
+        "jobId": "simulation_id",
+        "moveId": "attack_id",
         "timestamp": "timestamp",
-        "numOfTasks": "numOfTasks",
-        "planRunId": "test id",
-        "stepRunId": "stepRunId",
-        "jobId": "jobId",
-        "taskId": "taskId",
-        "moveId": "moveId",
-        "moveRevision": "moveRevision",
+        "planRunId": "test_id",
         "simulator_ids_involved": "simulator_ids_involved",
         "simulator_names_involved": "simulator_names_involved",
-        "timeout": "timeout",
-        "packageId": "packageId"
     }
     return return_map.get(header, header)
 
 
 @metadata_collector.command(
-    command_name="safebreach-get-queued-running-simulations",
+    command_name="safebreach-get-running-simulations",
     inputs_list=None,
     outputs_prefix="active_simulations",
     outputs_list=[
-        OutputArgument(name="status", description="the status of the simulation, if its running or queued.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="timestamp", description="the time at which simulation was triggered.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="numOfTasks", description="the number of tasks involved in the simulation.",
-                       prefix="active_tests", output_type=str),
+        # OutputArgument(name="timestamp", description="the time at which simulation was triggered.",
+        #                prefix="active_tests", output_type=str),
         OutputArgument(name="test id", description="this is test ID of the simulation.",
                        prefix="active_tests", output_type=str),
-        OutputArgument(name="stepRunId", description="the step id of the simulation.",
+        OutputArgument(name="simulation_id", description="the simulation id of the simulation.",
                        prefix="active_tests", output_type=str),
-        OutputArgument(name="jobId", description="the job id of the simulation.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="taskId", description="the task ID of the simulation.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="moveId", description="the move ID of the simulation.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="moveRevision", description="the move revision of the simulation.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="simulator_ids_involved", description="the simulators involved in the simulation.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="simulator_names_involved", description="the names of simulators the simulation.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="timeout", description="the timeout of the simulation if its failing etc.",
-                       prefix="active_tests", output_type=str),
-        OutputArgument(name="packageId", description="the package ID of the simulation.",
-                       prefix="active_tests", output_type=str),
+        OutputArgument(name="attack_id", description="the attack ID of the simulation.",
+                       prefix="active_tests", output_type=str)
     ],
     description="This command gets simulations which are in running or queued state.")
 def get_all_running_simulations_summary(client: Client):
@@ -2919,8 +2896,8 @@ def get_all_running_simulations_summary(client: Client):
         t=flattened_simulations_data_for_table,
         headerTransform=simulations_output_transform,
         headers=[
-            "status", "timestamp", "numOfTasks", "planRunId", "stepRunId", "jobId", "taskId", "moveId",
-            "moveRevision", "simulator_ids_involved", "simulator_names_involved", "timeout", "packageId",
+            # "timestamp",
+            "planRunId", "jobId", "moveId"
         ])
 
     outputs = running_simulations
@@ -2935,7 +2912,7 @@ def get_all_running_simulations_summary(client: Client):
 
 
 @metadata_collector.command(
-    command_name="safebreach-pause-resume-simulations-tests",
+    command_name="safebreach-pause/resume-simulations-tests",
     inputs_list=[
         InputArgument(name="simulation_or_test_state", options=["resume", "pause"], required=True, is_array=False,
                       description="""State of tests/simulators to set to:
@@ -2983,20 +2960,29 @@ def pause_resume_tests_and_simulations(client: Client):
 def safebreach_schedules_transformer(header):
     return_map = {
         "id": "id",
-        "isEnabled": "isEnabled",
+        "isEnabled": "is_enabled",
         "name": "name",
         "user_schedule": "user_schedule",
         "runDate": "runDate",
-        "cronTimezone": "cronTimezone",
-        "taskId": "taskId",
+        "cronTimezone": "cron_timezone",
+        "taskId": "task_id",
         "description": "description",
-        "matrixId": "plan_id",
-        "createdAt": "createdAt",
-        "updatedAt": "updatedAt",
-        "deletedAt": "deletedAt"
+        "planId": "scenario_id",
+        "matrixId": "test_id",
+        "createdAt": "created_at",
+        "updatedAt": "updated_at",
+        "deletedAt": "deleted_at"
     }
 
     return return_map.get(header, header)
+
+
+def plan_id_name_map(test_summaries):
+    plan_map = {}
+    for summary in test_summaries:
+        plan_map[str(summary["planId"])] = summary["planName"]
+
+    return plan_map
 
 
 @metadata_collector.command(
@@ -3006,32 +2992,31 @@ def safebreach_schedules_transformer(header):
     outputs_list=[
         OutputArgument(name="id", description="the Id of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="isEnabled", description="if simulation is enabled.",
+        OutputArgument(name="is_enabled", description="if simulation is enabled.",
                        prefix="schedules", output_type=bool),
-        # OutputArgument(name="name", description="the name of the schedule.",
-        #                prefix="schedules", output_type=str),
-        # OutputArgument(name="cronString", description="the cron expression the schedule.",
-        #                prefix="schedules", output_type=str),
         OutputArgument(name="user_schedule", description="the user readable form of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="runDate", description="the run date of the schedule.",
+        OutputArgument(name="run_date", description="the run date of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="cronTimezone", description="the time zone of the schedule.",
-                       prefix="planId", output_type=str),
-        # OutputArgument(name="taskId", description="the plan ID of the schedule.",
-        #                prefix="schedules", output_type=str),
+        OutputArgument(name="cron_timezone", description="the time zone of the schedule.",
+                       prefix="schedules", output_type=str),
         OutputArgument(name="description", description="the description of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="plan_id", description="the matrix ID of the schedule.",
+        OutputArgument(name="test_id", description="the matrix ID of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="createdAt", description="the creation datetime of the schedule.",
+        OutputArgument(name="created_at", description="the creation datetime of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="updatedAt", description="the updated datetime of the schedule.",
+        OutputArgument(name="updated_at", description="the updated datetime of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="deletedAt", description="the deletion time of the schedule.",
+        OutputArgument(name="deleted_at", description="the deletion time of the schedule.",
                        prefix="schedules", output_type=str),
     ],
-    description="This command retrieves schedules from safebreach which user has set and they will display it to user")
+    description="""
+    This command retrieves schedules from safebreach which user has set and they will display it to user.
+    By default Name is not shown, to retrieve and see it, please run 'safebreach-get-test-with-scenario-id'
+    command with test_id field from this command's output with scenario_id of safebreach-get-test-with-scenario-id.
+    scenario_name is the name of the schedule.
+    """)
 def get_schedules(client: Client):
     """This function gets all running tests summary and shows in a table
 
@@ -3041,12 +3026,17 @@ def get_schedules(client: Client):
     Returns:
         CommandResults,Dict: This returns all tests related summary as a table and gives a dictionary as outputs for the same
     """
-    headers = ["id", "isEnabled", "user_schedule", "runDate",
+    headers = ["id", "name", "isEnabled", "user_schedule", "runDate",
                "cronTimezone", "description", "matrixId",
                "createdAt", "updatedAt", "deletedAt"
                ]
 
     schedules_data = client.get_schedules()
+    # test_summaries = client.get_tests_with_args()
+    # plan_map = plan_id_name_map(test_summaries)
+    # for schedule in schedules_data:
+    #     schedule["name"] =  plan_map.get(str(schedule["planId"]),"")
+
     new_schedules_data = client.append_cron_to_schedule(deepcopy(schedules_data.get("data")))
     demisto.info(f"the get_schedules function gave response {schedules_data}")
     human_readable = tableToMarkdown(
@@ -3071,36 +3061,30 @@ def get_schedules(client: Client):
         InputArgument(name="schedule_id", description="schedule ID of schedule to delete",
                       required=True, is_array=False)
     ],
-    outputs_prefix="deleted_Schedule",
+    outputs_prefix="deleted_schedule",
     outputs_list=[
         OutputArgument(name="id", description="the Id of the schedule.",
-                       prefix="deleted_Schedule", output_type=str),
-        OutputArgument(name="isEnabled", description="if schedule is enabled.",
-                       prefix="deleted_Schedule", output_type=bool),
-        # OutputArgument(name="name", description="the name of the schedule.",
-        #                prefix="deleted_Schedule", output_type=str),
-        # OutputArgument(name="cronString", description="the cron expression the schedule.",
-        #                prefix="deleted_Schedule", output_type=str),
+                       prefix="deleted_schedule", output_type=str),
+        OutputArgument(name="is_enabled", description="if schedule is enabled.",
+                       prefix="deleted_schedule", output_type=bool),
         OutputArgument(name="user_schedule", description="the user readable form of the schedule.",
                        prefix="schedules", output_type=str),
-        OutputArgument(name="runDate", description="the run date of the schedule.",
-                       prefix="deleted_Schedule", output_type=str),
-        OutputArgument(name="cronTimezone", description="the time zone of the schedule.",
-                       prefix="planId", output_type=str),
-        # OutputArgument(name="taskId", description="the plan ID of the schedule.",
-        #                prefix="deleted_Schedule", output_type=str),
+        OutputArgument(name="run_date", description="the run date of the schedule.",
+                       prefix="deleted_schedule", output_type=str),
+        OutputArgument(name="cron_timezone", description="the time zone of the schedule.",
+                       prefix="deleted_schedule", output_type=str),
         OutputArgument(name="description", description="the description of the schedule.",
-                       prefix="deleted_Schedule", output_type=str),
-        OutputArgument(name="plan_id", description="the plan ID of the schedule.",
-                       prefix="deleted_Schedule", output_type=str),
-        OutputArgument(name="createdAt", description="the creation datetime of the schedule.",
-                       prefix="deleted_Schedule", output_type=str),
-        OutputArgument(name="updatedAt", description="the updated datetime of the schedule.",
-                       prefix="deleted_Schedule", output_type=str),
-        OutputArgument(name="deletedAt", description="the deletion time of the schedule.",
-                       prefix="deleted_Schedule", output_type=str),
+                       prefix="deleted_schedule", output_type=str),
+        OutputArgument(name="test_id", description="the test ID of the schedule.",
+                       prefix="deleted_schedule", output_type=str),
+        OutputArgument(name="created_at", description="the creation datetime of the schedule.",
+                       prefix="deleted_schedule", output_type=str),
+        OutputArgument(name="updated_at", description="the updated datetime of the schedule.",
+                       prefix="deleted_schedule", output_type=str),
+        OutputArgument(name="deleted_at", description="the deletion time of the schedule.",
+                       prefix="deleted_schedule", output_type=str),
     ],
-    description="This command gets simulations which are in running or queued state.")
+    description="This command gets deletes schedules with given ID.")
 def delete_schedules(client: Client):
     """This function gets all running tests summary and shows in a table
 
@@ -3112,7 +3096,7 @@ def delete_schedules(client: Client):
     """
     headers = ["id", "isEnabled", "user_schedule", "runDate",
                "cronTimezone", "description", "matrixId",
-               "createdAt", "updatedAt", "deletedAt"
+               "createdAt", "updatedAt", "deletedAt", "planId"
                ]
 
     schedules_data = client.delete_schedule()
@@ -3146,11 +3130,11 @@ def delete_schedules(client: Client):
                        prefix="prebuilt_scenarios", output_type=str),
         OutputArgument(name="description", description="the description of the scenario.",
                        prefix="prebuilt_scenarios", output_type=str),
-        OutputArgument(name="createdBy", description="user id of user, who created the scenario.",
+        OutputArgument(name="created_by", description="user id of user, who created the scenario.",
                        prefix="prebuilt_scenarios", output_type=str),
-        OutputArgument(name="createdAt", description="creation datetime of scenario.",
+        OutputArgument(name="created_at", description="creation datetime of scenario.",
                        prefix="prebuilt_scenarios", output_type=str),
-        OutputArgument(name="updatedAt", description="the update datetime of the scenario.",
+        OutputArgument(name="updated_at", description="the update datetime of the scenario.",
                        prefix="prebuilt_scenarios", output_type=str),
         OutputArgument(name="recommended", prefix="prebuilt_scenarios", output_type=str,
                        description="the recommendation status of the scenario.",),
@@ -3162,7 +3146,7 @@ def delete_schedules(client: Client):
                        prefix="prebuilt_scenarios", output_type=str),
         OutputArgument(name="order", description="the order of execution related to the scenario.",
                        prefix="prebuilt_scenarios", output_type=str),
-        OutputArgument(name="minApiVer", description="the minimum version of API required for scenario to be executed",
+        OutputArgument(name="min_api_ver", description="the minimum version of API required for scenario to be executed",
                        prefix="prebuilt_scenarios", output_type=str)
     ],
     description="""
@@ -3184,6 +3168,7 @@ def get_prebuilt_scenarios(client: Client):
     flattened_simulations_data_for_table = client.extract_default_scenario_fields(prebuilt_scenarios)
     human_readable = tableToMarkdown(
         name="Scenarios",
+        headerTransform=scenarios_transformer,
         t=flattened_simulations_data_for_table,
         headers=[
             "id", "name", "description", "createdBy", "createdAt", "updatedAt", "recommended",
@@ -3199,6 +3184,27 @@ def get_prebuilt_scenarios(client: Client):
     )
 
     return result
+
+
+def scenarios_transformer(header):
+    return_map = {
+        "id": "id",
+        "name": "name",
+        "description": "description",
+        "successCriteria": "success_criteria",
+        "originalScenarioId": "original_scenario_id",
+        "actions_list": "actions_list",
+        "steps_order": "steps_order",
+        "createdAt": "created_at",
+        "updatedAt": "updated_at",
+        "createdBy": "created_by",
+        "recommended": "recommended",
+        "tags_list": "tags_list",
+        "categories": "categories",
+        "order": "order",
+        "minApiVer": "min_api_ver"
+    }
+    return return_map.get(header, header)
 
 
 @metadata_collector.command(
@@ -3218,24 +3224,24 @@ def get_prebuilt_scenarios(client: Client):
                        prefix="custom_scenarios", output_type=str),
         OutputArgument(name="description", description="the description of the scenario.",
                        prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="successCriteria", description="success criteria the scenario.",
+        OutputArgument(name="success_criteria", description="success criteria the scenario.",
                        prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="originalScenarioId", description="original scenario id of scenario.",
+        OutputArgument(name="original_scenario_id", description="original scenario id of scenario.",
                        prefix="custom_scenarios", output_type=str),
         OutputArgument(name="actions_list", description="actions list of the scenario.",
                        prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="edges_count", description="edges count for the scenario.",
+        OutputArgument(name="edges_count", description="edges_count for the scenario.",
                        prefix="custom_scenarios", output_type=str),
         OutputArgument(name="steps_order", description="the order of steps of the scenario.",
                        prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="createdAt", description="the creation datetime of the scenario.",
+        OutputArgument(name="created_at", description="the creation datetime of the scenario.",
                        prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="updatedAt", description="the last updated time the scenario.",
+        OutputArgument(name="updated_at", description="the last updated time the scenario.",
                        prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="custom_data_object_for_rerun_simulation", description="the data which can be used for \
-            rerun-simulation command.", prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="custom_data_for_rerun_test", description="the data which can be used for rerun-test command.",
-                       prefix="custom_scenarios", output_type=str),
+        # OutputArgument(name="custom_data_object_for_rerun_simulation", description="the data which can be used for \
+        #     rerun-simulation command.", prefix="custom_scenarios", output_type=str),
+        # OutputArgument(name="custom_data_for_rerun_test", description="the data which can be used for rerun-test command.",
+        #                prefix="custom_scenarios", output_type=str),
     ],
     description="""
     This command  retrieves scenarios which are saved by user as custom scenarios. they generally have configurations and 
@@ -3262,10 +3268,10 @@ def get_custom_scenarios(client: Client):
 
     human_readable = tableToMarkdown(
         name="Scenarios",
+        headerTransform=scenarios_transformer,
         t=flattened_simulations_data_for_table,
         headers=["id", "name", "description", "successCriteria", "originalScenarioId",
-                 "actions_list", "edges_count", "steps_order", "createdAt", "updatedAt",
-                 "custom_data_object_for_rerun_simulation"])
+                 "actions_list", "steps_order", "createdAt", "updatedAt"])
 
     demisto.info(f"json output of custom scenarios call is {custom_scenarios}")
     outputs = custom_scenarios
@@ -3326,22 +3332,22 @@ def get_services_status(client: Client):
 
 def simulations_transformer(header):
     return_map = {
-        "planName": "plan_name",
         "attackerNodeName": "attacker_node_name",
         "id": "simulation_id",
-        "finalStatus": "final_status",
+        "targetNodeName": "target_node_name",
+        "destNodeName": "dest_node_name",
+        "moveDesc": "attack_description",
+        "moveName": "attack_name",
+        "attacks_involved": "attacks_involved",
         "resultDetails": "result_details",
         "securityAction": "security_action",
-        "targetNodeName": "target_node_name",
-        "moveDesc": "move_description",
-        "attacks_involved": "attacks_involved"
     }
 
     return return_map.get(header, header)
 
 
 @metadata_collector.command(
-    command_name="safebreach-get-simulation-results",
+    command_name="safebreach-get-simulations",
     inputs_list=[
         InputArgument(name="test_id", required=False, is_array=False,
                       description="This is test of of the test whose simulations we will retrieve with this command.",),
@@ -3350,24 +3356,22 @@ def simulations_transformer(header):
     outputs_list=[
         OutputArgument(name="simulation_id", description="the id of the simulation.",
                        prefix="simulation_details", output_type=str),
-        OutputArgument(name="plan_name", description="name of the plan to which this simulation belongs to.",
-                       prefix="simulation_details", output_type=str),
         OutputArgument(name="attacker_node_name", description="Name of attacker node of simulation.",
                        prefix="simulation_details", output_type=str),
         OutputArgument(name="target_node_name", description="name of target of simulation.",
                        prefix="simulation_details", output_type=str),
         OutputArgument(name="dest_node_name", description="name of destination of simulation.",
                        prefix="simulation_details", output_type=str),
-        OutputArgument(name="status", description="final status of simulation.",
-                       prefix="simulation_details", output_type=str),
-        OutputArgument(name="result", description="result of simulation.",
-                       prefix="simulation_details", output_type=str),
-        OutputArgument(name="security_action", description="security action of simulation.",
+        OutputArgument(name="attack_name", description="name of attack",
                        prefix="simulation_details", output_type=str),
         OutputArgument(name="attacks_involved", description="attack types involved in of simulation.",
                        prefix="simulation_details", output_type=str),
-        # OutputArgument(name="move_description", description="moves involved in of simulation.",
-        #                prefix="simulation_details", output_type=str),
+        OutputArgument(name="result_details", description="result of simulation.",
+                       prefix="simulation_details", output_type=str),
+        OutputArgument(name="security_action", description="security status as per the simulation.",
+                       prefix="simulation_details", output_type=str),
+        OutputArgument(name="attack_description", description="attack details.",
+                       prefix="simulation_details", output_type=str),
     ],
     description="""
     this command is used to get simulations and their data related to a given test, 
@@ -3384,7 +3388,7 @@ def get_simulations(client: Client):
         CommandResults,Dict: This returns all tests related summary as a table and gives a dictionary as outputs for the same
     """
 
-    headers = ["planName", "attackerNodeName", "id", "finalStatus",
+    headers = ["attackerNodeName", "id", "moveName",
                "resultDetails", "securityAction", "targetNodeName", "attacks_involved"]
     simulations = client.get_simulations()
     demisto.info(f"result of simulations API call is {simulations}")
@@ -3437,16 +3441,19 @@ def get_verification_token(client):
 def tests_scenarios_transformer(header):
     return_map = {
         "name": "name",
-        "originalScenarioId": "originalScenarioId",
+        "originalScenarioId": "original_scenario_id",
         "actions_list": "actions_list",
-        "edges_count": "edges_count",
         "steps_order": "steps_order",
         "planRunId": "test_id",
-        "ranBy": "ranBy",
-        "ranFrom": "ranFrom",
-        "enableFeedbackLoop": "enableFeedbackLoop",
+        "planId": "scenario_id",
+        "ranBy": "ran_by",
+        "ranFrom": "ran_from",
         "priority": "priority",
-        "retrySimulations": "retrySimulations",
+        "retrySimulations": "retry_simulations",
+        "createdAt": "created_at",
+        "updatedAt": "updated_at",
+        "successCriteria": "success_criteria",
+
     }
     return return_map.get(header, header)
 
@@ -3454,64 +3461,49 @@ def tests_scenarios_transformer(header):
 @metadata_collector.command(
     command_name="safebreach-rerun-test",
     inputs_list=[
-        InputArgument(name="position", description="position in queue to put the given test data at.",
-                      required=False, is_array=False),
-        InputArgument(name="enable_feedback_loop", description="this argument is used to enable/disable feedback loop",
-                      default="true", options=["false", "true"], required=False, is_array=False),
-        InputArgument(name="retry_simulation", default="", options=["", "false", "true"], required=False, is_array=False,
-                      description="this argument is used to retry according to retry policy \
-                mention in retry policy field",),
-        InputArgument(name="wait_for_retry", description="this arguments tells flow to retry the adding to queue after the \
-                current step execution is completed", default="", options=["", "false", "true"], required=False, is_array=False),
-        InputArgument(name="priority", description="the priority of this test action",
-                      default="low", options=["low", "high"], required=False, is_array=False),
-        InputArgument(name="retry_policy", required=False, is_array=False, description="""
-                      the retry policy of test 
-                      """,),
         InputArgument(name="test_id", description="test id for the given test, \
-            this is be planRunId field from get-all-tests-summary command", required=True, is_array=False),
+            this is be test id field from get-all-tests-summary command", required=True, is_array=False),
         InputArgument(name="test_name", description="test name for the given test",
                       required=True, is_array=False),
     ],
     outputs_prefix="changed_data",
     outputs_list=[
-        OutputArgument(name="id", description="the Id of scenario.",
+        OutputArgument(name="id", description="the Id of test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="name", description="the name of the scenario.",
+        OutputArgument(name="name", description="the name of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="description", description="the description of the scenario.",
+        OutputArgument(name="description", description="the description of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="successCriteria", description="success criteria the scenario.",
+        OutputArgument(name="success_criteria", description="success criteria the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="originalScenarioId", description="original scenario id of scenario.",
+        OutputArgument(name="original_scenario_id", description="original scenario id of test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="actions_list", description="actions list of the scenario.",
+        OutputArgument(name="actions_list", description="actions list of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="edges_count", description="edges count for the scenario.",
+        OutputArgument(name="edges_count", description="edges_count for the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="steps_order", description="the order of steps of the scenario.",
+        OutputArgument(name="steps_order", description="the order of steps of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="createdAt", description="the creation datetime of the scenario.",
+        OutputArgument(name="created_at", description="the creation datetime of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="updatedAt", description="the last updated time the scenario.",
+        OutputArgument(name="updated_at", description="the last updated time the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="planId", description="the plan id of the scenario.",
+        OutputArgument(name="scenario_id", description="the test id of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="ranBy", description="the user id of the user who ran the scenario.",
+        OutputArgument(name="ran_by", description="the user id of the user who ran the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="ranFrom", description="where the user ran the scenario from.",
+        OutputArgument(name="ran_from", description="where the user ran the test from.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="enableFeedbackLoop", description="feedback loop status of the scenario.",
+        OutputArgument(name="enable_feedback_loop", description="feedback loop status of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="planRunId", description="plan run id of the scenario.",
+        OutputArgument(name="test_id", description="test_id of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="priority", description="priority of the scenario.",
+        OutputArgument(name="priority", description="priority of the test.",
                        prefix="changed_data", output_type=str),
-        OutputArgument(name="retrySimulations", description="retry status of the scenario.",
+        OutputArgument(name="retry_simulations", description="retry status of the test.",
                        prefix="changed_data", output_type=str),
     ],
-    description="this commands puts given test data at a given position, for this command to get test data input,\
-        run safebreach-custom-scenarios-list and copy field 'data for rerun test' from table ")
+    description="this commands puts given test data in queue for execution.")
 def rerun_test(client):
 
     rerun_results = client.rerun_test_or_simulation()
@@ -3522,8 +3514,8 @@ def rerun_test(client):
         name="test",
         headerTransform=tests_scenarios_transformer,
         t=flattened_simulations_data_for_table,
-        headers=["name", "originalScenarioId", "actions_list", "edges_count", "steps_order",
-                 "planRunId", "ranBy", "ranFrom", "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
+        headers=["name", "originalScenarioId", "actions_list", "steps_order",
+                 "planId", "ranBy", "ranFrom", "planRunId", "priority", "retrySimulations"])
     demisto.info(f"json output of rerun_test is {flattened_simulations_data_for_table}")
 
     outputs = rerun_results
@@ -3538,18 +3530,6 @@ def rerun_test(client):
 @metadata_collector.command(
     command_name="safebreach-rerun-simulation",
     inputs_list=[
-        InputArgument(name="position", description="position in queue to put the given simulation data at.",
-                      required=False, is_array=False),
-        InputArgument(name="enable_feedback_loop", description="this argument is used to enable/disable feedback loop",
-                      default="true", options=["false", "true"], required=False, is_array=False),
-        InputArgument(name="retry_simulation", description="this argument is used to retry according to retry policy \
-                mention in retry policy field", default="", options=["", "false", "true"], required=False, is_array=False),
-        InputArgument(name="wait_for_retry", description="this arguments tells flow to retry the adding to queue after the \
-                current step execution is completed", default="", options=["", "false", "true"], required=False, is_array=False),
-        InputArgument(name="priority", description="the priority of this simulation action",
-                      default="low", options=["low", "high"], required=False, is_array=False),
-        InputArgument(name="simulation_name", description="simulation name for the given simulation",
-                      required=True, is_array=False),
         InputArgument(name="simulation_ids", required=True, is_array=False,
                       description="ids of simulation we want to queue,\
                           please give ids of simulations as comma separated numbers",),
@@ -3557,28 +3537,25 @@ def rerun_test(client):
     outputs_prefix="changed_data",
     outputs_list=[
         OutputArgument(name="id", description="the Id of simulation.",
-                       prefix="custom_scenarios", output_type=str),
+                       prefix="reran_simulation", output_type=str),
         OutputArgument(name="name", description="the name of the simulation.",
-                       prefix="custom_scenarios", output_type=str),
+                       prefix="reran_simulation", output_type=str),
         OutputArgument(name="description", description="the description of the simulation.",
-                       prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="successCriteria", description="success criteria the simulation.",
-                       prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="originalScenarioId", description="original simulation id of simulation.",
-                       prefix="custom_scenarios", output_type=str),
+                       prefix="reran_simulation", output_type=str),
+        OutputArgument(name="success_criteria", description="success criteria the simulation.",
+                       prefix="reran_simulation", output_type=str),
+        OutputArgument(name="original_scenario_id", description="original simulation id of simulation.",
+                       prefix="reran_simulation", output_type=str),
         OutputArgument(name="actions_list", description="actions list of the simulation.",
-                       prefix="custom_scenarios", output_type=str),
-        OutputArgument(name="edges_count", description="edges count for the simulation.",
-                       prefix="custom_scenarios", output_type=str),
+                       prefix="reran_simulation", output_type=str),
         OutputArgument(name="steps_order", description="the order of steps of the simulation.",
-                       prefix="custom_scenarios", output_type=str),
+                       prefix="reran_simulation", output_type=str),
         OutputArgument(name="createdAt", description="the creation datetime of the simulation.",
-                       prefix="custom_scenarios", output_type=str),
+                       prefix="reran_simulation", output_type=str),
         OutputArgument(name="updatedAt", description="the last updated time the simulation.",
-                       prefix="custom_scenarios", output_type=str),
+                       prefix="reran_simulation", output_type=str),
     ],
-    description="this commands puts given simulation data at a given position, for this command to get test data input,\
-        run safebreach-custom-scenarios-list and copy field 'data for rerun simulation' from table ")
+    description="this commands puts given simulation ids into queue for running.")
 def rerun_simulation(client):
 
     rerun_results = client.rerun_test_or_simulation()
@@ -3588,8 +3565,8 @@ def rerun_simulation(client):
         name="Scenarios",
         headerTransform=tests_scenarios_transformer,
         t=flattened_simulations_data_for_table,
-        headers=["name", "actions_list", "edges_count", "steps_order", "ranBy", "ranFrom",
-                 "enableFeedbackLoop", "planRunId", "priority", "retrySimulations"])
+        headers=["name", "actions_list", "steps_order", "ranBy", "ranFrom",
+                 "planRunId", "priority", "retrySimulations"])
     demisto.info(f"json output of services rerun_simulation call is {flattened_simulations_data_for_table}")
     outputs = rerun_results
     result = CommandResults(
@@ -3691,9 +3668,13 @@ def main() -> None:
             user = delete_user_with_details(client=client)
             return_results(user)
 
-        elif demisto.command() == 'safebreach-update-user-details':
+        elif demisto.command() == 'safebreach-update-user':
             user = update_user_with_details(client=client)
             return_results(user)
+
+        elif demisto.command() == 'safebreach-get-deployments':
+            deployment = get_deployments(client=client)
+            return_results(deployment)
 
         elif demisto.command() == 'safebreach-create-deployment':
             deployment = create_deployment(client=client)
@@ -3755,23 +3736,23 @@ def main() -> None:
             result = get_all_tests_summary(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-get-test-with-plan-id":
-            result = get_all_tests_summary_with_plan_id(client=client)
+        elif demisto.command() == "safebreach-get-test-with-scenario-id":
+            result = get_all_tests_summary_with_scenario_id(client=client)
             return_results(result)
 
         elif demisto.command() == "safebreach-delete-test-with-id":
             result = delete_test_result_of_test(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-get-queued-running-tests":
+        elif demisto.command() == "safebreach-get-running-tests":
             result = get_all_running_tests_summary(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-get-queued-running-simulations":
+        elif demisto.command() == "safebreach-get-running-simulations":
             result = get_all_running_simulations_summary(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-pause-resume-simulations-tests":
+        elif demisto.command() == "safebreach-pause/resume-simulations-tests":
             result = pause_resume_tests_and_simulations(client=client)
             return_results(result)
 
@@ -3792,7 +3773,7 @@ def main() -> None:
             return_results(result)
 
         elif demisto.command() == "safebreach-approve-simulator":
-            result = approve_simulator_with_given_name(client=client)
+            result = approve_simulator(client=client)
             return_results(result)
 
         elif demisto.command() == "safebreach-rerun-test":
@@ -3803,13 +3784,13 @@ def main() -> None:
             result = rerun_simulation(client=client)
             return_results(result)
 
-        elif demisto.command() == "safebreach-get-simulation-results":
+        elif demisto.command() == "safebreach-get-simulations":
             result = get_simulations(client=client)
             return_results(result)
 
     except Exception as error:
-        demisto.error(f"Error generated while executing {demisto.command}, \n {traceback.format_exc()}")
-        return_error(f'Failed to execute {demisto.command()} command .\nError:\n{str(error)}')
+        demisto.error(f"Error generated while executing {demisto.command}, \n {error},\n{traceback.format_exc()}")
+        return_error(f'Failed to execute {demisto.command()} command .\nError:\n{error}')
 
 
 if __name__ in ('__main__', '__builtin__', 'builtins'):
