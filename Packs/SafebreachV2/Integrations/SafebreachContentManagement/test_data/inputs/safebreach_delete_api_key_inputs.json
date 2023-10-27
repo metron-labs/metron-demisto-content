@@ -1,7 +1,8 @@
 {
     "successful_delete_just_name":{
         "args":{
-            "Key Name":"acme1234"
+            
+            "key_name":"acme1234"
         },
         "command":"safebreach-delete-api-key",
         "all_active_api_keys_data":{
@@ -54,7 +55,8 @@
     },
     "failed_deletion_due_to_no_name":{
         "args":{
-            "Key Name":"acme1234"
+            
+            "key_name":"acme1234"
         },
         "command":"safebreach-delete-api-key",
         "all_active_api_keys_data":{

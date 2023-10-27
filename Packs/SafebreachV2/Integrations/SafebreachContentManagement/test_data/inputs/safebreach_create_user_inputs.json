@@ -1,42 +1,42 @@
 {
     "successful_creation":{
         "args":{
-            "Name":"acme",
-            "Email":"acme@email.com",
-            "Is Active": "False",
-            "Email Post Creation": false,
-            "Password":"ASD@#123qwer",
-            "Admin Name":"",
-            "Change Password on create":false,
-            "User role": "operator",
-            "Deployments":[1,2,3,4,5]
+            "name":"acme",
+            "email":"acme@email.com",
+            "is_active": "False",
+            "email_post_creation": false,
+            "password":"ASD@#123qwer",
+            "admin_name":"",
+            "change_password_on_create":false,
+            "user_role": "operator",
+            "deployments":[1,2,3,4,5]
         },
         "command":"safebreach-create-user"
     },
     "weak_password":{
         "args":{
-            "Name":"acme",
-            "Email":"acme@email.com",
-            "Is Active": "False",
-            "Email Post Creation": "False",
-            "Password":"asdf",
-            "Admin Name":"",
-            "Change Password on create":"False",
-            "User role": "operator",
-            "Deployments":[1,2,3,4,5]
+            "name":"acme",
+            "email":"acme@email.com",
+            "is_active": "False",
+            "email_post_creation": "False",
+            "password":"asdf",
+            "admin_name":"",
+            "change_password_on_create":"False",
+            "user_role": "operator",
+            "deployments":[1,2,3,4,5]
         },
         "command":"safebreach-create-user"
     },
     "failed_creation":{
         "args":{
-            "Name":"acme",
-            "Is Active": "False",
-            "Email Post Creation": "False",
-            "Password":"asdf",
-            "Admin Name":"",
-            "Change Password on create":"False",
-            "User role": "operator",
-            "Deployments":[1,2,3,4,5]
+            "name":"acme",
+            "is_active": "False",
+            "email_post_creation": "False",
+            "password":"asdf",
+            "admin_name":"",
+            "change_password_on_create":"False",
+            "user_role": "operator",
+            "deployments":[1,2,3,4,5]
         },
         "command":"safebreach-create-user"
     }

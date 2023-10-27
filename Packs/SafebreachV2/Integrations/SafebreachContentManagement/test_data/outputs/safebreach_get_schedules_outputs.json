@@ -1,0 +1,99 @@
+{
+    "outputs":{
+        "success_deleted_details":{
+            "data": [
+                {
+                    "id": 1,
+                    "isEnabled": true,
+                    "name": null,
+                    "accountId": 3470636202,
+                    "cronString": null,
+                    "runDate": "2023-09-10T14:30:00.000Z",
+                    "cronTimezone": "Asia/Kolkata",
+                    "planId": 123,
+                    "description": null,
+                    "deletedAt": "2023-09-08T13:29:33.487Z",
+                    "createdAt": "2023-09-08T13:19:03.110Z",
+                    "updatedAt": "2023-09-08T13:29:33.487Z",
+                    "matrixId": 123
+                },
+                {
+                    "id": 2,
+                    "isEnabled": true,
+                    "name": null,
+                    "accountId": 3470636202,
+                    "cronString": "30 14 12,20 * *",
+                    "runDate": null,
+                    "cronTimezone": "Asia/Kolkata",
+                    "planId": 123,
+                    "description": null,
+                    "deletedAt": "2023-09-12T10:44:45.377Z",
+                    "createdAt": "2023-09-12T08:44:41.071Z",
+                    "updatedAt": "2023-09-12T10:44:45.378Z",
+                    "matrixId": 123
+                },
+                {
+                    "id": 3,
+                    "isEnabled": true,
+                    "name": null,
+                    "accountId": 3470636202,
+                    "cronString": "0 9 * * 5",
+                    "runDate": null,
+                    "cronTimezone": "Asia/Kolkata",
+                    "planId": 123,
+                    "description": null,
+                    "deletedAt": null,
+                    "createdAt": "2023-09-15T02:48:14.222Z",
+                    "updatedAt": "2023-09-15T02:48:14.222Z",
+                    "matrixId": 123
+                }
+            ]
+        },
+        "success_deleted_no_details":{
+           "data": [
+            {
+                "id": 1,
+                "name": null
+            },
+            {
+                "id": 2,
+                "name": null
+            },
+            {
+                "id": 3,
+                "name": null
+            }
+        ]
+        },
+        "success_no_deleted_details":{
+            "data": [
+                {
+                    "id": 3,
+                    "isEnabled": true,
+                    "name": null,
+                    "accountId": 3470636202,
+                    "cronString": "0 9 * * 5",
+                    "runDate": null,
+                    "cronTimezone": "Asia/Kolkata",
+                    "planId": 123,
+                    "description": null,
+                    "deletedAt": null,
+                    "createdAt": "2023-09-15T02:48:14.222Z",
+                    "updatedAt": "2023-09-15T02:48:14.222Z",
+                    "matrixId": 123
+                }
+            ]
+        },
+        "success_no_deleted_no_details":{
+            "data": [
+                {
+                    "id": 3,
+                    "name": null
+                }
+            ]
+        },
+        "fail":{
+            
+        }
+    }
+}

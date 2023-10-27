@@ -4,10 +4,10 @@
             "data": {
                 "id": 123,
                 "accountId": 3470636202,
-                "name": "Updated Deployment Name",
+                "name": "updated_deployment_name",
                 "updatedAt": "2023-09-09T10:12:46.219Z",
                 "createdAt": "2023-09-09T10:12:46.219Z",
-                "description": "Updated deployment description.",
+                "description": "updated_deployment_description",
                 "deletedAt": null,
                 "nodes": ["152993a2-3712-4730-8483-b4ba07e4f0af","32c3b42f-fe65-438c-8178-0c1565e07511"]
             }
@@ -16,10 +16,10 @@
             "data": {
                 "id": 123,
                 "accountId": 3470636202,
-                "name": "Updated Deployment Name",
+                "name": "updated_deployment_name",
                 "updatedAt": "2023-09-09T10:12:46.219Z",
                 "createdAt": "2023-09-09T10:12:46.219Z",
-                "description": "Updated deployment description.",
+                "description": "updated_deployment_description",
                 "deletedAt": null,
                 "nodes": ["152993a2-3712-4730-8483-b4ba07e4f0af","32c3b42f-fe65-438c-8178-0c1565e07511"]
             }
@@ -28,10 +28,10 @@
             "data": {
                 "id": 123,
                 "accountId": 3470636202,
-                "name": "Updated Deployment Name",
+                "name": "updated_deployment_name",
                 "updatedAt": "2023-09-09T10:12:46.219Z",
                 "createdAt": "2023-09-09T10:12:46.219Z",
-                "description": "Updated deployment description.",
+                "description": "updated_deployment_description",
                 "deletedAt": null,
                 "nodes": ["152993a2-3712-4730-8483-b4ba07e4f0af","32c3b42f-fe65-438c-8178-0c1565e07511"]
             }

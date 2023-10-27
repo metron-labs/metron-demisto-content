@@ -1,8 +1,8 @@
 {
     "not_deleted_with_name":{
         "args":{
-            "Should Include Details": "true",
-            "Should Include Deleted":"true",
+            "should_include_details": "true",
+            "should_include_deleted":"true",
             "name":"acme",
             "email":"acme@email.com"
         },
@@ -10,8 +10,8 @@
     },
     "not_deleted_without_name":{
         "args":{
-            "Should Include Details": "true",
-            "Should Include Deleted":"true",
+            "should_include_details": "true",
+            "should_include_deleted":"true",
             "name":"",
             "email":"acme@email.com"
         },
@@ -19,16 +19,16 @@
     },
     "deleted_with_name":{
         "args":{
-            "Should Include Details": "true",
-            "Should Include Deleted":"true",
+            "should_include_details": "true",
+            "should_include_deleted":"true",
             "name":"acme",
             "email":"acme@email.com"
         },
         "command":"safebreach-get-user-with-matching-name-or-email"
     },"deleted_without_name":{
         "args":{
-            "Should Include Details": "true",
-            "Should Include Deleted":"true",
+            "should_include_details": "true",
+            "should_include_deleted":"true",
             "name":"",
             "email":"acme@email.com"
         },
