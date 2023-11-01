@@ -1,3 +1,7 @@
+from demisto_sdk.commands.generate_yml_from_python.yml_metadata_collector import (
+    CommandMetadata, ConfKey, InputArgument, YMLMetadataCollector, OutputArgument, ParameterTypes)
+from CommonServerPython import BaseClient, CommandResults, datetime
+
 import demistomock as demisto
 from CommonServerPython import *
 
@@ -1926,20 +1930,18 @@ def get_sensor_id_command(client: Client, args: dict):
         return CommandResults(readable_output=f"Available Sensor IDs are {output}")
 
 
-def fetch_machine_details_command(client: Client, args: dict):
+def get_machine_sensors_command(client: Client, args: dict):
     machine_name = str(args.get('machineName'))
-    json_body = {}
-    if machine_name:
-        json_body = {
-            "limit": 1000,
-            "offset": 0
-        }
+    json_body = {
+        "limit": 1000,
+        "offset": 0
+    }
     response = client.cybereason_api_call('POST', '/rest/sensors/query', json_body=json_body)
     if dict_safe_get(response, ['sensors']) == []:
-        raise DemistoException("Could not find any Sensor ID for the machine" + machine_name)
+        return CommandResults(readable_output=f"Could not find any Sensor ID for the machine: {machine_name}")
     else:
         outputs = []
-        for single_sensor in response['sensors']:
+        for single_sensor in response.get('sensors'):
             if single_sensor['machineName'] == machine_name:
                 outputs.append({
                     "MachineID": single_sensor["sensorId"],
@@ -2088,8 +2090,8 @@ def main():
         elif demisto.command() == 'cybereason-get-sensor-id':
             return_results(get_sensor_id_command(client, args))
 
-        elif demisto.command() == 'cybereason-fetch-machine-details':
-            return_results(fetch_machine_details_command(client, args))
+        elif demisto.command() == 'cybereason-get-machine-sensors':
+            return_results(get_machine_sensors_command(client, args))
 
         else:
             raise NotImplementedError(f'Command {demisto.command()} is not implemented.')
