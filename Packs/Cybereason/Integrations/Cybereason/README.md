@@ -112,7 +112,7 @@ Searches for processes with various filters.
 
 >|Name|Malicious|Creation Time|End Time|Command Line|Signed and Verified|Product Type|Children|Parent|Owner Machine|User|Image File|SHA1|MD5|Company Name|Product Name|
 >|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
->| svchost.exe | indifferent | 2022-05-06T04:15:33.939000 |  | C:\WINDOWS\system32\svchost.exe -k LocalService -s W32Time | true | SVCHOST |  | services.exe | machine-name | machine-name\local service | svchost.exe | 1f912d4bec338ef10b7c9f19976286f8acc4eb97 | cd10cb894be2128fca0bf0e2b0c27c16 | Microsoft Corporation | Microsoft® Windows® Operating System |
+>| svchost.exe | indifferent | 2022-05-06T04:15:33.939000 |  | C:\WINDOWS\system32\svchost.exe -k LocalService -s W32Time | true | SVCHOST |  | services.exe | machine-name | machine-name\local service | svchost.exe | wxyz1234 | abc123 | Microsoft Corporation | Microsoft® Windows® Operating System |
 
 ### cybereason-is-probe-connected
 
@@ -205,11 +205,11 @@ Searches for connections.
 {
     "Connection": [
         {
-            "CreationTime": "2021-04-20T03:38:56.386000",
+            "CreationTime": "2021-04-20T00:00:00.00000",
             "Direction": "OUTGOING",
-            "EndTime": "2021-04-20T03:40:04.466000",
+            "EndTime": "2021-04-20T00:00:00.000000",
             "Name": "<connection_ip_addresses>",
-            "OwnerMachine": "siemplify-cyber",
+            "OwnerMachine": "simplify-cyber",
             "OwnerProcess": "nbtscan.exe",
             "PortType": "SERVICE_WINDOWS",
             "ReceivedBytes": "0",
@@ -228,7 +228,7 @@ Searches for connections.
 
 >|Creation Time|Direction|End Time|Name|Owner Machine|Owner Process|Port Type|Received Bytes|Remote Country|Server Address|Server Port|Transmitted Bytes|
 >|---|---|---|---|---|---|---|---|---|---|---|---|
->| 2021-04-20T03:38:56.386000 | OUTGOING | 2021-04-20T03:40:04.466000 | connection_ip_addresses | siemplify-cyber | nbtscan.exe | SERVICE_WINDOWS | 0 |  | 192.168.1.103 | 137 | 50 |
+>| 2021-04-20T00:00:00.000000 | OUTGOING | 2021-04-20T00:00:00.000000 | connection_ip_addresses | simplify-cyber | test.exe | SERVICE_WINDOWS | 0 |  | 192.168.1.103 | 137 | 50 |
 
 ### cybereason-isolate-machine
 
@@ -335,7 +335,7 @@ Returns a list of all Malops and details on the Malops.
 | perGroupLimit | The number of items to return per Malop group. | Optional | 
 | templateContext | The level of detail to provide in the response. Possible values include:  SPECIFIC:  References value contain only the count in the ElementValues class. The Suspicions map is calculated for each results, with the suspicion name and the first time the suspicion appeared. The Evidence map is not calculated for the results. CUSTOM:  Reference values contain the specific Elements, up to the limit defined in the perFeatureLimit parameter. The Suspicions map is not calculated for the results. The Evidence map is not calculated for the results. DETAILS:  Reference values contain the specific Elements, up to the limit defined in the perFeatureLimit parameter. The Suspicions map is calculated for each result, containing the suspicion name and the first time the suspicion appeared. The Evidence map is not calculated for the results. Possible values are: MALOP, SPECIFIC, CUSTOM, DETAILS, OVERVIEW. Default is MALOP. | Optional | 
 | withinLastDays | Return all the malops within the last days. | Optional | 
-| malopGuid | Malop GUIDs to filter by (Comma separated values supported, e.g. 11.5681864988155542407,11.1773255057963879999). | Optional | 
+| malopGuid | Malop GUIDs to filter by (Comma separated values supported, e.g. 11.123456789,11.9874563210). | Optional | 
 
 
 #### Context Output
@@ -367,16 +367,16 @@ Returns a list of all Malops and details on the Malops.
                     "win10-cybereaso",
                     "marketing"
                 ],
-                "CreationTime": "2021-07-12T09:11:42.641000",
+                "CreationTime": "2021-07-12T00:00:00.000000",
                 "DecisionFailure": "blackListedFileHash",
                 "GUID": "<malop_id>",
                 "InvolvedHash": [
                     1
                 ],
-                "LastUpdateTime": "2021-08-28T23:19:12.430000",
+                "LastUpdateTime": "2021-08-28T00:00:00.000000",
                 "Link": "<malop_link>",
                 "Status": "OPEN",
-                "Suspects": "Process: viagra_.exe"
+                "Suspects": "Process: test.exe"
             }
         ]
     }
@@ -389,7 +389,7 @@ Returns a list of all Malops and details on the Malops.
 
 >|GUID|Link|CreationTime|Status|LastUpdateTime|DecisionFailure|Suspects|AffectedMachine|InvolvedHash|
 >|---|---|---|---|---|---|---|---|---|
->| <malop_id> | https:<span>//</span>integration.cybereason.net:8443/#/malop/11.3651150229438589171 | 2021-07-12T09:11:42.641000 | OPEN | 2021-08-28T23:19:12.430000 | blackListedFileHash | Process: viagra_.exe | affected_machine_name | 1 |
+>| <malop_id> | https:<span>//</span>test.server.net:0000/#/malop/11.1234567890 | 2021-07-12T00:00:00.000000 | OPEN | 2021-08-28T00:00:00.000000 | blackListedFileHash | Process: test.exe | affected_machine_name | 1 |
 
 ### cybereason-malop-processes
 
@@ -442,10 +442,10 @@ Returns a list of malops
     "Process": [
         {
             "Children": null,
-            "CommandLine": "\"C:\\Users\\prase\\Downloads\\winrar-x64-602.pdf.exe\"",
-            "CompanyName": "Alexander Roshal",
-            "CreationTime": "2022-03-14T13:25:56.309000",
-            "EndTime": "2022-03-14T13:26:01.712000",
+            "CommandLine": "\"C:\\Users\\user\\winrar-x64-602.pdf.exe\"",
+            "CompanyName": "Hello World",
+            "CreationTime": "2022-03-14T00:00:00.000000",
+            "EndTime": "2022-03-14T00:00:00.000000",
             "ImageFile": "<image_file_name>",
             "MD5": "<md5>",
             "Malicious": "indifferent",
@@ -456,7 +456,7 @@ Returns a list of malops
             "ProductType": null,
             "SHA1": "<sha1>",
             "SignedandVerified": null,
-            "User": "machine-name\\prase"
+            "User": "machine-name\\user"
         }
     ]
 }
@@ -468,7 +468,7 @@ Returns a list of malops
 
 >|Name|Malicious|Creation Time|End Time|Command Line|Parent|Owner Machine|User|Image File|SHA1|MD5|Company Name|Product Name|
 >|---|---|---|---|---|---|---|---|---|---|---|---|---|
->| winrar-x64-602.pdf.exe | indifferent | 2022-03-14T13:25:56.309000 | 2022-03-14T13:26:01.712000 | "C:\Users\prase\Downloads\winrar-x64-602.pdf.exe" | explorer.exe | machine-name | machine-name\prase | winrar-x64-602.pdf.exe | 77ab1e20c685e716b82c7c90b373316fc84cde23 | <md5> | Alexander Roshal | WinRAR |
+>| winrar-x64-602.exe | indifferent | 2022-03-14T00:00:00.000000 | 2022-03-14T00:00:00.000000 | "C:\Users\user\winrar-x64-602.exe" | explorer.exe | machine-name | machine-name\user | winrar-x64-602.exe | 1234sajklfshljjvhlsdfhilh23 | <md5> | Hello World | WinRAR |
 
 ### cybereason-add-comment
 
@@ -679,17 +679,17 @@ Query files as part of investigation
 {
     "Cybereason": {
         "File": {
-            "Company": "Alexander Roshal",
-            "CreationTime": "2022-02-28T07:03:48.000Z",
+            "Company": "Hello World",
+            "CreationTime": "2022-02-28T00:00:00.000Z",
             "Evidence": [],
             "IsConnected": false,
             "MD5": "<md5>",
             "Machine": "<machine-name>",
             "Malicious": false,
-            "ModifiedTime": "2022-05-09T16:21:18.000Z",
+            "ModifiedTime": "2022-05-09T00:00:00.000Z",
             "Name": "<file_name>",
             "OSVersion": null,
-            "Path": "c:\\users\\prase\\downloads\\winrar-x64-602.pdf.exe",
+            "Path": "c:\\users\\user\\winrar-x64-602.exe",
             "SHA1": "<sha1>",
             "Signed": true,
             "Suspicion": {},
@@ -705,7 +705,7 @@ Query files as part of investigation
 
 >|Company|CreationTime|IsConnected|MD5|Machine|Malicious|ModifiedTime|Name|Path|SHA1|Signed|
 >|---|---|---|---|---|---|---|---|---|---|---|
->| Alexander Roshal | 2022-02-28T07:03:48.000Z | false | MD5 | machine-name | false | 2022-05-09T16:21:18.000Z | winrar-x64-602.pdf.exe | c:\users\prase\downloads\winrar-x64-602.pdf.exe | 77ab1e20c685e716b82c7c90b373316fc84cde23 | true |
+>| Hello World | 2022-02-28T00:00:00.000Z | false | MD5 | machine-name | false | 2022-05-09T00:00:00.000Z | winrar-x64-602.pdf.exe | c:\users\test\winrar-x64-602.pdf.exe | 1245sedecthebdfkjkgjljldl2348 | true |
 
 ### cybereason-query-domain
 
@@ -796,7 +796,7 @@ Query users as part of investigation
 
 #### Command example
 
-```!cybereason-query-user username="machine-name\\prase"```
+```!cybereason-query-user username="user-name"```
 
 #### Context Example
 
@@ -808,7 +808,7 @@ Query users as part of investigation
             "LastMachineLoggedInTo": "<machine-name>",
             "LocalSystem": false,
             "Organization": "INTEGRATION",
-            "Username": "machine-name\\prase"
+            "Username": "user-name"
         }
     }
 }
@@ -978,7 +978,7 @@ Return a batch id for files waiting for download
         "progress": {
             "MalopID": "<malop_id>",
             "batchID": [
-                -796720096
+                -1234
             ],
             "fileName": [
                 "<file_name>"
@@ -993,7 +993,7 @@ Return a batch id for files waiting for download
 
 #### Human Readable Output
 
->Filename: ['winrar-x64-602.pdf.exe'] Status: [True] Batch ID: [-796720096]
+>Filename: ['winrar-x64-602.exe'] Status: [True] Batch ID: [-1234]
 
 ### cybereason-download-file
 
@@ -1018,7 +1018,7 @@ There is no context output for this command.
 
 #### Command example
 
-```!cybereason-download-file batchID=-1044817479```
+```!cybereason-download-file batchID=-1234```
 
 #### Context Example
 
@@ -1042,7 +1042,7 @@ There is no context output for this command.
 
 #### Human Readable Output
 
->Integration log: Downloading the file with this Batch ID: -1044817479
+>Integration log: Downloading the file with this Batch ID: -1234
 
 ### cybereason-close-file-batch-id
 
@@ -1067,7 +1067,7 @@ There is no context output for this command.
 
 #### Command example
 
-```!cybereason-close-file-batch-id batchID=-796720096```
+```!cybereason-close-file-batch-id batchID=-1234```
 
 #### Human Readable Output
 
@@ -1446,7 +1446,7 @@ There is no context output for this command.
 
 #### Human Readable Output
 
->Batch ID: -1112786456
+>Batch ID: -11156
 
 ### cybereason-fetch-scan-status
 
@@ -1471,7 +1471,7 @@ There is no context output for this command.
 
 #### Command example
 
-```!cybereason-fetch-scan-status batchID=-1112786456```
+```!cybereason-fetch-scan-status batchID=-11156```
 
 #### Human Readable Output
 
@@ -1482,11 +1482,11 @@ There is no context output for this command.
 >    "abortTimeout": false,
 >    "aborterUser": null,
 >    "actionArguments": [
->        "com.cybereason.configuration.models.ScheduleScanAction",
+>        "ScheduleScanAction",
 >        "FULL"
 >    ],
 >    "actionType": "SchedulerScan",
->    "batchId": -1112786456,
+>    "batchId": -11156,
 >    "creatorUser": "<user_name>",
 >    "finalState": true,
 >    "globalStats": {
