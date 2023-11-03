@@ -1566,7 +1566,7 @@ There is no context output for this command.
 
 >Sensor ID for the machine 'machine-id' is: SENSOR_ID
 
-### cybereason-get-machine-sensors
+### cybereason-fetch-machine-details
 
 ***
 Get the results related to machines.
@@ -1574,7 +1574,7 @@ Get the results related to machines.
 
 #### Base Command
 
-`cybereason-get-machine-sensors`
+`cybereason-fetch-machine-details`
 
 #### Input
 
@@ -1595,7 +1595,7 @@ Get the results related to machines.
 
 #### Command example
 
-```!cybereason-get-machine-sensors machineName=xyz-1```
+```!cybereason-fetch-machine-details machineName=xyz-1```
 
 #### Context Example
 

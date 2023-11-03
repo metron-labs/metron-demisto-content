@@ -52,7 +52,7 @@ script:
       name: machineName
       required: true
     description: Get the Machine FQDN and Machine Group Details.
-    name: cybereason-get-machine-sensors
+    name: cybereason-fetch-machine-details
     outputs:
     - contextPath: Cybereason.Sensor.MachineID
       description: Sensor ID of machine.
